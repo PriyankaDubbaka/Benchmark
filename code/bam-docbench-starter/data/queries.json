@@ -1,0 +1,69 @@
+{
+  "document_id": "bam-s005c-v2",
+  "queries": [
+    {
+      "id": "Q01",
+      "query": "What certified elemental mass fraction and expanded uncertainty are reported for Al?"
+    },
+    {
+      "id": "Q02",
+      "query": "Which two elements are listed as values for information, and what are their elemental mass fractions?"
+    },
+    {
+      "id": "Q03",
+      "query": "For Si on the certified summary, what are the elemental and calculated oxide quantities?"
+    },
+    {
+      "id": "Q04",
+      "query": "What coverage factor and approximate confidence level apply to the certified mass-fraction uncertainties?"
+    },
+    {
+      "id": "Q05",
+      "query": "What are the certified Fe mass fraction and the mean of its accepted laboratory means, and what does the certificate say about omitted outlying values?"
+    },
+    {
+      "id": "Q06",
+      "query": "What certificate revision information is given, including the acceptance and revision dates?"
+    },
+    {
+      "id": "Q07",
+      "query": "What is the recommended use of this CRM?"
+    },
+    {
+      "id": "Q08",
+      "query": "What minimum sample size is specified for wet chemical analysis?"
+    },
+    {
+      "id": "Q09",
+      "query": "How is metrological traceability of the certified mass fractions to the SI ensured?"
+    },
+    {
+      "id": "Q10",
+      "query": "What method was used for Al line 6, and what does that method abbreviation mean?"
+    },
+    {
+      "id": "Q11",
+      "query": "Which analytical method was used for Se line 5?"
+    },
+    {
+      "id": "Q12",
+      "query": "What physical form and approximate dimensions are given for the reference material?"
+    },
+    {
+      "id": "Q13",
+      "query": "Which units are used for the certified elemental rows in the summary table?"
+    },
+    {
+      "id": "Q14",
+      "query": "Compare the qualification of the certified summary rows with P and Se, and explain why the certificate treats them differently."
+    },
+    {
+      "id": "Q15",
+      "query": "What does the certificate say about its validity period?"
+    },
+    {
+      "id": "Q16",
+      "query": "Which organization is identified as the producer offering this reference material, and where is it located?"
+    }
+  ]
+}

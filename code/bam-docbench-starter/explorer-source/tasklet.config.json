@@ -1,0 +1,6 @@
+{
+  "name": "bam-docbench-pilot",
+  "displayName": "BAM DocBench · Pilot",
+  "description": "Explore real single-certificate pilot results and draft evidence annotations. Not an official or held-out benchmark leaderboard.",
+  "instantAppType": "tsx"
+}
