@@ -1,0 +1,39 @@
+{
+  "documents": [
+    {
+      "document_id": "bam-s005c-v2",
+      "filename": "Zertifikat_BAM-S005c_rev1.pdf",
+      "annotation_status": "machine_assisted_draft",
+      "has_extraction_gold": true,
+      "has_retrieval_gold": true
+    },
+    {
+      "document_id": "bam-d001",
+      "filename": "BAM-D001_Certificate_en.pdf",
+      "annotation_status": "template_only",
+      "has_extraction_gold": false,
+      "has_retrieval_gold": false
+    },
+    {
+      "document_id": "bam-k009a",
+      "filename": "Certificate_BAM-K009a_webshop.pdf",
+      "annotation_status": "template_only",
+      "has_extraction_gold": false,
+      "has_retrieval_gold": false
+    },
+    {
+      "document_id": "bam-k001",
+      "filename": "Certificate_K001.pdf",
+      "annotation_status": "template_only",
+      "has_extraction_gold": false,
+      "has_retrieval_gold": false
+    },
+    {
+      "document_id": "bam-u130",
+      "filename": "Zertifikat_BAM-U130_en_V2_web.pdf",
+      "annotation_status": "template_only",
+      "has_extraction_gold": false,
+      "has_retrieval_gold": false
+    }
+  ]
+}

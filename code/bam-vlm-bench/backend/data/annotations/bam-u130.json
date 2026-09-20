@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "document_id": "bam-u130",
+  "annotation_status": "template_only",
+  "scope": "To be annotated - elemental mass-fraction rows from summary tables",
+  "extraction_records": [],
+  "retrieval_queries": [],
+  "metadata": {
+    "filename": "Zertifikat_BAM-U130_en_V2_web.pdf"
+  },
+  "notes": "Template annotation - requires manual review of PDF to populate extraction records and retrieval queries. This file serves as the master copy template for benchmark comparison."
+}

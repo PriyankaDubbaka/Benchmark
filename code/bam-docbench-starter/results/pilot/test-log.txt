@@ -1,0 +1,26 @@
+bun test v1.3.14 (0d9b296a)
+
+tests/score.test.ts:
+(pass) exact reference prediction yields extraction 1 [2.72ms]
+(pass) empty extraction is zero [0.26ms]
+(pass) wrong unit is not equivalent [1.19ms]
+(pass) uncertainty is not a tolerance for numerical errors [0.76ms]
+(pass) wrong information status fails [0.65ms]
+(pass) wrong evidence page fails [2.31ms]
+(pass) duplicate records rejected [0.94ms]
+(pass) missing field rejected [0.34ms]
+(pass) decimal string trailing zero equivalence only [0.14ms]
+(pass) unmatched extra element reduces precision [0.63ms]
+(pass) ideal retrieval scores 1 [1.51ms]
+(pass) empty retrieval is zero including missing queries [1.07ms]
+(pass) duplicate retrieval pages rejected [0.29ms]
+(pass) unknown query rejected [0.11ms]
+(pass) invalid page rejected [0.13ms]
+(pass) duplicate query rejected [0.13ms]
+(pass) partial multi-page evidence is not complete [0.17ms]
+(pass) baseline interfaces never require gold labels [1.70ms]
+
+ 18 pass
+ 0 fail
+ 25 expect() calls
+Ran 18 tests across 1 file. [2.38s]

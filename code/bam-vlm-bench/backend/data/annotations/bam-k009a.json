@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "document_id": "bam-k009a",
+  "annotation_status": "template_only",
+  "scope": "To be annotated - elemental mass-fraction rows from summary tables",
+  "extraction_records": [],
+  "retrieval_queries": [],
+  "metadata": {
+    "filename": "Certificate_BAM-K009a_webshop.pdf"
+  },
+  "notes": "Template annotation - requires manual review of PDF to populate extraction records and retrieval queries. This file serves as the master copy template for benchmark comparison."
+}

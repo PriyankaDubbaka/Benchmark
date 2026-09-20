@@ -1,0 +1,24 @@
+{
+  "schema_version": "0.1",
+  "annotation_status": "machine_assisted_draft_not_expert_validated",
+  "document_id": "bam-s005c-v2",
+  "evaluation_unit": "page",
+  "queries": [
+    {"id":"Q01","query":"What certified elemental mass fraction and expanded uncertainty are reported for Al?","category":"table_lookup","expected_answer":"Al: 0.587%, expanded uncertainty 0.018% (k=2).","evidence_pages":[1],"relevance":{"1":2}},
+    {"id":"Q02","query":"Which two elements are listed as values for information, and what are their elemental mass fractions?","category":"qualification","expected_answer":"P: 8.3 mg/kg; Se: 2.5 mg/kg; both are information-only.","evidence_pages":[2],"relevance":{"2":2}},
+    {"id":"Q03","query":"For Si on the certified summary, what are the elemental and calculated oxide quantities?","category":"table_lookup","expected_answer":"Si: 33.1% elemental; calculated SiO2: 70.8%.","evidence_pages":[1],"relevance":{"1":2}},
+    {"id":"Q04","query":"What coverage factor and approximate confidence level apply to the certified mass-fraction uncertainties?","category":"qualification","expected_answer":"k=2, corresponding to approximately 95% confidence.","evidence_pages":[1],"relevance":{"1":2}},
+    {"id":"Q05","query":"What are the certified Fe mass fraction and the mean of its accepted laboratory means, and what does the certificate say about omitted outlying values?","category":"cross_page","expected_answer":"The certified Fe value is 295 mg/kg (p1); p3–4 show accepted laboratory data and M (mean of laboratory means), with Fe M=295 mg/kg, after statistical examination/outlier handling.","evidence_pages":[1,3,4],"relevance":{"1":2,"3":2,"4":2}},
+    {"id":"Q06","query":"What certificate revision information is given, including the acceptance and revision dates?","category":"provenance","expected_answer":"Accepted as BAM-CRM 2020-08-19; revised 2025-03-03; certificate is BAM-S005c V2.","evidence_pages":[8],"relevance":{"8":2}},
+    {"id":"Q07","query":"What is the recommended use of this CRM?","category":"usage","expected_answer":"Establishing or checking calibration of X-ray spectrometers for samples of similar matrix composition.","evidence_pages":[2],"relevance":{"2":2}},
+    {"id":"Q08","query":"What minimum sample size is specified for wet chemical analysis?","category":"usage","expected_answer":"0.2 g.","evidence_pages":[2],"relevance":{"2":2}},
+    {"id":"Q09","query":"How is metrological traceability of the certified mass fractions to the SI ensured?","category":"provenance","expected_answer":"By calibration using standard solutions from pure metals or stoichiometric compounds, checked commercial calibration solutions, other CRMs, or reference materials.","evidence_pages":[8],"relevance":{"8":2}},
+    {"id":"Q10","query":"What method was used for Al line 6, and what does that method abbreviation mean?","category":"method","expected_answer":"FAAS; flame atomic absorption spectrometry.","evidence_pages":[5,8],"relevance":{"5":2,"8":2}},
+    {"id":"Q11","query":"Which analytical method was used for Se line 5?","category":"method","expected_answer":"ICP-MS.","evidence_pages":[7],"relevance":{"7":2}},
+    {"id":"Q12","query":"What physical form and approximate dimensions are given for the reference material?","category":"usage","expected_answer":"Discs, approximately 38 mm diameter and 4 mm height.","evidence_pages":[2],"relevance":{"2":2}},
+    {"id":"Q13","query":"Which units are used for the certified elemental rows in the summary table?","category":"table_lookup","expected_answer":"% for Al, Ca, K, Mg, Na and Si; mg/kg for the remaining certified elements.","evidence_pages":[1],"relevance":{"1":2}},
+    {"id":"Q14","query":"Compare the qualification of the certified summary rows with P and Se, and explain why the certificate treats them differently.","category":"cross_page","expected_answer":"Page 1 rows are certified values; P and Se on page 2 are information-only because inter-laboratory certification uncertainty was too large.","evidence_pages":[1,2],"relevance":{"1":2,"2":2}},
+    {"id":"Q15","query":"What does the certificate say about its validity period?","category":"qualification","expected_answer":"It remains valid until revoked by the producer of the material.","evidence_pages":[1],"relevance":{"1":2}},
+    {"id":"Q16","query":"Which organization is identified as the producer offering this reference material, and where is it located?","category":"provenance","expected_answer":"Bundesanstalt für Materialforschung und -prüfung (BAM), Richard-Willstätter-Str. 11, 12489 Berlin.","evidence_pages":[8],"relevance":{"8":2}}
+  ]
+}

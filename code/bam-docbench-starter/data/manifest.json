@@ -1,0 +1,20 @@
+{
+  "schema_version": "0.1",
+  "document_id": "bam-s005c-v2",
+  "family_id": "bam-s005-series",
+  "filename": "Zertifikat_BAM-S005c_rev1.pdf",
+  "document_version": "V2",
+  "accepted_date": "2020-08-19",
+  "revision_date": "2025-03-03",
+  "version_evidence_page": 8,
+  "validity": "Until revocation by the producer, as stated on page 1 of the uploaded V2 file",
+  "page_count": 8,
+  "language": "en",
+  "source_url_candidate": "https://webshop.bam.de/media/wysiwyg/Kategorien/Referenzmaterialien/Glaeser/Chemische_Zusammensetzung/Zertifikate/Zertifikat_BAM-S005c_rev1.pdf",
+  "source_url_note": "Official candidate URL identified by public source research. The evaluated bytes are the user upload, not a downloaded remote copy; equality to the current URL is not asserted.",
+  "acquisition": "user_upload",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "split": "development_smoke_test_only",
+  "annotation_status": "machine_assisted_draft_not_expert_validated",
+  "sha256": "a556ad0b36a5eb75ba706ceb37c51412be4ca2f3b5a0d39085b32f37bb2204b9"
+}

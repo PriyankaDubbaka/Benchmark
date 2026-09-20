@@ -1,0 +1,302 @@
+{
+  "document_id": "bam-s005c-v2",
+  "records": [
+    {
+      "element": "Al",
+      "oxide_formula": "Al2O3",
+      "value": "0.587",
+      "oxide_value": "1.109",
+      "expanded_uncertainty": "0.018",
+      "unit": "%",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Ca",
+      "oxide_formula": "CaO",
+      "value": "7.43",
+      "oxide_value": "10.39",
+      "expanded_uncertainty": "0.12",
+      "unit": "%",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "K",
+      "oxide_formula": "K2O",
+      "value": "0.595",
+      "oxide_value": "0.717",
+      "expanded_uncertainty": "0.014",
+      "unit": "%",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Mg",
+      "oxide_formula": "MgO",
+      "value": "1.37",
+      "oxide_value": "2.28",
+      "expanded_uncertainty": "0.04",
+      "unit": "%",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Na",
+      "oxide_formula": "Na2O",
+      "value": "10.33",
+      "oxide_value": "13.92",
+      "expanded_uncertainty": "0.24",
+      "unit": "%",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Si",
+      "oxide_formula": "SiO2",
+      "value": "33.1",
+      "oxide_value": "70.8",
+      "expanded_uncertainty": "0.5",
+      "unit": "%",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "As",
+      "oxide_formula": "As2O3",
+      "value": "81",
+      "oxide_value": "107",
+      "expanded_uncertainty": "4",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Ba",
+      "oxide_formula": "BaO",
+      "value": "102",
+      "oxide_value": "114",
+      "expanded_uncertainty": "4",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Cd",
+      "oxide_formula": "CdO",
+      "value": "47",
+      "oxide_value": "54",
+      "expanded_uncertainty": "4",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Ce",
+      "oxide_formula": "CeO2",
+      "value": "80",
+      "oxide_value": "98",
+      "expanded_uncertainty": "5",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Co",
+      "oxide_formula": "CoO",
+      "value": "33.2",
+      "oxide_value": "42.3",
+      "expanded_uncertainty": "1.9",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Cr",
+      "oxide_formula": "Cr2O3",
+      "value": "10.8",
+      "oxide_value": "15.8",
+      "expanded_uncertainty": "1.0",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Cu",
+      "oxide_formula": "CuO",
+      "value": "86",
+      "oxide_value": "107",
+      "expanded_uncertainty": "5",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Fe",
+      "oxide_formula": "Fe2O3",
+      "value": "295",
+      "oxide_value": "422",
+      "expanded_uncertainty": "7",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Mn",
+      "oxide_formula": "MnO",
+      "value": "69.6",
+      "oxide_value": "89.9",
+      "expanded_uncertainty": "2.5",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Mo",
+      "oxide_formula": "MoO3",
+      "value": "215",
+      "oxide_value": "323",
+      "expanded_uncertainty": "7",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Ni",
+      "oxide_formula": "NiO",
+      "value": "41.3",
+      "oxide_value": "52.6",
+      "expanded_uncertainty": "1.7",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Pb",
+      "oxide_formula": "PbO",
+      "value": "182",
+      "oxide_value": "196",
+      "expanded_uncertainty": "8",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Sb",
+      "oxide_formula": "Sb2O3",
+      "value": "103",
+      "oxide_value": "123",
+      "expanded_uncertainty": "4",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Sn",
+      "oxide_formula": "SnO2",
+      "value": "72.9",
+      "oxide_value": "92.5",
+      "expanded_uncertainty": "2.3",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Sr",
+      "oxide_formula": "SrO",
+      "value": "134",
+      "oxide_value": "158",
+      "expanded_uncertainty": "6",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Ti",
+      "oxide_formula": "TiO2",
+      "value": "101",
+      "oxide_value": "169",
+      "expanded_uncertainty": "6",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "V",
+      "oxide_formula": "V2O5",
+      "value": "189",
+      "oxide_value": "337",
+      "expanded_uncertainty": "8",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Zn",
+      "oxide_formula": "ZnO",
+      "value": "157",
+      "oxide_value": "196",
+      "expanded_uncertainty": "6",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "Zr",
+      "oxide_formula": "ZrO2",
+      "value": "544",
+      "oxide_value": "735",
+      "expanded_uncertainty": "26",
+      "unit": "mg/kg",
+      "status": "certified",
+      "coverage_factor": 2,
+      "source_page": 1
+    },
+    {
+      "element": "P",
+      "oxide_formula": "P2O5",
+      "value": "8.3",
+      "oxide_value": "19.0",
+      "expanded_uncertainty": "2.5",
+      "unit": "mg/kg",
+      "status": "information_only",
+      "coverage_factor": 2,
+      "source_page": 2
+    },
+    {
+      "element": "Se",
+      "value": "2.5",
+      "expanded_uncertainty": "0.8",
+      "oxide_formula": null,
+      "oxide_value": null,
+      "unit": "mg/kg",
+      "status": "information_only",
+      "coverage_factor": 2,
+      "source_page": 2
+    }
+  ]
+}
