@@ -1,0 +1,9 @@
+{
+  "id": "pdftotext-rules",
+  "name": "Poppler text + certificate rules",
+  "kind": "pdftotext_rules",
+  "license": "GPL-2.0 (Poppler)",
+  "params": "none",
+  "gpu": "none",
+  "notes": "Floor baseline. Plain layout text, no table structure. Record rules were written with BAM-S005c visible, so its E5 score is not a model result."
+}

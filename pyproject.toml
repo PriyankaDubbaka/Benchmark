@@ -1,0 +1,16 @@
+[project]
+name = "bambench"
+version = "0.1.0"
+description = "BAM extraction benchmark (PW2): local, open-weight document extraction on public and confidential documents"
+requires-python = ">=3.10"
+dependencies = []  # the core, scorer and dashboard use the standard library only
+
+[project.optional-dependencies]
+docling = ["docling"]
+vllm = ["vllm"]
+
+[project.scripts]
+bambench = "bambench.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["bambench*"]

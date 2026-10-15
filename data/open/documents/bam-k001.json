@@ -1,0 +1,15 @@
+{
+  "document_id": "bam-k001",
+  "pdf": "dataset/Certificate_K001.pdf",
+  "sha256": "e2777bf90012e54586b1c47cf2d7b1033de8a3f72fff9534995bb279af9ee51c",
+  "page_count": 3,
+  "title": "BAM-K001 Ethanol in water",
+  "doc_type": "certificate",
+  "family_id": "bam-k001",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-10-15",
+  "notes": "Public BAM certificate (ethanol concentration). Rights to redistribute not yet confirmed."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "paddleocr-vl-1.5",
+  "name": "PaddleOCR-VL 1.5",
+  "kind": "vllm",
+  "model": "PaddlePaddle/PaddleOCR-VL-1.5",
+  "license": "Apache-2.0",
+  "params": "0.9B",
+  "gpu": "about 2 GB",
+  "serve": "vllm serve PaddlePaddle/PaddleOCR-VL-1.5 --trust-remote-code --max-num-batched-tokens 16384 --no-enable-prefix-caching --mm-processor-cache-gb 0",
+  "page_prompt": "OCR:",
+  "notes": "Whole-page prompting. The full PaddleOCR pipeline (layout model first) will score higher; add it as a separate system."
+}
