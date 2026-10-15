@@ -1,0 +1,11 @@
+{
+  "id": "glm-ocr",
+  "name": "GLM-OCR",
+  "kind": "vllm",
+  "model": "zai-org/GLM-OCR",
+  "license": "MIT (weights)",
+  "params": "0.9B",
+  "gpu": "about 2 GB",
+  "serve": "vllm serve zai-org/GLM-OCR",
+  "notes": "Check the model card for the recommended page prompt and vLLM version before the first run."
+}
