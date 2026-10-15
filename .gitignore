@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+.cache/
+.venv/
+node_modules/
+
+# Closed track: confidential reports never enter Git.
+data/closed/*
+!data/closed/README.md
+
+# Raw open-track runs are reproducible; commit the summaries only.
+results/open/runs/
+
+# Slurm job logs
+bambench-*.out

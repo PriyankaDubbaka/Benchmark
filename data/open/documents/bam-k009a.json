@@ -1,0 +1,15 @@
+{
+  "document_id": "bam-k009a",
+  "pdf": "dataset/Certificate_BAM-K009a_webshop.pdf",
+  "sha256": "dabe7762a486fd3ce1c6c0ef3b07f634a723d36b0283b638540258e84242be18",
+  "page_count": 2,
+  "title": "BAM-K009a Lubricating oil (additive free)",
+  "doc_type": "certificate",
+  "family_id": "bam-k009-series",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-10-15",
+  "notes": "Public BAM certificate (hydrocarbon content). Rights to redistribute not yet confirmed."
+}

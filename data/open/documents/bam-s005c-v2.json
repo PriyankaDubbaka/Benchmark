@@ -1,0 +1,15 @@
+{
+  "document_id": "bam-s005c-v2",
+  "pdf": "dataset/Zertifikat_BAM-S005c_rev1.pdf",
+  "sha256": "a556ad0b36a5eb75ba706ceb37c51412be4ca2f3b5a0d39085b32f37bb2204b9",
+  "page_count": 8,
+  "title": "BAM-S005c Multielement glass",
+  "doc_type": "certificate",
+  "family_id": "bam-s005-series",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-10-15",
+  "notes": "Public BAM certificate (glass composition). Rights to redistribute not yet confirmed."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "docling",
+  "name": "Docling (layout + TableFormer)",
+  "kind": "docling",
+  "license": "MIT",
+  "params": "small",
+  "gpu": "optional",
+  "ocr": false,
+  "notes": "Classic pipeline baseline. Needs: pip install docling. Runs on CPU."
+}

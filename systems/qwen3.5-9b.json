@@ -1,0 +1,12 @@
+{
+  "id": "qwen3.5-9b",
+  "name": "Qwen3.5-9B",
+  "kind": "vllm",
+  "model": "Qwen/Qwen3.5-9B",
+  "license": "Apache-2.0 (verify on card)",
+  "params": "9B",
+  "gpu": "about 20 GB bf16",
+  "serve": "vllm serve Qwen/Qwen3.5-9B --max-model-len 16384",
+  "records": true,
+  "notes": "General vision model. Also extracts E5 measurement records on certificates."
+}
