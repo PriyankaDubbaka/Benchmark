@@ -64,7 +64,7 @@ data/open/          manifests and annotations for public documents
 data/closed/        confidential track (gitignored except its README)
 dataset/            the public certificate PDFs
 systems/            one JSON card per system
-results/<track>/summaries/   one score summary per system (closed: aggregates only)
+results/<track>/summaries/   one score summary per system; closed ones only via `bambench export-closed`
 site/               dashboard frontend, plain HTML/JS, no build step
 slurm/              batch job that starts vLLM and runs a system
 code/               earlier prototypes (bam-docbench-starter, bam-vlm-bench), kept for reference

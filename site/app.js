@@ -75,7 +75,7 @@ async function leaderboard() {
       const s = r[lbTrack];
       const cells = METRICS.map(([k]) => `<td class="num ${have.length > 1 && s.scores[k] !== null && s.scores[k] === best[k] ? "best" : ""}">${pct(s.scores[k])}</td>`).join("");
       return `<tr class="click" data-sys="${esc(r.system)}"><td><b>${esc(r.card.name || r.system)}</b><div class="small muted">${esc(r.card.params || "")} · ${esc(r.card.license || "")}</div></td>
-        ${cells}<td class="num">${s.counts.pages}</td><td class="small muted">${esc(s.finished.slice(0, 10))}</td></tr>`;
+        ${cells}<td class="num">${s.counts.pages}${s.publishable === false ? ' <span class="pill draft" title="Fewer than 20 pages: internal only">internal</span>' : ""}</td><td class="small muted">${esc(s.finished.slice(0, 10))}</td></tr>`;
     }).join("");
     $app.innerHTML = `<h1>Leaderboard</h1>
       <p class="lead">Scores are percentages, higher is better. Click a column to sort and a row for details. Every row was produced by a local run with a pinned system card.</p>

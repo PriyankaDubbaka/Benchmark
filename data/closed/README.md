@@ -5,7 +5,9 @@ images, annotations, raw model outputs and per-page scores. Everything here exce
 README is gitignored, and the pre-commit hook refuses to commit it.
 
 Keep this folder on BAM storage only, for example a restricted project directory on the
-Slurm cluster. Only aggregate summaries in `results/closed/` may leave it.
+Slurm cluster. Run summaries land in `data/closed/summaries/`. `python -m bambench
+export-closed` copies the ones backed by at least 20 pages to `results/closed/`, the only
+closed-track output that may leave BAM.
 
 Add a report with the dashboard (Documents, Add a PDF) or:
 

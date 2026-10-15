@@ -23,5 +23,10 @@ def run_dir(track: str) -> Path:
 
 
 def summary_dir(track: str) -> Path:
-    """Per-system score summaries. For the closed track these hold aggregates only."""
+    """Where a run writes its score summary. Closed-track summaries stay in the gitignored closed
+    folder until `bambench export-closed` copies the publishable ones to results/closed."""
+    return track_dir("closed") / "summaries" if track == "closed" else RESULTS / "open" / "summaries"
+
+
+def published_dir(track: str) -> Path:
     return RESULTS / track / "summaries"

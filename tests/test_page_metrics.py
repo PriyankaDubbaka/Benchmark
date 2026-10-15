@@ -74,3 +74,12 @@ class Page(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Pairing(unittest.TestCase):
+    def test_structure_score_uses_the_content_pairing(self):
+        g1 = "<table><tr><td>Al</td><td>0.587</td></tr></table>"
+        g2 = "<table><tr><td colspan='2'>Values</td></tr></table>"
+        s = score_page("Text\n\n" + g1 + "\n\n" + g2, "Text\n\n" + g1)
+        self.assertEqual(s["tables"][0], {"teds": 1.0, "teds_struct": 1.0})
+        self.assertEqual(s["tables"][1], {"teds": 0.0, "teds_struct": 0.0})

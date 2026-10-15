@@ -37,6 +37,8 @@ oxide_value (decimal string or null).
 Return [] if the page has no such table."""
 
 LOCAL = {"localhost", "127.0.0.1", "::1"}
+# Ignore http_proxy/https_proxy: a cluster proxy would otherwise relay page images off the host.
+_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 
 def allowed_host(url: str) -> bool:
@@ -56,7 +58,7 @@ class VllmVlm(System):
         if not allowed_host(self.base_url):
             return False, f"{self.base_url} is not a local or allowed host"
         try:
-            with urllib.request.urlopen(self.base_url.rstrip("/") + "/models", timeout=3) as r:
+            with _OPENER.open(self.base_url.rstrip("/") + "/models", timeout=3) as r:
                 served = [m["id"] for m in json.load(r).get("data", [])]
         except (urllib.error.URLError, OSError, ValueError):
             return False, f"no vLLM server at {self.base_url}"
@@ -78,7 +80,7 @@ class VllmVlm(System):
         }
         req = urllib.request.Request(self.base_url.rstrip("/") + "/chat/completions",
                                      data=json.dumps(body).encode(), headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(req, timeout=self.card.get("timeout_s", 600)) as r:
+        with _OPENER.open(req, timeout=self.card.get("timeout_s", 600)) as r:
             return json.load(r)["choices"][0]["message"]["content"] or ""
 
     def predict(self, doc: Document, pages: list[int], progress: Progress) -> dict:

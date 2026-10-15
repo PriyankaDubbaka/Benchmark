@@ -12,9 +12,10 @@ ALLOWED = {"data/closed/README.md", "data/closed/.gitignore"}
 
 
 def staged_files() -> list[str]:
-    out = subprocess.run(["git", "diff", "--cached", "--name-only", "--diff-filter=ACMR"],
-                         capture_output=True, text=True, check=True).stdout
-    return [l for l in out.splitlines() if l]
+    # -z keeps paths raw; without it git quotes names with umlauts and the prefix check misses them.
+    out = subprocess.run(["git", "diff", "--cached", "--name-only", "-z", "--diff-filter=ACMR"],
+                         capture_output=True, check=True).stdout
+    return [p for p in out.decode("utf-8", "surrogateescape").split("\0") if p]
 
 
 def blocked(paths: list[str]) -> list[str]:
