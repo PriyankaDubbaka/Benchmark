@@ -1,0 +1,15 @@
+{
+  "document_id": "bam-u130",
+  "pdf": "dataset/Zertifikat_BAM-U130_en_V2_web.pdf",
+  "sha256": "82101b6a435b77a857da789ff27e0177533ceee04d46b848e92bf4b6d8e6a115",
+  "page_count": 4,
+  "title": "BAM-U130 Trace elements in wood",
+  "doc_type": "certificate",
+  "family_id": "bam-u130",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-10-15",
+  "notes": "Public BAM certificate (trace elements). Rights to redistribute not yet confirmed."
+}

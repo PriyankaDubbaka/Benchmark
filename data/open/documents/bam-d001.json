@@ -1,0 +1,15 @@
+{
+  "document_id": "bam-d001",
+  "pdf": "dataset/BAM-D001_Certificate_en.pdf",
+  "sha256": "cd5d86381201e8fb3579f63e687f55a1a3669ca5e6f76718b03eac07a0a004e0",
+  "page_count": 4,
+  "title": "BAM-D001 Particle size distribution by laser diffraction",
+  "doc_type": "certificate",
+  "family_id": "bam-d001",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-10-15",
+  "notes": "Public BAM certificate (particle size). Rights to redistribute not yet confirmed."
+}

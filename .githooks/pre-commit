@@ -1,0 +1,3 @@
+#!/bin/sh
+# Blocks commits that include confidential closed-track files.
+exec python3 -m bambench guard
