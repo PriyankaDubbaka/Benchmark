@@ -37,6 +37,7 @@ def main(argv=None) -> int:
     s.add_argument("--doc", action="append", dest="docs")
 
     sub.add_parser("leaderboard", help="print the leaderboard as JSON")
+    sub.add_parser("export-closed", help="copy closed-track summaries with enough pages to results/closed")
     sub.add_parser("guard", help="pre-commit check against committing closed-track files")
 
     a = ap.parse_args(argv)
@@ -65,6 +66,10 @@ def main(argv=None) -> int:
     elif a.cmd == "leaderboard":
         from .runner import leaderboard
         print(json.dumps(leaderboard(), indent=2))
+    elif a.cmd == "export-closed":
+        from .runner import export_closed
+        done = export_closed()
+        print("exported: " + (", ".join(done) if done else "nothing (no closed summary has enough pages yet)"))
     elif a.cmd == "guard":
         from .guard import main as guard
         return guard()

@@ -86,3 +86,62 @@ class VllmAdapter(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GuardGit(unittest.TestCase):
+    def test_umlaut_paths_are_still_blocked(self):
+        import subprocess
+        import tempfile
+        from pathlib import Path
+        from bambench.guard import staged_files
+        with tempfile.TemporaryDirectory() as d:
+            subprocess.run(["git", "init", "-q", d], check=True)
+            f = Path(d) / "data/closed/Prüfbericht.pdf"
+            f.parent.mkdir(parents=True)
+            f.write_bytes(b"%PDF")
+            subprocess.run(["git", "-C", d, "add", "-f", str(f)], check=True)
+            cwd = os.getcwd()
+            os.chdir(d)
+            try:
+                self.assertEqual(blocked(staged_files()), ["data/closed/Prüfbericht.pdf"])
+            finally:
+                os.chdir(cwd)
+
+
+class GoldRules(unittest.TestCase):
+    def _doc(self, split):
+        import shutil
+        import tempfile
+        from pathlib import Path
+        from bambench.corpus import Document
+        tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp)
+        doc = Document(document_id="t", track="open", pdf="x.pdf", sha256="a" * 64, page_count=3, split=split)
+        patcher = mock.patch("bambench.gold.track_dir", lambda t: Path(tmp))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        return doc
+
+    def test_drafts_do_not_count_on_test_split(self):
+        from bambench import gold
+        doc = self._doc("test")
+        gold.save_page(doc, 1, "draft text", "draft")
+        gold.save_page(doc, 2, "checked text", "checked")
+        self.assertEqual(sorted(gold.scored_pages(doc)), [2])
+        doc.split = "dev"
+        self.assertEqual(sorted(gold.scored_pages(doc)), [1, 2])
+
+    def test_labels_for_another_pdf_revision_are_ignored(self):
+        from bambench import gold
+        doc = self._doc("dev")
+        gold.save_page(doc, 1, "text", "checked")
+        doc.sha256 = "b" * 64
+        self.assertEqual(gold.scored_pages(doc), {})
+
+
+class PageImages(unittest.TestCase):
+    def test_rendered_page_is_a_png_at_its_cache_path(self):
+        from bambench.corpus import get_document, page_image
+        p = page_image(get_document("open", "bam-k009a"), 1, 30)
+        self.assertEqual(p.read_bytes()[:4], b"\x89PNG")
+        self.assertEqual(p.name, "page-001-30.png")

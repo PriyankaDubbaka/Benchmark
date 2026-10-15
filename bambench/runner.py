@@ -19,7 +19,7 @@ from .corpus import load_documents, verify
 from .gold import load_records, scored_pages
 from .metrics.page import score_page
 from .metrics.records import ValidationError, score_records
-from .paths import run_dir, summary_dir
+from .paths import published_dir, run_dir, summary_dir
 from .systems import get_system
 
 MIN_CLOSED_PAGES = 20  # never publish a closed-track number backed by fewer pages
@@ -57,7 +57,8 @@ def run(system_id: str, track: str, document_ids: list[str] | None = None, progr
     predictions = {}
     for i, doc in enumerate(docs, 1):
         verify(doc)
-        pages = list(range(1, doc.page_count + 1))
+        # Only annotated pages are scored; certificates with record gold are short and run whole.
+        pages = list(range(1, doc.page_count + 1)) if load_records(doc) else sorted(scored_pages(doc))
         progress(f"[{i}/{len(docs)}] {doc.document_id}: {len(pages)} pages")
         pred = system.predict(doc, pages, lambda m, d=doc: progress(f"  {d.document_id} {m}"))
         predictions[doc.document_id] = pred
@@ -129,14 +130,26 @@ def run(system_id: str, track: str, document_ids: list[str] | None = None, progr
     return {"summary": summary, "documents": per_doc}
 
 
+def export_closed() -> list[str]:
+    """Copy closed-track summaries backed by enough pages into results/closed for publishing."""
+    src, dst = summary_dir("closed"), published_dir("closed")
+    done = []
+    for f in sorted(src.glob("*.json")) if src.exists() else []:
+        s = json.loads(f.read_text(encoding="utf-8"))
+        if s.get("publishable"):
+            dst.mkdir(parents=True, exist_ok=True)
+            (dst / f.name).write_text(json.dumps(s, indent=2) + "\n", encoding="utf-8")
+            done.append(s["system"])
+    return done
+
+
 def leaderboard() -> list[dict]:
-    """One row per system with its open and closed summaries side by side."""
+    """One row per system with its open and closed summaries side by side.
+    Closed rows come from the local closed folder when present, else from published results."""
     rows: dict[str, dict] = {}
-    for track in ("open", "closed"):
-        d = summary_dir(track)
-        if not d.exists():
-            continue
-        for f in sorted(d.glob("*.json")):
+    for track, dirs in (("open", [summary_dir("open")]), ("closed", [published_dir("closed"), summary_dir("closed")])):
+        files = {f.name: f for d in dirs if d.exists() for f in d.glob("*.json")}  # later dir wins
+        for f in (files[k] for k in sorted(files)):
             s = json.loads(f.read_text(encoding="utf-8"))
             row = rows.setdefault(s["system"], {"system": s["system"], "card": s.get("card", {})})
             row[track] = s

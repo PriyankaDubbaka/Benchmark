@@ -51,13 +51,17 @@ def save_page(doc: Document, page: int, markdown: str, status: str, annotator: s
     return rec
 
 
-def scored_pages(doc: Document, include_drafts: bool = True) -> dict[int, str]:
-    """Pages with gold Markdown that count for scoring."""
+def scored_pages(doc: Document, include_drafts: bool | None = None) -> dict[int, str]:
+    """Pages with gold Markdown that count for scoring. Drafts count on dev only, unless told otherwise."""
+    if include_drafts is None:
+        include_drafts = doc.split != "test"
     out = {}
     for page in range(1, doc.page_count + 1):
         rec = load_page(doc, page)
         if not rec or rec["status"] == "skip":
             continue
+        if rec.get("pdf_sha256") not in (None, doc.sha256):
+            continue  # written for another revision of the PDF; never score it against this one
         if rec["status"] == "draft" and not include_drafts:
             continue
         out[page] = rec["markdown"]

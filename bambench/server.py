@@ -65,7 +65,9 @@ def _start_job(system_id, track):
     job_id = uuid.uuid4().hex[:8]
     job = {"id": job_id, "system": system_id, "track": track, "status": "running", "log": [],
            "started": _now(), "finished": None, "error": None}
-    with _LOCK:
+    with _LOCK:  # check and insert under one lock so two clicks cannot start two runs
+        if any(j["status"] == "running" for j in JOBS.values()):
+            raise RuntimeError("A run is already in progress. Wait for it to finish.")
         JOBS[job_id] = job
 
     def log(msg):
@@ -235,9 +237,6 @@ class Handler(BaseHTTPRequestHandler):
             b = json.loads(self._body() or b"{}")
             if b.get("track") not in TRACKS:
                 raise ValueError("track must be open or closed")
-            with _LOCK:
-                if any(j["status"] == "running" for j in JOBS.values()):
-                    raise RuntimeError("A run is already in progress. Wait for it to finish.")
             return self._json(_start_job(b["system"], b["track"]), 202)
 
         if len(p) == 4 and p[0] == "runs" and p[3] == "latest" and method == "GET":

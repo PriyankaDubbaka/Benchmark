@@ -10,3 +10,6 @@ data/closed/*
 
 # Raw open-track runs are reproducible; commit the summaries only.
 results/open/runs/
+
+# Slurm job logs
+bambench-*.out

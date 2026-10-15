@@ -7,9 +7,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
+import threading
 from dataclasses import asdict, dataclass, field
 from datetime import date
 from pathlib import Path
@@ -153,7 +155,9 @@ def page_texts(doc: Document) -> list[str]:
     while parts and not parts[-1].strip():
         parts.pop()
     parts += [""] * (doc.page_count - len(parts))
-    cache.write_text(json.dumps(parts[: doc.page_count]), encoding="utf-8")
+    tmp = cache.with_suffix(f".{os.getpid()}.{id(parts)}.tmp")
+    tmp.write_text(json.dumps(parts[: doc.page_count]), encoding="utf-8")
+    os.replace(tmp, cache)  # atomic, so a concurrent reader never sees half a file
     return parts[: doc.page_count]
 
 
@@ -162,10 +166,11 @@ def page_image(doc: Document, page: int, dpi: int = 110) -> Path:
         raise ValueError(f"Page {page} out of range 1..{doc.page_count}")
     out = _cache(doc) / f"page-{page:03d}-{dpi}.png"
     if not out.exists():
-        stem = out.with_suffix("")
+        stem = out.with_name(f"{out.stem}.{os.getpid()}.{threading.get_ident()}")
         subprocess.run(
             ["pdftoppm", "-r", str(dpi), "-png", "-singlefile", "-f", str(page), "-l", str(page),
              str(doc.pdf_path), str(stem)],
             check=True, capture_output=True,
         )
+        os.replace(f"{stem}.png", out)  # atomic, so a concurrent reader never sees half a PNG
     return out

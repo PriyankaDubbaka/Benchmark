@@ -9,13 +9,12 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=48G
 #SBATCH --time=04:00:00
-#SBATCH --output=logs/%x-%j.out
+#SBATCH --output=%x-%j.out
 
 set -euo pipefail
 SYSTEM="${1:?system id, e.g. qwen3.5-9b}"
 TRACK="${2:-open}"
 cd "${SLURM_SUBMIT_DIR:-$(dirname "$0")/..}"
-mkdir -p logs
 
 # module load cuda  # if your cluster needs it
 # source .venv/bin/activate
