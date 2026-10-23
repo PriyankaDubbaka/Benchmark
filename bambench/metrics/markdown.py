@@ -7,6 +7,8 @@ import re
 _HTML_TABLE = re.compile(r"<table\b.*?</table>", re.S | re.I)
 _FORMULA = re.compile(r"\$\$(.+?)\$\$|\\\[(.+?)\\\]", re.S)
 _COMMENT = re.compile(r"<!--.*?-->", re.S)
+# Figure placeholders carry no text to score; captions are written as plain lines.
+_IMAGE = re.compile(r"!\[[^\]]*\]\([^)]*\)|<img\b[^>]*>", re.I)
 _SEP = re.compile(r"^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$")
 
 
@@ -26,7 +28,7 @@ def pipe_to_html(lines: list[str]) -> str:
 
 
 def split(md: str) -> dict:
-    md = _COMMENT.sub("", md or "")
+    md = _IMAGE.sub("", _COMMENT.sub("", md or ""))
     tables: list[str] = []
 
     def keep_table(m):

@@ -31,10 +31,18 @@ def main(argv=None) -> int:
     s.add_argument("--language", default="en")
     s.add_argument("--split", default="dev", choices=("dev", "test"))
 
+    s = sub.add_parser("mark", help="pick pages of a document for annotation")
+    s.add_argument("document_id")
+    s.add_argument("pages", help="comma-separated page numbers, e.g. 1,4,7,18,28")
+    s.add_argument("--track", choices=TRACKS, default="closed")
+    s.add_argument("--unmark", action="store_true", help="drop the pick (pages with text are kept)")
+
     s = sub.add_parser("run", help="run a system on a track and score it")
     s.add_argument("system")
     s.add_argument("--track", choices=TRACKS, default="open")
     s.add_argument("--doc", action="append", dest="docs")
+    s.add_argument("--draft-only", action="store_true",
+                   help="predict every picked page as a prefill for annotation; score nothing")
 
     sub.add_parser("leaderboard", help="print the leaderboard as JSON")
     sub.add_parser("export-closed", help="copy closed-track summaries with enough pages to results/closed")
@@ -59,10 +67,17 @@ def main(argv=None) -> int:
                        language=a.language, split=a.split,
                        rights_status="confidential" if a.track == "closed" else "unverified")
         print(f"added {doc.document_id} ({doc.page_count} pages) to the {a.track} track")
+    elif a.cmd == "mark":
+        from .corpus import get_document
+        from .gold import mark_pages
+        pages = [int(x) for x in a.pages.replace(" ", "").split(",") if x]
+        changed = mark_pages(get_document(a.track, a.document_id), pages, marked=not a.unmark)
+        print(f"{'unmarked' if a.unmark else 'marked'} pages {changed or 'none (already set)'} of {a.document_id}")
     elif a.cmd == "run":
         from .runner import run
-        res = run(a.system, a.track, a.docs)
-        print(json.dumps(res["summary"]["scores"], indent=2))
+        res = run(a.system, a.track, a.docs, draft_only=a.draft_only)
+        if res["summary"]:
+            print(json.dumps(res["summary"]["scores"], indent=2))
     elif a.cmd == "leaderboard":
         from .runner import leaderboard
         print(json.dumps(leaderboard(), indent=2))

@@ -109,10 +109,20 @@ async function systemDetail(id) {
         <td class="num">${d.records ? pct(d.records.record_f1) : "—"}</td></tr>`;
     }).join("");
   } catch { /* no open run */ }
+  const kinds = (t) => {
+    const k = r[t]?.by_kind;
+    if (!k || !Object.keys(k).length) return "";
+    const rows = Object.entries(k).map(([name, v]) => `<tr><td>${esc(name)}</td><td class="num">${v.pages}</td><td class="num">${pct(v.overall)}</td>
+      <td class="num">${pct(v.e1_text)}</td><td class="num">${pct(v.e2_table_teds)}</td><td class="num">${pct(v.e3_formula)}</td></tr>`).join("");
+    const own = r[t].excluding_own_drafts;
+    return `<h3>By page kind, ${t} track</h3><div class="scroll"><table class="grid"><tr><th>Kind</th><th class="num">Pages</th><th class="num">Overall</th><th class="num">E1</th><th class="num">E2</th><th class="num">E3</th></tr>${rows}</table></div>
+      ${own ? `<p class="small muted">Without the pages this system drafted itself (${r[t].counts.pages - own.pages}): overall ${pct(own.overall)} on ${own.pages} remaining.</p>` : ""}`;
+  };
   const sc = (t) => r[t] ? METRICS.map(([k, l]) => `<div class="tile"><div class="k">${l}</div><div class="v">${pct(r[t].scores[k])}</div></div>`).join("") : "";
   $app.innerHTML = `<p class="small"><a href="#/leaderboard">← Leaderboard</a></p><h1>${esc(r.card.name || id)}</h1>
     ${r.open ? `<h2>Open track ${trackPill("open")}</h2><div class="tiles">${sc("open")}</div>` : ""}
-    ${r.closed ? `<h2>Closed track ${trackPill("closed")}</h2><div class="tiles">${sc("closed")}</div>` : ""}
+    ${kinds("open")}
+    ${r.closed ? `<h2>Closed track ${trackPill("closed")}</h2><div class="tiles">${sc("closed")}</div>${kinds("closed")}` : ""}
     ${docs ? `<h2>Per document, open track</h2><div class="scroll"><table class="grid"><tr><th>Document</th><th class="num">Pages</th><th class="num">E1 Text</th><th class="num">E2 Tables</th><th class="num">E5 Records</th></tr>${docs}</table></div>` : ""}
     <h2>System card</h2><div class="scroll"><table class="grid">${card}</table></div>
     <h2>Run environment</h2><div class="scroll"><table class="grid">
@@ -127,7 +137,7 @@ async function documents() {
     const done = d.pages_checked + d.pages_draft;
     return `<tr class="click" data-doc="${esc(d.track)}/${esc(d.document_id)}"><td><b>${esc(d.document_id)}</b><div class="small muted">${esc(d.title)}</div></td>
       <td>${trackPill(d.track)}</td><td>${esc(d.doc_type)}</td><td>${esc(d.department)}</td><td>${esc(d.split)}</td>
-      <td class="num">${d.page_count}</td><td class="num">${done}${d.pages_checked ? ` <span class="small muted">(${d.pages_checked} checked)</span>` : ""}</td>
+      <td class="num">${d.page_count}</td><td class="num">${done}${d.pages_checked ? ` <span class="small muted">(${d.pages_checked} checked)</span>` : ""}${d.pages_marked ? ` <span class="small muted">+${d.pages_marked} picked</span>` : ""}</td>
       <td>${d.has_records ? '<span class="pill ok">records</span>' : ""}</td></tr>`;
   };
   $app.innerHTML = `<h1>Documents</h1>
@@ -171,14 +181,31 @@ async function docDetail(track, id) {
   const pages = Array.from({ length: d.page_count }, (_, i) => i + 1).map((p) => {
     const st = d.page_status[p];
     return `<a class="${st}" href="#/annotate/${track}/${encodeURIComponent(id)}/${p}"><img loading="lazy" src="/api/documents/${track}/${encodeURIComponent(id)}/pages/${p}.png?dpi=60" alt="Page ${p}">
-      <div class="cap"><span>Page ${p}</span><span class="pill ${st}">${st}</span></div></a>`;
+      <div class="cap"><span>Page ${p}</span><span class="pill ${st}">${st === "marked" ? "picked" : st}</span></div></a>`;
   }).join("");
   $app.innerHTML = `<p class="small"><a href="#/documents">← Documents</a></p>
     <h1>${esc(d.title || d.document_id)}</h1><p>${trackPill(track)} <span class="muted small">${esc(d.document_id)} · ${d.page_count} pages · ${esc(d.doc_type)} · family ${esc(d.family_id)} · ${esc(d.split)} · sha256 ${esc(d.sha256.slice(0, 12))}…</span></p>
     ${d.notes ? `<p class="muted">${esc(d.notes)}</p>` : ""}
-    <h2>Pages</h2><p class="small muted">Green is checked, amber is draft. Click a page to annotate it. Mark pages you do not want scored as skip.</p>
+    <h2>Pages</h2>
+    <div class="panel pad"><div class="toolbar">
+      <label class="small">Pick pages to annotate <input id="m-pages" placeholder="e.g. 1, 4, 7, 18, 28" size="22"></label>
+      <button class="btn primary" id="m-mark">Pick</button><button class="btn" id="m-unmark">Drop pick</button></div>
+      <p class="small muted">Pick 4 to 6 pages, one of each kind the report has. A draft-only run on the Runs page then drafts every picked page, and you correct the drafts here. Dropping a pick never removes text you wrote.</p></div>
+    <p class="small muted">Blue is picked, amber is draft, green is checked. Click a page to annotate it.</p>
     <div class="pages">${pages}</div>
     ${d.records ? `<h2>Measurement records (E5)</h2><p class="small muted">${d.records.records.length} records · ${esc(d.records.annotation_status)}</p>` : ""}`;
+  const mark = async (marked) => {
+    const pages = document.getElementById("m-pages").value.split(/[\s,;]+/).filter(Boolean).map(Number);
+    if (!pages.length || pages.some((n) => !Number.isInteger(n))) return toast("Give page numbers like 1, 4, 7");
+    try {
+      const r = await api(`documents/${track}/${encodeURIComponent(id)}/mark`, {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pages, marked }) });
+      toast(`${marked ? "Picked" : "Dropped"} ${r.changed.length} page${r.changed.length === 1 ? "" : "s"}`);
+      docDetail(track, id);
+    } catch (e) { toast(e.message); }
+  };
+  document.getElementById("m-mark").onclick = () => mark(true);
+  document.getElementById("m-unmark").onclick = () => mark(false);
 }
 
 // ---------- Annotate ----------
@@ -226,6 +253,10 @@ async function annotate(track, id, page) {
     api("systems"),
   ]);
   const base = `#/annotate/${track}/${encodeURIComponent(id)}/`;
+  const opts = (xs, cur) => xs.map(([v, l]) => `<option value="${v}" ${v === cur ? "selected" : ""}>${l}</option>`).join("");
+  const KIND = [["", "kind…"], ["cover", "cover"], ["prose", "prose"], ["table", "table"], ["figure", "figure"], ["form", "form"], ["formula", "formula"], ["mixed", "mixed"]];
+  const LANG = [["", "language…"], ["en", "English"], ["de", "German"], ["en+de", "English + German"]];
+  let draftSource = null; // set when a prefill replaces the text; sent with the next save
   const srcOpts = [`<option value="pdftotext">Poppler text</option>`]
     .concat(systems.map((s) => `<option value="run:${esc(s.id)}">Latest run: ${esc(s.name || s.id)}</option>`)).join("");
   $app.innerHTML = `<p class="small"><a href="#/doc/${track}/${encodeURIComponent(id)}">← ${esc(d.title || id)}</a></p>
@@ -238,7 +269,13 @@ async function annotate(track, id, page) {
         <div class="toolbar">
           <select id="a-src">${srcOpts}</select><button class="btn" id="a-prefill">Prefill</button>
           <span style="flex:1"></span>
-          <label class="small muted">Status <select id="a-status"><option value="draft">draft</option><option value="checked">checked</option><option value="skip">skip</option></select></label>
+          <label class="small muted">Status <select id="a-status"><option value="marked">picked</option><option value="draft">draft</option><option value="checked">checked</option><option value="skip">skip</option></select></label>
+        </div>
+        <div class="toolbar">
+          <select id="a-kind" title="What kind of page this is">${opts(KIND, ann.kind || "")}</select>
+          <select id="a-lang" title="Language of the page">${opts(LANG, ann.lang || "")}</select>
+          <span class="small muted">${ann.draft_source ? "first draft from " + esc(ann.draft_source) : ""}</span>
+          <span style="flex:1"></span>
           <input id="a-who" placeholder="Annotator" size="10" value="${esc(ann.annotator || store.get("annotator", ""))}">
           <button class="btn primary" id="a-save">Save</button>
         </div>
@@ -249,7 +286,7 @@ async function annotate(track, id, page) {
       </div>
     </div>`;
   const ta = document.getElementById("a-md"), prev = document.getElementById("a-prev");
-  document.getElementById("a-status").value = ann.status === "todo" ? "draft" : ann.status;
+  document.getElementById("a-status").value = ann.status === "todo" || (ann.status === "marked" && !ann.markdown) ? "draft" : ann.status;
   const refresh = () => (prev.innerHTML = renderMarkdown(ta.value));
   ta.oninput = refresh;
   refresh();
@@ -258,6 +295,7 @@ async function annotate(track, id, page) {
     try {
       const r = await api(`documents/${track}/${encodeURIComponent(id)}/pages/${page}/draft?source=${encodeURIComponent(document.getElementById("a-src").value)}`);
       ta.value = r.markdown;
+      draftSource = r.draft_source;
       refresh();
       toast("Prefilled. Correct it against the page image before saving.");
     } catch (e) { toast(e.message); }
@@ -268,7 +306,9 @@ async function annotate(track, id, page) {
     try {
       await api(`documents/${track}/${encodeURIComponent(id)}/pages/${page}/annotation`, {
         method: "PUT", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ markdown: ta.value, status: document.getElementById("a-status").value, annotator: who, notes: document.getElementById("a-notes").value }),
+        body: JSON.stringify({ markdown: ta.value, status: document.getElementById("a-status").value, annotator: who,
+          notes: document.getElementById("a-notes").value, kind: document.getElementById("a-kind").value,
+          lang: document.getElementById("a-lang").value, draft_source: draftSource }),
       });
       toast("Saved page " + page);
     } catch (e) { toast(e.message); }
@@ -297,17 +337,18 @@ async function runs() {
     <td style="white-space:nowrap"><button class="btn" data-run="${esc(s.id)}" data-track="open" ${!s.available || running ? "disabled" : ""}>Run open</button>
       <button class="btn" data-run="${esc(s.id)}" data-track="closed" ${!s.available || running ? "disabled" : ""}>Run closed</button></td></tr>`).join("");
   const jobRows = jobs.map((j) => `<div class="panel pad" style="margin-bottom:8px"><b>${esc(j.system)}</b> on ${trackPill(j.track)}
-      <span class="pill ${j.status === "done" ? "ok" : j.status === "failed" ? "draft" : ""}">${esc(j.status)}</span>
+      <span class="pill ${j.status === "done" ? "ok" : j.status === "failed" ? "draft" : ""}">${esc(j.status)}</span>${j.draft_only ? ' <span class="pill marked">draft only</span>' : ""}
       <span class="small muted">${esc(j.started)}${j.overall !== undefined && j.overall !== null ? " · overall " + pct(j.overall) : ""}</span>
       ${j.error ? `<div class="note small">${esc(j.error)}</div>` : ""}
       <div class="log">${esc(j.log.slice(-12).join("\n"))}</div></div>`).join("");
   $app.innerHTML = `<h1>Runs</h1>
-    <p class="lead">A run predicts every page of every annotated document, then scores it. vLLM systems need a model server running on this machine or the GPU node; see <code>slurm/</code> in the repository.</p>
+    <p class="lead">A run predicts every annotated page, then scores it. A draft-only run predicts every picked page and scores nothing; use it to get first drafts to correct. vLLM systems need a model server running on this machine or the GPU node; see <code>slurm/</code> in the repository.</p>
+    <p><label><input type="checkbox" id="r-draft"> Draft only: write first drafts for picked pages, no scores</label></p>
     <div class="scroll"><table class="grid"><tr><th>System</th><th>Params</th><th>License</th><th>GPU memory</th><th>Status</th><th></th></tr>${rows}</table></div>
     <h2>Recent runs</h2>${jobRows || `<p class="muted">No runs since the dashboard started. Command-line runs show up on the leaderboard.</p>`}`;
   $app.querySelectorAll("button[data-run]").forEach((b) => (b.onclick = async () => {
     try {
-      await api("jobs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ system: b.dataset.run, track: b.dataset.track }) });
+      await api("jobs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ system: b.dataset.run, track: b.dataset.track, draft_only: document.getElementById("r-draft").checked }) });
       toast("Run started");
       runs();
     } catch (e) { toast(e.message); }

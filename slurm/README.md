@@ -1,20 +1,46 @@
 # Running on the shared Slurm GPU
 
-1. On the login node (with internet), download weights once:
+1. Once, on the login node (it needs internet for this step only), install vLLM and download
+   the weights:
 
-       export HF_HOME=/path/to/project/models
-       huggingface-cli download Qwen/Qwen3.5-9B
+       python3 -m venv ~/venvs/bam && source ~/venvs/bam/bin/activate
+       pip install vllm
+       export HF_HOME=$HOME/models
+       hf download Qwen/Qwen3.5-9B
 
-2. Submit a run. The job starts vLLM on 127.0.0.1 inside the job, runs every annotated page,
-   scores it and stops the server:
+   Older versions of `huggingface_hub` call the command `huggingface-cli download`.
 
-       export BAMBENCH_MODELS=/path/to/project/models
-       sbatch slurm/serve_and_run.sbatch qwen3.5-9b open
-       sbatch slurm/serve_and_run.sbatch qwen3.5-9b closed
+2. Submit from the repository folder, with the environment active. The job starts vLLM on
+   127.0.0.1 inside the job, runs the system, and stops the server:
 
-3. Look at results in the dashboard (`python -m bambench serve`) through an SSH tunnel:
+       source ~/venvs/bam/bin/activate
+       cd ~/Benchmark
+       export BAMBENCH_MODELS=$HOME/models
+       sbatch --gres=gpu:4g.40gb:1 slurm/serve_and_run.sbatch qwen3.5-9b closed --draft-only
 
-       ssh -L 8765:localhost:8765 <login-node>
+   `--draft-only` writes first drafts for every picked page and scores nothing; correct the
+   drafts in the dashboard. Leave it out to score a system against the annotated pages.
 
-Sizing on a shared card: models up to 9B fit in about 20 GB; Qwen3.6-27B needs the FP8
-checkpoint and about 30 GB plus KV cache. Lower `BAMBENCH_GPU_UTIL` if the card is shared.
+3. Check the job with `squeue -u $USER` and its log with `tail bambench-<jobid>.out`. The
+   log holds document names and timings only.
+
+4. Look at results in the dashboard (`python3 -m bambench serve --port 8880`, outside the
+   job) through an SSH tunnel from your own machine:
+
+       ssh -L 8880:localhost:8880 <login-node>
+
+## Sizing
+
+The A100 cards on the shared node are split into MIG slices: one 40 GB (`4g.40gb`) and two 20 GB per A100.
+`scontrol show node <node> | grep -i gres` lists the names. A slice that is too small fails
+when vLLM loads the weights.
+
+| System | Weights | Slice |
+| --- | --- | --- |
+| PaddleOCR-VL 1.5, GLM-OCR | about 2 GB | 20 GB |
+| Qwen3.5-9B | 19 GB | 40 GB |
+| Qwen3.6-27B-FP8 | about 30 GB | 40 GB, short context |
+
+Lower `BAMBENCH_GPU_UTIL` if the slice is shared. The job asks for 2 CPU cores and 32 GB of
+memory, which fits the per-job limit on the shared partition; raise them with `sbatch
+--cpus-per-task` and `--mem` if your account allows more.
