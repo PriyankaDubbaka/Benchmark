@@ -262,6 +262,7 @@ async function annotate(track, id, page) {
   $app.innerHTML = `<p class="small"><a href="#/doc/${track}/${encodeURIComponent(id)}">← ${esc(d.title || id)}</a></p>
     <div class="toolbar"><h1 style="margin:0">Page ${page} of ${d.page_count}</h1> ${trackPill(track)}
       <span style="flex:1"></span>
+      <a class="btn" href="#/compare/${track}/${encodeURIComponent(id)}/${page}">Compare models</a>
       <a class="btn" href="${base}${Math.max(1, page - 1)}">← Prev</a><a class="btn" href="${base}${Math.min(d.page_count, page + 1)}">Next →</a></div>
     <div class="annot">
       <div class="img"><img src="/api/documents/${track}/${encodeURIComponent(id)}/pages/${page}.png?dpi=130" alt="Page ${page}"></div>
@@ -357,6 +358,100 @@ async function runs() {
   if (running) poll = setTimeout(() => { if (location.hash.startsWith("#/runs")) runs(); }, 1500);
 }
 
+
+// ---------- Models ----------
+const CAP_LABEL = { tables: "Tables", formulas: "Formulas", handwriting: "Handwriting", german: "German", layout: "Layout boxes" };
+let modelsTrack = store.get("modelsTrack", "closed");
+async function models() {
+  const m = await api("models");
+  const mark = (v) => (v === true ? '<span class="yes" title="claimed by the publisher">✓</span>' : v === false ? '<span class="muted">✗</span>' : '<span class="muted">?</span>');
+  const status = (s) => {
+    const r = s.results[modelsTrack];
+    if (r) return `<span class="pill ok">scored</span>`;
+    if (s.seconds_per_page[modelsTrack] != null) return `<span class="pill marked">drafted</span>`;
+    if (s.weights_downloaded === false) return `<span class="pill no" title="Download the weights on the login node">no weights</span>`;
+    return s.available ? `<span class="pill">ready</span>` : `<span class="pill no" title="${esc(s.reason)}">not ready</span>`;
+  };
+  const draw = () => {
+    const rows = [...m.systems].sort((a, b) => (b.results[modelsTrack]?.overall ?? -1) - (a.results[modelsTrack]?.overall ?? -1));
+    const body = rows.map((s) => {
+      const r = s.results[modelsTrack];
+      const kind = (k) => (r?.by_kind?.[k] !== undefined ? pct(r.by_kind[k]) : "—");
+      const sp = s.seconds_per_page[modelsTrack];
+      return `<tr>
+        <td><b>${s.results.open || s.results.closed ? `<a href="#/system/${esc(s.id)}">${esc(s.name || s.id)}</a>` : esc(s.name || s.id)}</b>
+          <div class="small muted">${esc(s.publisher || "")}${s.released ? " · " + esc(s.released) : ""}</div></td>
+        <td class="num">${esc(s.params || "")}</td><td class="small">${esc(s.license || "")}</td><td class="small">${esc(s.slice || s.gpu || "")}</td>
+        ${m.capabilities.map((c) => `<td class="cap">${mark(s.handles[c])}</td>`).join("")}
+        <td class="num"><b>${r ? pct(r.overall) : "—"}</b></td><td class="num">${r ? pct(r.tables) : "—"}</td><td class="num">${r ? pct(r.formulas) : "—"}</td>
+        <td class="num">${kind("figure")}</td><td class="num">${sp != null ? sp.toFixed(1) : "—"}</td>
+        <td>${status(s)}${r && r.publishable === false ? ' <span class="pill draft" title="Fewer than 20 pages: internal only">internal</span>' : ""}</td></tr>`;
+    }).join("");
+    const watch = m.watchlist.map((w) => `<tr><td><b>${esc(w.name)}</b><div class="small muted">${esc(w.publisher || "")}</div></td>
+      <td class="num">${esc(w.params || "")}</td><td class="small">${esc(w.license || "")}</td><td>${esc(w.reason)}</td></tr>`).join("");
+    $app.innerHTML = `<h1>Models</h1>
+      <p class="lead">Every system in the benchmark, with what its publisher says it handles next to what it scored here. Ticks are claims, not results. All of them run on BAM hardware with open weights.</p>
+      <div class="tabs"><button data-t="open" class="${modelsTrack === "open" ? "on" : ""}">Open track scores</button><button data-t="closed" class="${modelsTrack === "closed" ? "on" : ""}">Closed track scores</button></div>
+      <div class="scroll"><table class="grid models"><tr><th>Model</th><th class="num">Size</th><th>License</th><th>GPU</th>
+        ${m.capabilities.map((c) => `<th class="cap">${CAP_LABEL[c]}</th>`).join("")}
+        <th class="num">Overall</th><th class="num">Tables</th><th class="num">Formulas</th><th class="num">Figures</th><th class="num" title="seconds per page, newest run">s / page</th><th>Status</th></tr>${body}</table></div>
+      <p class="small muted">Scores are percentages over the annotated pages of the ${modelsTrack} track. Figures is the overall score on pages tagged as figure. Status: scored, drafted (ran in draft-only mode), ready, or no weights downloaded yet.</p>
+      ${watch ? `<h2>Watch list</h2><p class="small muted">Promising models that are not in the benchmark yet, and why.</p>
+        <div class="scroll"><table class="grid"><tr><th>Model</th><th class="num">Size</th><th>License</th><th>Why not yet</th></tr>${watch}</table></div>` : ""}`;
+    $app.querySelectorAll("[data-t]").forEach((b) => (b.onclick = () => { modelsTrack = b.dataset.t; store.set("modelsTrack", modelsTrack); draw(); }));
+  };
+  draw();
+}
+
+// ---------- Compare ----------
+let cmpMode = store.get("cmpMode", "rendered");
+async function compare(track, id, page) {
+  page = +page;
+  const c = await api(`compare/${track}/${encodeURIComponent(id)}/${page}`);
+  const hidden = new Set(JSON.parse(store.get("cmpHide", "[]")));
+  const base = `#/compare/${track}/${encodeURIComponent(id)}/`;
+  const g = c.gold;
+  const hasGold = !!g.markdown;
+  const diffHtml = (ops) => ops === null ? '<p class="muted small">Page too long for a word diff.</p>'
+    : `<div class="diff">${ops.map(([op, t]) => op === "eq" ? esc(t) : `<${op}>${esc(t)}</${op}>`).join(" ")}</div>`;
+  const tablesOf = (md) => (md.match(/<table[\s\S]*?<\/table>/gi) || []);
+  const col = (sys) => {
+    const sc = sys.score;
+    const tabs = sc?.tables.length ? sc.tables.map((t) => pct(t)).join(", ") : "—";
+    let body;
+    if (cmpMode === "diff" && hasGold) {
+      const t = tablesOf(sys.markdown);
+      body = diffHtml(sys.diff) + (t.length ? `<h3>Tables</h3>${t.map((x) => `<div class="preview">${renderMarkdown(x)}</div>`).join("")}` : "");
+    } else body = `<div class="preview">${renderMarkdown(sys.markdown)}</div>`;
+    return `<div class="ccol"><div class="chead"><b>${esc(sys.name)}</b>
+        <div class="small muted">${esc(sys.run_id)}${sys.draft_only ? ' · <span class="pill marked">draft only</span>' : ""}</div>
+        ${sc ? `<div class="cscore"><span title="E1 text">Text <b>${pct(sc.text)}</b></span><span title="TEDS per gold table">Tables <b>${tabs}</b></span>${sc.formulas.length ? `<span>Formulas <b>${sc.formulas.map(pct).join(", ")}</b></span>` : ""}</div>` : ""}
+        ${sys.drafted_gold ? '<div class="note small">The gold for this page started from this model\'s draft, so its score here is flattered.</div>' : ""}</div>${body}</div>`;
+  };
+  const shown = c.systems.filter((s) => !hidden.has(s.id));
+  const chips = c.systems.map((s) => `<label class="chip"><input type="checkbox" data-sys="${esc(s.id)}" ${hidden.has(s.id) ? "" : "checked"}> ${esc(s.name)}</label>`).join("");
+  $app.innerHTML = `<p class="small"><a href="#/doc/${track}/${encodeURIComponent(id)}">← ${esc(id)}</a> · <a href="#/annotate/${track}/${encodeURIComponent(id)}/${page}">Annotate this page</a></p>
+    <div class="toolbar"><h1 style="margin:0">Compare page ${page} of ${c.page_count}</h1> ${trackPill(track)}
+      ${g.kind ? `<span class="pill">${esc(g.kind)}</span>` : ""}${g.lang ? `<span class="pill">${esc(g.lang)}</span>` : ""}
+      <span style="flex:1"></span>
+      <div class="tabs" style="margin:0"><button data-m="rendered" class="${cmpMode === "rendered" ? "on" : ""}">Rendered</button><button data-m="diff" class="${cmpMode === "diff" ? "on" : ""}" ${hasGold ? "" : "disabled title=\"Needs gold text for this page\""}>Differences</button></div>
+      <a class="btn" href="${base}${Math.max(1, page - 1)}">← Prev</a><a class="btn" href="${base}${Math.min(c.page_count, page + 1)}">Next →</a></div>
+    ${c.systems.length ? `<div class="chips">${chips}</div>` : `<div class="note">No system has run on this page yet. Pick it on the document page and start a draft-only run.</div>`}
+    ${cmpMode === "diff" && hasGold ? `<p class="small muted"><del>Struck red</del> is in the gold but missing from the model. <ins>Green</ins> is what the model wrote that the gold does not have. Tables are scored separately with TEDS.</p>` : ""}
+    <div class="cmp">
+      <div class="ccol scan"><div class="chead"><b>Page image</b></div><img src="/api/documents/${track}/${encodeURIComponent(id)}/pages/${page}.png?dpi=130" alt="Page ${page}"></div>
+      <div class="ccol"><div class="chead"><b>Gold</b><div class="small muted">${hasGold ? esc(g.status) + (g.draft_source ? " · first draft from " + esc(g.draft_source) : "") : "no gold text yet"}</div></div>
+        ${hasGold ? `<div class="preview">${renderMarkdown(g.markdown)}</div>` : `<p class="muted small" style="padding:0 12px">Scores and differences appear once this page has gold text.</p>`}</div>
+      ${shown.map(col).join("")}
+    </div>`;
+  $app.querySelectorAll("[data-m]").forEach((b) => (b.onclick = () => { cmpMode = b.dataset.m; store.set("cmpMode", cmpMode); compare(track, id, page); }));
+  $app.querySelectorAll("input[data-sys]").forEach((cb) => (cb.onchange = () => {
+    cb.checked ? hidden.delete(cb.dataset.sys) : hidden.add(cb.dataset.sys);
+    store.set("cmpHide", JSON.stringify([...hidden]));
+    compare(track, id, page);
+  }));
+}
+
 // ---------- About ----------
 function about() {
   $app.innerHTML = `<h1>About this benchmark</h1>
@@ -382,13 +477,15 @@ async function route() {
   document.onkeydown = null;
   const parts = (location.hash.slice(2) || "overview").split("/").map(decodeURIComponent);
   document.querySelectorAll("nav a").forEach((a) => a.classList.toggle("active", a.dataset.nav === parts[0] ||
-    (parts[0] === "doc" || parts[0] === "annotate") && a.dataset.nav === "documents" || parts[0] === "system" && a.dataset.nav === "leaderboard"));
+    (parts[0] === "doc" || parts[0] === "annotate" || parts[0] === "compare") && a.dataset.nav === "documents" || parts[0] === "system" && a.dataset.nav === "leaderboard"));
   try {
     if (parts[0] === "leaderboard") await leaderboard();
     else if (parts[0] === "system") await systemDetail(parts[1]);
     else if (parts[0] === "documents") await documents();
     else if (parts[0] === "doc") await docDetail(parts[1], parts[2]);
     else if (parts[0] === "annotate") await annotate(parts[1], parts[2], parts[3]);
+    else if (parts[0] === "compare") await compare(parts[1], parts[2], parts[3]);
+    else if (parts[0] === "models") await models();
     else if (parts[0] === "runs") await runs();
     else if (parts[0] === "about") about();
     else await overview();
