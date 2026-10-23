@@ -1,0 +1,10 @@
+[
+  {"name": "HunyuanOCR", "publisher": "Tencent", "params": "about 1B", "license": "Tencent Hunyuan Community License",
+   "reason": "The licence grants no rights in the EU, UK or South Korea, so BAM cannot use it."},
+  {"name": "TeleOCR", "publisher": "unclear", "params": "1.2B", "license": "Apache-2.0 (as stated on the copies)",
+   "reason": "Tops OmniDocBench v1.6, but Hugging Face holds several copies from different accounts. Add it once the original publisher is clear."},
+  {"name": "OvisOCR2", "publisher": "unclear", "params": "0.8B", "license": "Apache-2.0 (as stated)",
+   "reason": "Strong published score, but the official upload is not yet clear."},
+  {"name": "Qwen3.5-35B-A3B, Qwen3-VL-235B, InternVL3.5-241B", "publisher": "Alibaba, Shanghai AI Lab", "params": "35B to 241B", "license": "Apache-2.0",
+   "reason": "Above the 27B ceiling for one slice of the shared GPU."}
+]
