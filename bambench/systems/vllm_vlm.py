@@ -17,6 +17,7 @@ from urllib.parse import urlparse
 
 from ..corpus import Document, page_image
 from ..metrics.records import ValidationError, validate_rows
+from . import outputs
 from .base import Progress, System
 
 PAGE_PROMPT = """Convert this document page to Markdown.
@@ -59,7 +60,16 @@ class VllmVlm(System):
     def base_url(self) -> str:
         return os.environ.get(self.card.get("base_url_env", "BAMBENCH_VLLM_URL"), self.card.get("base_url", "http://127.0.0.1:8000/v1"))
 
+    @property
+    def served_name(self) -> str:
+        return self.card.get("served_model_name", self.card["model"])
+
     def available(self) -> tuple[bool, str]:
+        if self.card.get("output") == "doctags":
+            try:
+                import docling_core  # noqa: F401
+            except ImportError:
+                return False, "DocTags output needs docling-core (pip install docling-core)"
         if not allowed_host(self.base_url):
             return False, f"{self.base_url} is not a local or allowed host"
         try:
@@ -67,21 +77,22 @@ class VllmVlm(System):
                 served = [m["id"] for m in json.load(r).get("data", [])]
         except (urllib.error.URLError, OSError, ValueError):
             return False, f"no vLLM server at {self.base_url}"
-        if self.card["model"] not in served:
-            return False, f"server is running {', '.join(served) or 'nothing'}, not {self.card['model']}"
+        if self.served_name not in served:
+            return False, f"server is running {', '.join(served) or 'nothing'}, not {self.served_name}"
         return True, ""
 
     def _chat(self, image_b64: str, prompt: str) -> str:
         if not allowed_host(self.base_url):
             raise PermissionError(f"Refusing to send document pages to {self.base_url}")
         body = {
-            "model": self.card["model"],
+            "model": self.served_name,
             "temperature": 0,
             "max_tokens": self.card.get("max_tokens", 4096),
             "messages": [{"role": "user", "content": [
                 {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image_b64}"}},
                 {"type": "text", "text": prompt},
             ]}],
+            **self.card.get("extra_body", {}),
         }
         req = urllib.request.Request(self.base_url.rstrip("/") + "/chat/completions",
                                      data=json.dumps(body).encode(), headers={"Content-Type": "application/json"})
@@ -92,10 +103,11 @@ class VllmVlm(System):
         out, records, raw = {}, [], {}
         dpi = self.card.get("dpi", 144)
         for p in pages:
-            img = base64.b64encode(page_image(doc, p, dpi).read_bytes()).decode()
+            path = page_image(doc, p, dpi)
+            img = base64.b64encode(path.read_bytes()).decode()
             t = time.time()
-            md = self._chat(img, self.card.get("page_prompt", PAGE_PROMPT))
-            out[p] = re.sub(r"^```(?:markdown)?\s*|\s*```$", "", md.strip())
+            reply = self._chat(img, self.card.get("page_prompt", PAGE_PROMPT))
+            out[p] = self._to_markdown(reply, path)
             if self.card.get("records") and doc.doc_type == "certificate":
                 reply = self._chat(img, RECORDS_PROMPT.format(page=p))
                 raw[p] = reply
@@ -107,6 +119,14 @@ class VllmVlm(System):
                 seen.add(r["element"])
                 dedup.append(r)
         return {"pages": out, "records": dedup if self.card.get("records") else None, "raw_records": raw}
+
+    def _to_markdown(self, reply: str, image_path) -> str:
+        kind = self.card.get("output", "markdown")
+        if kind == "doctags":
+            return outputs.doctags(reply, image_path)
+        if kind not in outputs.CONVERTERS:
+            raise ValueError(f"{self.id}: unknown output format {kind!r}")
+        return outputs.CONVERTERS[kind](reply)
 
     @staticmethod
     def _parse_records(reply: str, page: int, page_count: int) -> list[dict]:

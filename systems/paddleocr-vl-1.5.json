@@ -8,5 +8,15 @@
   "gpu": "about 2 GB",
   "serve": "vllm serve PaddlePaddle/PaddleOCR-VL-1.5 --trust-remote-code --max-num-batched-tokens 16384 --no-enable-prefix-caching --mm-processor-cache-gb 0",
   "page_prompt": "OCR:",
-  "notes": "Whole-page prompting. The full PaddleOCR pipeline (layout model first) will score higher; add it as a separate system."
+  "notes": "Whole-page prompting with 'OCR:' returns plain text, so tables and formulas score low. PaddleOCR-VL 1.6 runs the full layout pipeline and replaces this card for real comparisons.",
+  "publisher": "Baidu PaddlePaddle",
+  "slice": "20 GB",
+  "weights_gb": 2,
+  "handles": {
+    "tables": true,
+    "formulas": true,
+    "handwriting": null,
+    "german": null,
+    "layout": true
+  }
 }

@@ -37,9 +37,16 @@ when vLLM loads the weights.
 
 | System | Weights | Slice |
 | --- | --- | --- |
-| PaddleOCR-VL 1.5, GLM-OCR | about 2 GB | 20 GB |
+| Granite-Docling-258M | 0.5 GB | 20 GB (download with `--revision untied`) |
+| PaddleOCR-VL 1.5 and 1.6, GLM-OCR, MinerU2.5-Pro | about 2 GB | 20 GB |
+| DeepSeek-OCR 2, dots.mocr | 6 to 7 GB | 20 GB |
+| Qwen3-VL-8B | 17.5 GB | 40 GB |
 | Qwen3.5-9B | 19 GB | 40 GB |
 | Qwen3.6-27B-FP8 | about 30 GB | 40 GB, short context |
+
+PaddleOCR-VL 1.6 and MinerU2.5-Pro also need their client package in the environment
+(`paddleocr[doc-parser]`, `mineru-vl-utils[vllm]`) and their layout model downloaded once on
+the login node, because the job runs offline.
 
 Lower `BAMBENCH_GPU_UTIL` if the slice is shared. The job asks for 2 CPU cores and 32 GB of
 memory, which fits the per-job limit on the shared partition; raise them with `sbatch
