@@ -24,6 +24,11 @@ PAGE_PROMPT = """Convert this document page to Markdown.
 - Write every table as an HTML <table> with <tr> and <td>; use colspan/rowspan for merged cells.
 - Write display formulas as LaTeX between $$ and $$.
 - Leave out running page headers, footers and page numbers.
+- For figures, drawings and photos write only the caption as a line of text. Do not transcribe
+  labels or callouts inside a drawing.
+- Leave out handwriting, signatures and stamps. Keep the printed text around them.
+- Keep the original language and characters (ä, ö, ü, ß). If the page is bilingual, keep both
+  languages in the printed order.
 Return only the Markdown."""
 
 RECORDS_PROMPT = """This is page {page} of a reference-material certificate.

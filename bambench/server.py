@@ -41,6 +41,7 @@ def _doc_summary(doc):
         "pages_checked": sum(s == "checked" for s in statuses.values()),
         "pages_draft": sum(s == "draft" for s in statuses.values()),
         "pages_skipped": sum(s == "skip" for s in statuses.values()),
+        "pages_marked": sum(s == "marked" for s in statuses.values()),
         "has_records": gold.load_records(doc) is not None,
         "page_status": statuses,
     }
@@ -55,15 +56,22 @@ def _systems():
     return out
 
 
-def _latest_run(track, system_id):
+def _runs(track, system_id):
+    """Finished runs of a system, newest first. Draft-only runs have run.json but no scores."""
     d = run_dir(track) / system_id
-    runs = sorted(p for p in d.iterdir() if (p / "scores.json").exists()) if d.exists() else []
-    return runs[-1] if runs else None
+    if not d.exists():
+        return []
+    return sorted((p for p in d.iterdir() if (p / "scores.json").exists() or (p / "run.json").exists()), reverse=True)
 
 
-def _start_job(system_id, track):
+def _latest_run(track, system_id):
+    scored = [p for p in _runs(track, system_id) if (p / "scores.json").exists()]
+    return scored[0] if scored else None
+
+
+def _start_job(system_id, track, draft_only=False):
     job_id = uuid.uuid4().hex[:8]
-    job = {"id": job_id, "system": system_id, "track": track, "status": "running", "log": [],
+    job = {"id": job_id, "system": system_id, "track": track, "draft_only": draft_only, "status": "running", "log": [],
            "started": _now(), "finished": None, "error": None}
     with _LOCK:  # check and insert under one lock so two clicks cannot start two runs
         if any(j["status"] == "running" for j in JOBS.values()):
@@ -77,9 +85,9 @@ def _start_job(system_id, track):
 
     def work():
         try:
-            res = runner.run(system_id, track, progress=log)
+            res = runner.run(system_id, track, progress=log, draft_only=draft_only)
             job["status"] = "done"
-            job["overall"] = res["summary"]["scores"]["overall"]
+            job["overall"] = res["summary"]["scores"]["overall"] if res["summary"] else None
         except Exception as e:  # surfaced in the UI, full trace in the server console
             traceback.print_exc()
             job["status"] = "failed"
@@ -194,6 +202,11 @@ class Handler(BaseHTTPRequestHandler):
                 s = _doc_summary(doc)
                 s["records"] = gold.load_records(doc)
                 return self._json(s)
+            if len(p) == 4 and p[3] == "mark" and method == "POST":
+                b = json.loads(self._body() or b"{}")
+                pages = [int(x) for x in b.get("pages", [])]
+                changed = gold.mark_pages(doc, pages, bool(b.get("marked", True)))
+                return self._json({"changed": changed, **_doc_summary(doc)})
             if len(p) >= 5 and p[3] == "pages":
                 m = re.fullmatch(r"(\d+)(\.png)?", p[4])
                 if not m:
@@ -207,19 +220,22 @@ class Handler(BaseHTTPRequestHandler):
                     if method == "PUT":
                         b = json.loads(self._body() or b"{}")
                         return self._json(gold.save_page(doc, page, b.get("markdown", ""), b.get("status", "draft"),
-                                                         b.get("annotator", ""), b.get("notes", "")))
+                                                         b.get("annotator", ""), b.get("notes", ""),
+                                                         b.get("kind", ""), b.get("lang", ""), b.get("draft_source")))
                 if len(p) == 6 and p[5] == "draft" and method == "GET":
                     src = q.get("source", "pdftotext")
                     if src == "pdftotext":
                         text = page_texts(doc)[page - 1]
-                        return self._json({"source": src, "markdown": "\n".join(
+                        return self._json({"source": src, "draft_source": src, "markdown": "\n".join(
                             re.sub(r"\s{2,}", "  ", l).strip() for l in text.split("\n")).strip()})
                     if src.startswith("run:"):
-                        latest = _latest_run(track, src[4:])
-                        f = latest / doc.document_id / f"page-{page:03d}.md" if latest else None
-                        if not f or not f.exists():
-                            raise KeyError(f"No run of {src[4:]} covers this page yet")
-                        return self._json({"source": src, "markdown": f.read_text(encoding="utf-8")})
+                        # The newest run of that system that covers this page, scored or draft-only.
+                        for r in _runs(track, src[4:]):
+                            f = r / doc.document_id / f"page-{page:03d}.md"
+                            if f.exists():
+                                return self._json({"source": src, "draft_source": src, "run_id": r.name,
+                                                   "markdown": f.read_text(encoding="utf-8")})
+                        raise KeyError(f"No run of {src[4:]} covers this page yet")
                     raise ValueError("unknown draft source")
             raise KeyError("Unknown document route")
 
@@ -237,7 +253,7 @@ class Handler(BaseHTTPRequestHandler):
             b = json.loads(self._body() or b"{}")
             if b.get("track") not in TRACKS:
                 raise ValueError("track must be open or closed")
-            return self._json(_start_job(b["system"], b["track"]), 202)
+            return self._json(_start_job(b["system"], b["track"], bool(b.get("draft_only"))), 202)
 
         if len(p) == 4 and p[0] == "runs" and p[3] == "latest" and method == "GET":
             latest = _latest_run(p[1], p[2])

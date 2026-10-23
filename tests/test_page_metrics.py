@@ -83,3 +83,10 @@ class Pairing(unittest.TestCase):
         s = score_page("Text\n\n" + g1 + "\n\n" + g2, "Text\n\n" + g1)
         self.assertEqual(s["tables"][0], {"teds": 1.0, "teds_struct": 1.0})
         self.assertEqual(s["tables"][1], {"teds": 0.0, "teds_struct": 0.0})
+
+
+class Figures(unittest.TestCase):
+    def test_figure_placeholders_are_not_scored_as_text(self):
+        from bambench.metrics.markdown import split
+        parts = split("Fig. 2: Trunnion clearance\n\n![figure](fig-2.png)\n<img src='x.png'>")
+        self.assertEqual(parts["text"].split(), ["Fig.", "2:", "Trunnion", "clearance"])
