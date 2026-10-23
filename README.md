@@ -16,20 +16,39 @@ Needs Python 3.10+ and Poppler (`pdftotext`, `pdftoppm`, `pdfinfo`). The core ha
 dependencies.
 
 ```sh
-git config core.hooksPath .githooks          # once per clone: blocks commits of closed-track files
-python -m bambench list                       # documents and systems
-python -m bambench run pdftotext-rules        # baseline on the open track
-python -m bambench serve                      # dashboard on http://127.0.0.1:8765
-python -m unittest discover -s tests -t .     # tests
+git config core.hooksPath .githooks           # once per clone: blocks commits of closed-track files
+python3 -m bambench list                       # documents and systems
+python3 -m bambench run pdftotext-rules        # baseline on the open track
+python3 -m bambench serve                      # dashboard on http://127.0.0.1:8765
+python3 -m unittest discover -s tests -t .     # tests
 ```
 
-Add an internal report (copied into `data/closed/`, never committed):
+## Annotating internal reports
 
-```sh
-python -m bambench add /path/report.pdf --track closed --id dept-report-001 --department "3.3" --type report
-```
+1. Add the report. It is copied into `data/closed/` and never committed:
 
-or use **Documents → Add a PDF** in the dashboard.
+   ```sh
+   python3 -m bambench add /path/report.pdf --track closed --id dept-report-001 --family dept-report
+   ```
+
+   or use **Documents → Add a PDF** in the dashboard.
+
+2. Pick 4 to 6 pages, one of each kind the report has, on the document page in the dashboard
+   or with `python3 -m bambench mark dept-report-001 1,4,7,18,28`.
+
+3. Draft them with a local model on the GPU (see [`slurm/README.md`](slurm/README.md)):
+
+   ```sh
+   sbatch --gres=gpu:4g.40gb:1 slurm/serve_and_run.sbatch qwen3.5-9b closed --draft-only
+   ```
+
+4. In the dashboard, open each picked page, **Prefill** from the run, correct the text against
+   the page image, set the page kind and language, and save as draft. Recheck it after a
+   couple of days and save it as checked.
+
+Scanned reports have no text layer, so the Poppler prefill comes back empty on them. The page
+records which source its first draft came from, and every summary also shows the score without
+the pages a system drafted itself.
 
 ## Tasks and metrics
 
@@ -42,7 +61,7 @@ or use **Documents → Add a PDF** in the dashboard.
 | Overall | | Mean of E1, E2 and E3, as in OmniDocBench |
 
 Gold for a page is Markdown in `data/<track>/annotations/<doc>/page-NNN.json` with a status
-of `draft`, `checked` or `skip`. Write it in the dashboard's annotation view, prefilled from
+of `marked` (picked, no text yet), `draft`, `checked` or `skip`, plus its kind and language. Write it in the dashboard's annotation view, prefilled from
 Poppler text or from a model's last run, and correct it against the page image.
 
 ## Systems

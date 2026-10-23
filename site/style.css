@@ -72,6 +72,7 @@ table.grid tr.click:hover td { background: var(--accent-soft); }
 .pill.no { color: var(--muted); }
 .pill.checked { color: var(--good); border-color: var(--good); }
 .pill.draft { color: var(--warn); border-color: var(--warn); }
+.pill.marked { color: var(--accent); border-color: var(--accent); }
 
 .tabs { display: flex; gap: 4px; margin: 8px 0 12px; }
 .tabs button { border: 1px solid var(--line); background: var(--panel); color: var(--muted); padding: 6px 12px; border-radius: 6px; cursor: pointer; font: inherit; }
@@ -88,6 +89,7 @@ label.f { display: flex; flex-direction: column; gap: 4px; font-size: 12px; colo
 .pages a { display: block; border: 2px solid var(--line); border-radius: var(--radius); overflow: hidden; background: var(--panel); color: var(--ink); }
 .pages a.checked { border-color: var(--good); }
 .pages a.draft { border-color: var(--warn); }
+.pages a.marked { border-color: var(--accent); }
 .pages a.skip { opacity: .5; }
 .pages img { width: 100%; display: block; aspect-ratio: 0.707; object-fit: cover; object-position: top; background: #fff; }
 .pages .cap { padding: 4px 8px; font-size: 12px; display: flex; justify-content: space-between; }
