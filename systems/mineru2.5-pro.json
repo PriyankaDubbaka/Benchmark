@@ -1,0 +1,23 @@
+{
+  "id": "mineru2.5-pro",
+  "name": "MinerU2.5-Pro",
+  "kind": "mineru_vl",
+  "model": "opendatalab/MinerU2.5-Pro-2605-1.2B",
+  "publisher": "OpenDataLab (Shanghai AI Lab)",
+  "released": "2026-05-21",
+  "license": "Apache-2.0 (weights); MinerU toolkit adds conditions",
+  "params": "1.2B",
+  "weights_gb": 2.3,
+  "slice": "20 GB",
+  "gpu": "about 3 GB",
+  "serve": "vllm serve opendatalab/MinerU2.5-Pro-2605-1.2B --logits-processors mineru_vl_utils:MinerULogitsProcessor",
+  "handles": {
+    "tables": true,
+    "formulas": true,
+    "handwriting": null,
+    "german": null,
+    "layout": true
+  },
+  "source": "https://huggingface.co/opendatalab/MinerU2.5-Pro-2605-1.2B",
+  "notes": "Two-step extraction (layout, then each block) through mineru-vl-utils: pip install \"mineru-vl-utils[vllm]\". Not yet run on BAM hardware."
+}

@@ -7,5 +7,16 @@
   "params": "0.9B",
   "gpu": "about 2 GB",
   "serve": "vllm serve zai-org/GLM-OCR",
-  "notes": "Check the model card for the recommended page prompt and vLLM version before the first run."
+  "notes": "Check the model card for the recommended page prompt and vLLM version before the first run.",
+  "publisher": "Zhipu AI (Z.ai)",
+  "released": "2026-02",
+  "slice": "20 GB",
+  "weights_gb": 2,
+  "handles": {
+    "tables": true,
+    "formulas": true,
+    "handwriting": null,
+    "german": null,
+    "layout": true
+  }
 }
