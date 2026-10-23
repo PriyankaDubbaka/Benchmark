@@ -1,0 +1,24 @@
+{
+  "id": "qwen3-vl-8b",
+  "name": "Qwen3-VL-8B",
+  "kind": "vllm",
+  "model": "Qwen/Qwen3-VL-8B-Instruct",
+  "publisher": "Alibaba Qwen",
+  "released": "2025-10-15",
+  "license": "Apache-2.0",
+  "params": "8B",
+  "weights_gb": 17.5,
+  "slice": "40 GB",
+  "gpu": "about 20 GB bf16",
+  "serve": "vllm serve Qwen/Qwen3-VL-8B-Instruct --max-model-len 32768 --limit-mm-per-prompt.video 0 --mm-processor-cache-gb 0",
+  "records": true,
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": true
+  },
+  "source": "https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct",
+  "notes": "Previous Qwen generation, same page prompt as Qwen3.5-9B, so the two compare directly. OCR in 32 languages per the card. Not yet run on BAM hardware."
+}

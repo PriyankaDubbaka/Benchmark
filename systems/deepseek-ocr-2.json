@@ -1,0 +1,26 @@
+{
+  "id": "deepseek-ocr-2",
+  "name": "DeepSeek-OCR 2",
+  "kind": "vllm",
+  "model": "deepseek-ai/DeepSeek-OCR-2",
+  "publisher": "DeepSeek",
+  "released": "2026-01",
+  "license": "Apache-2.0",
+  "params": "3B",
+  "weights_gb": 7,
+  "slice": "20 GB",
+  "gpu": "about 8 GB",
+  "serve": "vllm serve deepseek-ai/DeepSeek-OCR-2 --trust-remote-code --max-model-len 8192 --no-enable-prefix-caching --mm-processor-cache-gb 0",
+  "page_prompt": "<|grounding|>Convert the document to markdown.",
+  "output": "deepseek_grounding",
+  "max_tokens": 6000,
+  "handles": {
+    "tables": true,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": true
+  },
+  "source": "https://huggingface.co/deepseek-ai/DeepSeek-OCR-2",
+  "notes": "Single call. Grounding tags around each block are stripped before scoring. Not yet run on BAM hardware."
+}
