@@ -20,7 +20,18 @@ EXTRA="${3:-}"   # --draft-only to write first drafts for picked pages without s
 cd "${SLURM_SUBMIT_DIR:-$(dirname "$0")/..}"
 
 # module load cuda  # if your cluster needs it
-# source .venv/bin/activate
+
+# Jobs inherit the submitting shell, so a job sent from a shell without the environment has no
+# vllm. Switch it on here: $BAMBENCH_VENV if set, else .venv in the repo, else ~/venvs/bam.
+if [ -z "${VIRTUAL_ENV:-}" ]; then
+  for v in "${BAMBENCH_VENV:-}" .venv "$HOME/venvs/bam"; do
+    if [ -n "$v" ] && [ -f "$v/bin/activate" ]; then
+      set +u; source "$v/bin/activate"; set -u
+      echo "using environment $v"
+      break
+    fi
+  done
+fi
 
 export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1   # never reach out to the internet from here
 export HF_HOME="${BAMBENCH_MODELS:-$HOME/models}"
@@ -29,6 +40,10 @@ export BAMBENCH_VLLM_URL="http://127.0.0.1:${PORT}/v1"
 
 SERVE=$(python3 -c "import json,sys; c=json.load(open('systems/${SYSTEM}.json')); print(c.get('serve',''))")
 if [ -n "$SERVE" ]; then
+  if ! command -v "${SERVE%% *}" >/dev/null; then
+    echo "${SERVE%% *} not found. Activate the environment that has it, or set BAMBENCH_VENV." >&2
+    exit 1
+  fi
   echo "starting: $SERVE --port $PORT --host 127.0.0.1"
   $SERVE --port "$PORT" --host 127.0.0.1 --gpu-memory-utilization "${BAMBENCH_GPU_UTIL:-0.85}" &
   VLLM_PID=$!
