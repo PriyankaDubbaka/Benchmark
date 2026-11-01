@@ -26,5 +26,26 @@
     "params": "35B to 241B",
     "license": "Apache-2.0",
     "reason": "Above the 27B ceiling for one slice of the shared GPU."
+  },
+  {
+    "name": "Llama 3.2 Vision, Llama 4 Scout",
+    "publisher": "Meta",
+    "params": "11B to 109B",
+    "license": "Llama Community License",
+    "reason": "The multimodal licence excludes companies and people based in the EU, so BAM cannot use them."
+  },
+  {
+    "name": "Gemma 4 31B",
+    "publisher": "Google",
+    "params": "31B",
+    "license": "Apache-2.0",
+    "reason": "Slightly above the 27B ceiling. Gemma 4 26B-A4B is in the benchmark instead."
+  },
+  {
+    "name": "Phi-4-reasoning-vision-15B",
+    "publisher": "Microsoft",
+    "params": "15B",
+    "license": "MIT",
+    "reason": "Tuned for app and screen understanding rather than documents, and it reasons at length before answering."
   }
 ]

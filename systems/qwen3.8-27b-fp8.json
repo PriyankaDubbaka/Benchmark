@@ -1,0 +1,29 @@
+{
+  "id": "qwen3.8-27b-fp8",
+  "name": "Qwen3.8-27B (FP8)",
+  "kind": "vllm",
+  "model": "Qwen/Qwen3.8-27B-FP8",
+  "publisher": "Alibaba Qwen",
+  "released": "2026-08",
+  "license": "Apache-2.0",
+  "params": "27B",
+  "weights_gb": 29,
+  "slice": "40 GB",
+  "gpu": "about 29 GB FP8",
+  "serve": "vllm serve Qwen/Qwen3.8-27B-FP8 --max-model-len 16384 --max-num-seqs 16",
+  "records": true,
+  "extra_body": {
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  },
+  "handles": {
+    "tables": true,
+    "formulas": true,
+    "handwriting": null,
+    "german": true,
+    "layout": true
+  },
+  "source": "https://huggingface.co/Qwen/Qwen3.8-27B-FP8",
+  "notes": "Newest Qwen. Reports 91.1 on OmniDocBench 1.5 against 89.4 for Qwen3.6-27B. Thinking is switched off. Not yet run on BAM hardware."
+}

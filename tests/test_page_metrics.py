@@ -93,6 +93,12 @@ class Figures(unittest.TestCase):
 
 
 class NativeOutputs(unittest.TestCase):
+    def test_thought_blocks_and_answer_boxes_are_stripped(self):
+        from bambench.systems.outputs import markdown
+        self.assertEqual(markdown("<|channel>thought\n<channel|># Bericht\n\nText"), "# Bericht\n\nText")
+        self.assertEqual(markdown("<think>\nplan\n</think>\n\n# Bericht"), "# Bericht")
+        self.assertEqual(markdown("<|begin_of_box|>```markdown\n# Bericht\n```<|end_of_box|>"), "# Bericht")
+
     def test_deepseek_grounding_tags_are_stripped(self):
         from bambench.systems.outputs import deepseek_grounding
         raw = "<|ref|>title<|/ref|><|det|>[[10, 10, 200, 40]]<|/det|>\n# Prüfbericht\n\n<|ref|>image<|/ref|><|det|>[[1,2,3,4]]<|/det|>\n\nText"
