@@ -75,8 +75,9 @@ yet and why. Kinds:
 - `vllm`: any vision model served by vLLM on localhost (or a host named in
   `BAMBENCH_ALLOWED_HOSTS`). The adapter refuses every other host. `output` converts a
   model's own format (`deepseek_grounding`, `dots_layout`, `doctags`) to Markdown.
-- `paddleocr_vl`, `mineru_vl`: two-stage parsers (layout, then each block) whose VLM runs
-  in the same local vLLM server.
+- `paddleocr_vl`, `glm_ocr`, `mineru_vl`: two-stage parsers (layout, then each block) whose
+  VLM runs in the same local vLLM server. PaddleOCR and GLM-OCR run from their own
+  environments; see [`slurm/README.md`](slurm/README.md#two-stage-parsers).
 
 On the shared GPU, see [`slurm/README.md`](slurm/README.md).
 

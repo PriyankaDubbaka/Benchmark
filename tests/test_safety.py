@@ -197,3 +197,52 @@ class DraftOnlyRun(unittest.TestCase):
         self.assertFalse((run / "scores.json").exists())
         self.assertFalse((tmp / "summaries").exists())
         self.assertTrue(json.loads((run / "run.json").read_text())["draft_only"])
+
+
+class CliPipelines(unittest.TestCase):
+    """Two-stage parsers run as commands: local server only, and never a proxy to the outside."""
+
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.mkdtemp()
+        # A stand-in parser that records its arguments and proxy settings and writes a page.
+        self.cli = os.path.join(self.tmp, "fakeparser")
+        with open(self.cli, "w") as f:
+            f.write("#!/usr/bin/env python3\nimport json, os, sys\n"
+                    "out = sys.argv[sys.argv.index('--output' if '--output' in sys.argv else '--save_path') + 1]\n"
+                    "open(os.path.join(out, 'page.md'), 'w').write(json.dumps({'argv': sys.argv[1:], "
+                    "'proxy': os.environ.get('https_proxy'), 'no_proxy': os.environ.get('no_proxy')}))\n")
+        os.chmod(self.cli, 0o755)
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.tmp)
+
+    def _run(self, card):
+        from bambench.systems import pipelines
+        s = {"glm_ocr": pipelines.GlmOcr, "paddleocr_vl": pipelines.PaddleOcrVl}[card["kind"]](card)
+        with mock.patch.object(pipelines, "page_image", return_value=os.path.join(self.tmp, "p.png")), \
+                mock.patch.dict(os.environ, {"BAMBENCH_VLLM_URL": "http://127.0.0.1:8597/v1"}):
+            return json.loads(s.predict(None, [3], lambda m: None)["pages"][3])
+
+    def test_glm_ocr_runs_self_hosted_against_local_server(self):
+        got = self._run({"id": "glm-ocr", "kind": "glm_ocr", "model": "zai-org/GLM-OCR",
+                         "served_model_name": "glm-ocr", "cli": self.cli})
+        argv = got["argv"]
+        self.assertEqual(argv[argv.index("pipeline.maas.enabled") + 1], "false")
+        self.assertEqual(argv[argv.index("pipeline.ocr_api.api_host") + 1], "127.0.0.1")
+        self.assertEqual(argv[argv.index("pipeline.ocr_api.api_port") + 1], "8597")
+        self.assertEqual(got["proxy"], "http://127.0.0.1:9")
+        self.assertEqual(got["no_proxy"], "127.0.0.1,localhost")
+
+    def test_paddleocr_uses_card_pipeline_version(self):
+        got = self._run({"id": "p", "kind": "paddleocr_vl", "model": "m", "pipeline_version": "v1.5", "cli": self.cli})
+        argv = got["argv"]
+        self.assertEqual(argv[argv.index("--pipeline_version") + 1], "v1.5")
+        self.assertEqual(argv[argv.index("--vl_rec_server_url") + 1], "http://127.0.0.1:8597/v1")
+
+    def test_missing_cli_is_reported(self):
+        from bambench.systems.pipelines import GlmOcr
+        ok, why = GlmOcr({"id": "g", "kind": "glm_ocr", "model": "m", "cli": "/nope/glmocr"}).available()
+        self.assertFalse(ok)
+        self.assertIn("not installed", why)
