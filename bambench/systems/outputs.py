@@ -11,12 +11,17 @@ import json
 import re
 
 _FENCE = re.compile(r"^```(?:markdown|json|html)?\s*|\s*```$")
+# Reasoning a model writes before its answer even with thinking switched off: Qwen and GLM
+# <think> blocks, Gemma 4's empty thought channel, and GLM's answer-box markers.
+_THOUGHT = re.compile(r"<think>.*?</think>|<\|channel>thought.*?<channel\|>", re.S)
+_BOX = re.compile(r"<\|(?:begin|end)_of_box\|>")
 _GROUNDING = re.compile(r"<\|ref\|>.*?<\|/ref\|>\s*<\|det\|>.*?<\|/det\|>", re.S)
 _SPECIAL = re.compile(r"<\|[^|>]{1,40}\|>|<｜[^｜>]{1,40}｜>")
 DOTS_DROP = {"Page-header", "Page-footer", "Picture"}
 
 
 def markdown(text: str) -> str:
+    text = _BOX.sub("", _THOUGHT.sub("", text))
     return _FENCE.sub("", text.strip())
 
 

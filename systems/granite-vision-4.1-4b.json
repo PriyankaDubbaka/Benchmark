@@ -1,0 +1,23 @@
+{
+  "id": "granite-vision-4.1-4b",
+  "name": "Granite Vision 4.1 4B",
+  "kind": "vllm",
+  "model": "ibm-granite/granite-vision-4.1-4b",
+  "publisher": "IBM",
+  "released": "2026-04-29",
+  "license": "Apache-2.0",
+  "params": "4B",
+  "weights_gb": 8,
+  "slice": "20 GB",
+  "gpu": "about 8 GB bf16",
+  "serve": "vllm serve ibm-granite/granite-vision-4.1-4b --max-model-len 16384 --max-num-seqs 16",
+  "handles": {
+    "tables": true,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/ibm-granite/granite-vision-4.1-4b",
+  "notes": "Small vision model built for documents: tables to HTML, charts, key-value extraction. Needs vLLM 0.21 or later. English instructions only. Not yet run on BAM hardware."
+}
