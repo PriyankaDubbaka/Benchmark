@@ -21,5 +21,6 @@
     "layout": true
   },
   "source": "https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6",
-  "notes": "Two stages: PP-DocLayout finds the blocks, the VLM reads each one. Needs pip install \"paddleocr[doc-parser]>=3.6.0\" paddlepaddle, and the layout model downloaded once on the login node. Not yet run on BAM hardware."
+  "notes": "Two stages: PP-DocLayout finds the blocks, the VLM reads each one. Runs paddleocr from its own environment (~/venvs/paddle); the layout model is downloaded once on the login node. Not yet run on BAM hardware.",
+  "cli": "~/venvs/paddle/bin/paddleocr"
 }

@@ -44,9 +44,28 @@ when vLLM loads the weights.
 | Qwen3.5-9B | 19 GB | 40 GB |
 | Qwen3.6-27B-FP8 | about 30 GB | 40 GB, short context |
 
-PaddleOCR-VL 1.6 and MinerU2.5-Pro also need their client package in the environment
-(`paddleocr[doc-parser]`, `mineru-vl-utils[vllm]`) and their layout model downloaded once on
-the login node, because the job runs offline.
+| Qwen3.5-9B on a 20 GB slice | about 11 GB | add `--quantization fp8 --max-num-seqs 16` to its `serve` line |
+
+### Two-stage parsers
+
+PaddleOCR-VL and GLM-OCR read a page block by block after a layout model has split it. Their
+clients run as commands from their own environments, so they never clash with vLLM. Set them
+up once on the login node, because the job runs offline:
+
+```bash
+python3 -m venv ~/venvs/paddle
+~/venvs/paddle/bin/pip install "paddleocr[doc-parser]>=3.4.0" paddlepaddle
+# fetch the layout model into ~/.paddlex (no VLM server needed for this)
+~/venvs/paddle/bin/python -c "from paddleocr import PaddleOCRVL; PaddleOCRVL(pipeline_version='v1.5', vl_rec_backend='vllm-server', vl_rec_server_url='http://127.0.0.1:1/v1')"
+
+python3 -m venv ~/venvs/glmocr
+~/venvs/glmocr/bin/pip install "glmocr[selfhosted]"
+hf download PaddlePaddle/PP-DocLayoutV3_safetensors
+```
+
+The card key `cli` points at each command. The parser runs with a dead proxy for every host
+but this machine, and GLM-OCR's cloud mode is switched off, so a page can never be uploaded.
+MinerU2.5-Pro needs `mineru-vl-utils[vllm]` in the vLLM environment instead.
 
 Lower `BAMBENCH_GPU_UTIL` if the slice is shared. The job asks for 2 CPU cores and 32 GB of
 memory, which fits the per-job limit on the shared partition; raise them with `sbatch

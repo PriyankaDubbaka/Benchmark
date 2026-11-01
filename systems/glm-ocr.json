@@ -1,13 +1,13 @@
 {
   "id": "glm-ocr",
-  "name": "GLM-OCR",
-  "kind": "vllm",
+  "name": "GLM-OCR (layout pipeline)",
+  "kind": "glm_ocr",
   "model": "zai-org/GLM-OCR",
   "license": "MIT (weights)",
   "params": "0.9B",
   "gpu": "about 2 GB",
-  "serve": "vllm serve zai-org/GLM-OCR",
-  "notes": "Check the model card for the recommended page prompt and vLLM version before the first run.",
+  "serve": "vllm serve zai-org/GLM-OCR --served-model-name glm-ocr --max-model-len 8192",
+  "notes": "Two stages through the glmocr SDK: PP-DocLayoutV3 finds the blocks, GLM-OCR reads each one. Self-hosted mode only; the cloud mode is switched off and blocked. An earlier whole-page run with the general prompt scored 0.26.",
   "publisher": "Zhipu AI (Z.ai)",
   "released": "2026-02",
   "slice": "20 GB",
@@ -18,5 +18,9 @@
     "handwriting": null,
     "german": null,
     "layout": true
-  }
+  },
+  "served_model_name": "glm-ocr",
+  "cli": "~/venvs/glmocr/bin/glmocr",
+  "layout_device": "cpu",
+  "source": "https://github.com/zai-org/GLM-OCR"
 }
