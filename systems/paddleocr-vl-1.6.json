@@ -11,7 +11,7 @@
   "weights_gb": 2,
   "slice": "20 GB",
   "gpu": "about 2 GB",
-  "serve": "vllm serve PaddlePaddle/PaddleOCR-VL-1.6 --trust-remote-code --max-num-batched-tokens 16384 --no-enable-prefix-caching --mm-processor-cache-gb 0 --served-model-name PaddleOCR-VL-1.6-0.9B",
+  "serve": "vllm serve PaddlePaddle/PaddleOCR-VL-1.6 --trust-remote-code --max-num-batched-tokens 16384 --no-enable-prefix-caching --mm-processor-cache-gb 0 --trust-request-mm-kwargs --served-model-name PaddleOCR-VL-1.6-0.9B",
   "pipeline_version": "v1.6",
   "handles": {
     "tables": true,

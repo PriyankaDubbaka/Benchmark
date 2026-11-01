@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "params": "0.9B",
   "gpu": "about 2 GB",
-  "serve": "vllm serve PaddlePaddle/PaddleOCR-VL-1.5 --trust-remote-code --max-num-batched-tokens 16384 --no-enable-prefix-caching --mm-processor-cache-gb 0 --served-model-name PaddleOCR-VL-1.5-0.9B",
+  "serve": "vllm serve PaddlePaddle/PaddleOCR-VL-1.5 --trust-remote-code --max-num-batched-tokens 16384 --no-enable-prefix-caching --mm-processor-cache-gb 0 --trust-request-mm-kwargs --served-model-name PaddleOCR-VL-1.5-0.9B",
   "notes": "Two stages: PP-DocLayout finds the blocks, the VLM reads each one. Runs paddleocr from its own environment (~/venvs/paddle). An earlier whole-page run with the prompt 'OCR:' scored 0.14 because the model is not built to read a full page in one call.",
   "publisher": "Baidu PaddlePaddle",
   "slice": "20 GB",
