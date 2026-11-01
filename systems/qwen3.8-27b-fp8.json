@@ -10,7 +10,7 @@
   "weights_gb": 29,
   "slice": "40 GB",
   "gpu": "about 29 GB FP8",
-  "serve": "vllm serve Qwen/Qwen3.8-27B-FP8 --max-model-len 16384 --max-num-seqs 16",
+  "serve": "vllm serve Qwen/Qwen3.8-27B-FP8 --max-model-len 12288 --max-num-seqs 16",
   "records": true,
   "extra_body": {
     "chat_template_kwargs": {
