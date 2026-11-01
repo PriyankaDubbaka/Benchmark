@@ -19,9 +19,10 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
-from . import __version__, gold, runner
+from . import __version__, gold, models, runner
+from .compare import compare_page, latest_output, runs_of
 from .corpus import get_document, load_documents, page_image, page_texts, register
-from .paths import SITE, TRACKS, run_dir
+from .paths import SITE, TRACKS
 from .systems import KINDS, load_cards
 
 JOBS: dict[str, dict] = {}
@@ -56,16 +57,8 @@ def _systems():
     return out
 
 
-def _runs(track, system_id):
-    """Finished runs of a system, newest first. Draft-only runs have run.json but no scores."""
-    d = run_dir(track) / system_id
-    if not d.exists():
-        return []
-    return sorted((p for p in d.iterdir() if (p / "scores.json").exists() or (p / "run.json").exists()), reverse=True)
-
-
 def _latest_run(track, system_id):
-    scored = [p for p in _runs(track, system_id) if (p / "scores.json").exists()]
+    scored = [p for p in runs_of(track, system_id) if (p / "scores.json").exists()]
     return scored[0] if scored else None
 
 
@@ -230,17 +223,24 @@ class Handler(BaseHTTPRequestHandler):
                             re.sub(r"\s{2,}", "  ", l).strip() for l in text.split("\n")).strip()})
                     if src.startswith("run:"):
                         # The newest run of that system that covers this page, scored or draft-only.
-                        for r in _runs(track, src[4:]):
-                            f = r / doc.document_id / f"page-{page:03d}.md"
-                            if f.exists():
-                                return self._json({"source": src, "draft_source": src, "run_id": r.name,
-                                                   "markdown": f.read_text(encoding="utf-8")})
-                        raise KeyError(f"No run of {src[4:]} covers this page yet")
+                        found = latest_output(track, src[4:], doc, page)
+                        if not found:
+                            raise KeyError(f"No run of {src[4:]} covers this page yet")
+                        return self._json({"source": src, "draft_source": src, "run_id": found[1]["run_id"],
+                                           "markdown": found[0]})
                     raise ValueError("unknown draft source")
             raise KeyError("Unknown document route")
 
         if p == ["systems"] and method == "GET":
             return self._json(_systems())
+
+        if p == ["models"] and method == "GET":
+            return self._json(models.catalog(_systems(), runner.leaderboard()))
+
+        if len(p) == 4 and p[0] == "compare" and method == "GET":
+            if not p[3].isdigit():
+                raise KeyError("page")
+            return self._json(compare_page(get_document(p[1], p[2]), int(p[3])))
 
         if p == ["leaderboard"] and method == "GET":
             return self._json(runner.leaderboard())

@@ -1,0 +1,23 @@
+{
+  "id": "ministral-3-14b",
+  "name": "Ministral 3 14B",
+  "kind": "vllm",
+  "model": "mistralai/Ministral-3-14B-Instruct-2512",
+  "publisher": "Mistral AI",
+  "released": "2025-12",
+  "license": "Apache-2.0",
+  "params": "14B",
+  "weights_gb": 15,
+  "slice": "20 GB",
+  "gpu": "about 15 GB FP8",
+  "serve": "vllm serve mistralai/Ministral-3-14B-Instruct-2512 --tokenizer-mode mistral --config-format mistral --load-format mistral --max-model-len 12288 --max-num-seqs 16",
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": true,
+    "layout": null
+  },
+  "source": "https://huggingface.co/mistralai/Ministral-3-14B-Instruct-2512",
+  "notes": "General vision model, released in FP8. Mistral recommends a temperature below 0.1; we use 0. Not yet run on BAM hardware."
+}

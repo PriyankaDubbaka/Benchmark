@@ -33,13 +33,40 @@
 
 The A100 cards on the shared node are split into MIG slices: one 40 GB (`4g.40gb`) and two 20 GB per A100.
 `scontrol show node <node> | grep -i gres` lists the names. A slice that is too small fails
-when vLLM loads the weights.
+when vLLM loads the weights. Cards that load in 8-bit also cap `--max-num-seqs 16`, because the
+benchmark sends one page at a time and the default of 256 does not fit a small slice.
 
 | System | Weights | Slice |
 | --- | --- | --- |
-| PaddleOCR-VL 1.5, GLM-OCR | about 2 GB | 20 GB |
+| Granite-Docling-258M | 0.5 GB | 20 GB (download with `--revision untied`) |
+| GLM-OCR, MinerU2.5-Pro | about 2 GB | 20 GB |
+| DeepSeek-OCR 2, dots.mocr | 6 to 7 GB | 20 GB |
+| Granite Vision 4.1 4B | 8 GB | 20 GB |
+| Qwen3-VL-8B, InternVL3.5-8B, GLM-4.6V-Flash, Gemma 4 12B | 17 to 24 GB | 20 GB, loaded in 8-bit (`--quantization fp8` in the card) |
+| Ministral 3 14B | 15 GB (FP8 release) | 20 GB |
 | Qwen3.5-9B | 19 GB | 40 GB |
-| Qwen3.6-27B-FP8 | about 30 GB | 40 GB, short context |
+| Qwen3.6-27B-FP8, Qwen3.8-27B-FP8 | about 29 GB | 40 GB, short context |
+| Gemma 4 26B-A4B, Mistral Small 3.2 24B | 48 to 50 GB | 40 GB, loaded in 8-bit |
+
+| Qwen3.5-9B on a 20 GB slice | about 11 GB | add `--quantization fp8 --max-num-seqs 16` to its `serve` line |
+
+### Two-stage parsers
+
+GLM-OCR reads a page block by block after a layout model has split it. Its client runs as a
+command from its own environment, so it never clashes with vLLM. Set it up once on the login
+node, because the job runs offline:
+
+```bash
+python3 -m venv ~/venvs/glmocr
+~/venvs/glmocr/bin/pip install "glmocr[selfhosted]"
+hf download PaddlePaddle/PP-DocLayoutV3_safetensors
+```
+
+The card key `cli` points at the command. The parser runs with a dead proxy for every host
+but this machine, and GLM-OCR's cloud mode is switched off, so a page can never be uploaded.
+MinerU2.5-Pro needs `mineru-vl-utils[vllm]` in the vLLM environment instead. PaddleOCR-VL was
+dropped from the leaderboard; its adapter (`paddleocr_vl`) stays for anyone who wants it back,
+but it fetches fonts from Baidu at run time, so download those on the login node first.
 
 Lower `BAMBENCH_GPU_UTIL` if the slice is shared. The job asks for 2 CPU cores and 32 GB of
 memory, which fits the per-job limit on the shared partition; raise them with `sbatch

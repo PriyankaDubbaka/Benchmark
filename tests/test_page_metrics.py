@@ -90,3 +90,40 @@ class Figures(unittest.TestCase):
         from bambench.metrics.markdown import split
         parts = split("Fig. 2: Trunnion clearance\n\n![figure](fig-2.png)\n<img src='x.png'>")
         self.assertEqual(parts["text"].split(), ["Fig.", "2:", "Trunnion", "clearance"])
+
+
+class NativeOutputs(unittest.TestCase):
+    def test_thought_blocks_and_answer_boxes_are_stripped(self):
+        from bambench.systems.outputs import markdown
+        self.assertEqual(markdown("<|channel>thought\n<channel|># Bericht\n\nText"), "# Bericht\n\nText")
+        self.assertEqual(markdown("<think>\nplan\n</think>\n\n# Bericht"), "# Bericht")
+        self.assertEqual(markdown("<|begin_of_box|>```markdown\n# Bericht\n```<|end_of_box|>"), "# Bericht")
+
+    def test_deepseek_grounding_tags_are_stripped(self):
+        from bambench.systems.outputs import deepseek_grounding
+        raw = "<|ref|>title<|/ref|><|det|>[[10, 10, 200, 40]]<|/det|>\n# Prüfbericht\n\n<|ref|>image<|/ref|><|det|>[[1,2,3,4]]<|/det|>\n\nText"
+        self.assertEqual(deepseek_grounding(raw), "# Prüfbericht\n\nText")
+
+    def test_dots_layout_json_becomes_markdown_in_order(self):
+        from bambench.systems.outputs import dots_layout
+        raw = json.dumps([
+            {"bbox": [0, 0, 1, 1], "category": "Page-header", "text": "GNB"},
+            {"bbox": [0, 1, 1, 2], "category": "Title", "text": "# Scope"},
+            {"bbox": [0, 2, 1, 3], "category": "Picture"},
+            {"bbox": [0, 3, 1, 4], "category": "Formula", "text": "E = mc^2"},
+            {"bbox": [0, 4, 1, 5], "category": "Table", "text": "<table><tr><td>a</td></tr></table>"},
+        ])
+        self.assertEqual(dots_layout("```json\n" + raw + "\n```"),
+                         "# Scope\n\n$$\nE = mc^2\n$$\n\n<table><tr><td>a</td></tr></table>")
+
+    def test_dots_layout_keeps_text_that_is_not_json(self):
+        from bambench.systems.outputs import dots_layout
+        self.assertEqual(dots_layout("plain words"), "plain words")
+
+    def test_every_card_has_a_known_kind_and_output(self):
+        from bambench.systems import KINDS, load_cards
+        from bambench.systems.outputs import CONVERTERS
+        for card in load_cards():
+            self.assertIn(card["kind"], KINDS, card["id"])
+            self.assertIn(card.get("output", "markdown"), {*CONVERTERS, "doctags"}, card["id"])
+            self.assertIn("handles", card, card["id"])

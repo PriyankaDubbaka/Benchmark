@@ -66,12 +66,18 @@ Poppler text or from a model's last run, and correct it against the page image.
 
 ## Systems
 
-System cards live in `systems/*.json`. Kinds:
+System cards live in `systems/*.json`. The Models page in the dashboard lists them all with
+their claimed capabilities and scores; `systems/watchlist/models.json` holds models not added
+yet and why. Kinds:
 
 - `pdftotext_rules`: Poppler text, the floor baseline.
 - `docling`: Docling layout + TableFormer (`pip install docling`).
 - `vllm`: any vision model served by vLLM on localhost (or a host named in
-  `BAMBENCH_ALLOWED_HOSTS`). The adapter refuses every other host.
+  `BAMBENCH_ALLOWED_HOSTS`). The adapter refuses every other host. `output` converts a
+  model's own format (`deepseek_grounding`, `dots_layout`, `doctags`) to Markdown.
+- `paddleocr_vl`, `glm_ocr`, `mineru_vl`: two-stage parsers (layout, then each block) whose
+  VLM runs in the same local vLLM server. PaddleOCR and GLM-OCR run from their own
+  environments; see [`slurm/README.md`](slurm/README.md#two-stage-parsers).
 
 On the shared GPU, see [`slurm/README.md`](slurm/README.md).
 

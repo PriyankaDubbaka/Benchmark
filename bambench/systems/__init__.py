@@ -7,9 +7,10 @@ from ..paths import SYSTEMS
 from .base import System
 from .docling_system import DoclingSystem
 from .pdftotext_rules import PdftotextRules
+from .pipelines import GlmOcr, MineruVl, PaddleOcrVl
 from .vllm_vlm import VllmVlm
 
-KINDS = {cls.kind: cls for cls in (PdftotextRules, VllmVlm, DoclingSystem)}
+KINDS = {cls.kind: cls for cls in (PdftotextRules, VllmVlm, DoclingSystem, PaddleOcrVl, GlmOcr, MineruVl)}
 
 
 def load_cards() -> list[dict]:
