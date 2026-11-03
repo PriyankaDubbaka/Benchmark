@@ -1,0 +1,29 @@
+{
+  "id": "qwen3.5-27b-fp8",
+  "name": "Qwen3.5-27B (FP8)",
+  "kind": "vllm",
+  "model": "Qwen/Qwen3.5-27B-FP8",
+  "publisher": "Alibaba Qwen",
+  "released": "2026-02",
+  "license": "Apache-2.0",
+  "params": "27B",
+  "weights_gb": 29,
+  "slice": "40 GB",
+  "gpu": "about 29 GB FP8",
+  "serve": "vllm serve Qwen/Qwen3.5-27B-FP8 --max-model-len 12288 --max-num-seqs 16",
+  "records": true,
+  "extra_body": {
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  },
+  "handles": {
+    "tables": true,
+    "formulas": true,
+    "handwriting": null,
+    "german": true,
+    "layout": true
+  },
+  "source": "https://huggingface.co/Qwen/Qwen3.5-27B-FP8",
+  "notes": "Large sibling of the drafting model Qwen3.5-9B, so like it, it may be favoured on pages Qwen drafted; read the score without own drafts. Thinking is off. Not yet run on BAM hardware."
+}

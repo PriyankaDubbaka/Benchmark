@@ -1,0 +1,26 @@
+{
+  "id": "unlimited-ocr",
+  "name": "Unlimited-OCR",
+  "kind": "vllm",
+  "model": "baidu/Unlimited-OCR",
+  "publisher": "Baidu",
+  "released": "2026-06",
+  "license": "MIT",
+  "params": "3B",
+  "weights_gb": 7,
+  "slice": "20 GB",
+  "gpu": "about 8 GB",
+  "serve": "vllm serve baidu/Unlimited-OCR --trust-remote-code --max-model-len 8192 --no-enable-prefix-caching --mm-processor-cache-gb 0",
+  "page_prompt": "document parsing.",
+  "output": "deepseek_grounding",
+  "max_tokens": 6000,
+  "handles": {
+    "tables": true,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": true
+  },
+  "source": "https://huggingface.co/baidu/Unlimited-OCR",
+  "notes": "Long-document OCR model in the DeepSeek-OCR line. Each block comes wrapped in <|det|> type and box tags, which are stripped before scoring. Not yet run on BAM hardware."
+}

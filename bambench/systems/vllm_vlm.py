@@ -88,9 +88,10 @@ class VllmVlm(System):
             "model": self.served_name,
             "temperature": 0,
             "max_tokens": self.card.get("max_tokens", 4096),
+            # Some OCR models (LightOnOCR) are trained on the image alone; an empty prompt sends no text part.
             "messages": [{"role": "user", "content": [
                 {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image_b64}"}},
-                {"type": "text", "text": prompt},
+                *([{"type": "text", "text": prompt}] if prompt else []),
             ]}],
             **self.card.get("extra_body", {}),
         }

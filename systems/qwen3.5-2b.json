@@ -1,0 +1,28 @@
+{
+  "id": "qwen3.5-2b",
+  "name": "Qwen3.5-2B",
+  "kind": "vllm",
+  "model": "Qwen/Qwen3.5-2B",
+  "publisher": "Alibaba Qwen",
+  "released": "2026-02",
+  "license": "Apache-2.0",
+  "params": "2B",
+  "weights_gb": 5,
+  "slice": "20 GB",
+  "gpu": "about 5 GB",
+  "serve": "vllm serve Qwen/Qwen3.5-2B --max-model-len 16384 --max-num-seqs 16",
+  "extra_body": {
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  },
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": true
+  },
+  "source": "https://huggingface.co/Qwen/Qwen3.5-2B",
+  "notes": "Smallest Qwen3.5 tested. Thinking is off. Not yet run on BAM hardware."
+}
