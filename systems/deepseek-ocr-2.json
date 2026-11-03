@@ -22,5 +22,8 @@
     "layout": true
   },
   "source": "https://huggingface.co/deepseek-ai/DeepSeek-OCR-2",
-  "notes": "Single call. Grounding tags around each block are stripped before scoring. Not yet run on BAM hardware."
+  "notes": "Single call. Grounding tags around each block are stripped before scoring. Needs TRITON_ALLOW_NON_CONSTEXPR_GLOBALS=1 with vLLM 0.32, set under env.",
+  "env": {
+    "TRITON_ALLOW_NON_CONSTEXPR_GLOBALS": "1"
+  }
 }

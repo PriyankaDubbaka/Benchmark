@@ -16,6 +16,8 @@ _FENCE = re.compile(r"^```(?:markdown|json|html)?\s*|\s*```$")
 _THOUGHT = re.compile(r"<think>.*?</think>|<\|channel>thought.*?<channel\|>", re.S)
 _BOX = re.compile(r"<\|(?:begin|end)_of_box\|>")
 _GROUNDING = re.compile(r"<\|ref\|>.*?<\|/ref\|>\s*<\|det\|>.*?<\|/det\|>", re.S)
+_DET = re.compile(r"<\|det\|>.*?<\|/det\|>", re.S)  # Unlimited-OCR: <|det|>type [box]<|/det|> with no ref tag
+_FRONT_MATTER = re.compile(r"\A---\s*\n.*?\n---\s*(?:\n|\Z)", re.S)
 _SPECIAL = re.compile(r"<\|[^|>]{1,40}\|>|<｜[^｜>]{1,40}｜>")
 DOTS_DROP = {"Page-header", "Page-footer", "Picture"}
 
@@ -27,8 +29,13 @@ def markdown(text: str) -> str:
 
 def deepseek_grounding(text: str) -> str:
     """Strip <|ref|>kind<|/ref|><|det|>[[boxes]]<|/det|> markers, keep the content after each."""
-    out = _SPECIAL.sub("", _GROUNDING.sub("", markdown(text)))
+    out = _SPECIAL.sub("", _DET.sub("", _GROUNDING.sub("", markdown(text))))
     return re.sub(r"\n{3,}", "\n\n", out).strip()
+
+
+def front_matter(text: str) -> str:
+    """olmOCR 2 starts each page with a YAML block (language, rotation, is_table). Drop it, keep the page."""
+    return _FRONT_MATTER.sub("", markdown(text), count=1).strip()
 
 
 def dots_layout(text: str) -> str:
@@ -70,4 +77,5 @@ def doctags(text: str, image_path=None) -> str:
     return DoclingDocument.load_from_doctags(tags, document_name="page").export_to_markdown()
 
 
-CONVERTERS = {"markdown": markdown, "deepseek_grounding": deepseek_grounding, "dots_layout": dots_layout}
+CONVERTERS = {"markdown": markdown, "deepseek_grounding": deepseek_grounding, "dots_layout": dots_layout,
+              "front_matter": front_matter}

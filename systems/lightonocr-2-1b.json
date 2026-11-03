@@ -1,0 +1,26 @@
+{
+  "id": "lightonocr-2-1b",
+  "name": "LightOnOCR-2-1B",
+  "kind": "vllm",
+  "model": "lightonai/LightOnOCR-2-1B",
+  "publisher": "LightOn (France)",
+  "released": "2026-01",
+  "license": "Apache-2.0",
+  "params": "1B",
+  "weights_gb": 2,
+  "slice": "20 GB",
+  "gpu": "about 3 GB",
+  "serve": "vllm serve lightonai/LightOnOCR-2-1B --max-model-len 8192 --limit-mm-per-prompt.image 1 --mm-processor-cache-gb 0 --no-enable-prefix-caching",
+  "page_prompt": "",
+  "dpi": 132,
+  "max_tokens": 4096,
+  "handles": {
+    "tables": true,
+    "formulas": true,
+    "handwriting": null,
+    "german": null,
+    "layout": true
+  },
+  "source": "https://huggingface.co/lightonai/LightOnOCR-2-1B",
+  "notes": "Small, fast European OCR model. Image only, no prompt. olmOCR-Bench 83.2 at launch. LightOnOCR-3-1B is a drop-in successor with the same architecture. Not yet run on BAM hardware."
+}

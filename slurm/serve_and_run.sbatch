@@ -39,13 +39,16 @@ PORT=$((8000 + SLURM_JOB_ID % 1000))
 export BAMBENCH_VLLM_URL="http://127.0.0.1:${PORT}/v1"
 
 SERVE=$(python3 -c "import json,sys; c=json.load(open('systems/${SYSTEM}.json')); print(c.get('serve',''))")
+# Extra environment a card asks for, such as a Triton switch one model needs.
+eval "$(python3 -c "import json,shlex; c=json.load(open('systems/${SYSTEM}.json')); print('\n'.join(f'export {k}={shlex.quote(str(v))}' for k, v in c.get('env', {}).items()))")"
 if [ -n "$SERVE" ]; then
   if ! command -v "${SERVE%% *}" >/dev/null; then
     echo "${SERVE%% *} not found. Activate the environment that has it, or set BAMBENCH_VENV." >&2
     exit 1
   fi
   echo "starting: $SERVE --port $PORT --host 127.0.0.1"
-  $SERVE --port "$PORT" --host 127.0.0.1 --gpu-memory-utilization "${BAMBENCH_GPU_UTIL:-0.85}" &
+  # eval so a serve line can quote JSON arguments and use ~ or $HOME; exec keeps $! on vLLM itself.
+  eval "exec $SERVE --port $PORT --host 127.0.0.1 --gpu-memory-utilization ${BAMBENCH_GPU_UTIL:-0.85}" &
   VLLM_PID=$!
   trap 'kill $VLLM_PID 2>/dev/null || true' EXIT
   for i in $(seq 1 120); do

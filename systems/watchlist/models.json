@@ -35,13 +35,6 @@
     "reason": "The multimodal licence excludes companies and people based in the EU, so BAM cannot use them."
   },
   {
-    "name": "Gemma 4 31B",
-    "publisher": "Google",
-    "params": "31B",
-    "license": "Apache-2.0",
-    "reason": "Slightly above the 27B ceiling. Gemma 4 26B-A4B is in the benchmark instead."
-  },
-  {
     "name": "Phi-4-reasoning-vision-15B",
     "publisher": "Microsoft",
     "params": "15B",
