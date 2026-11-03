@@ -97,7 +97,21 @@ class VllmVlm(System):
         req = urllib.request.Request(self.base_url.rstrip("/") + "/chat/completions",
                                      data=json.dumps(body).encode(), headers={"Content-Type": "application/json"})
         with _OPENER.open(req, timeout=self.card.get("timeout_s", 600)) as r:
-            return json.load(r)["choices"][0]["message"]["content"] or ""
+            reply = json.load(r)
+        self._count(reply)
+        return reply["choices"][0]["message"]["content"] or ""
+
+    def _count(self, reply: dict) -> None:
+        """Add one response's token usage to self.usage. A reply cut off at max_tokens counts as truncated."""
+        u = self.usage if self.usage is not None else {
+            "requests": 0, "prompt_tokens": 0, "completion_tokens": 0, "truncated": 0}
+        usage = reply.get("usage") or {}
+        u["requests"] += 1
+        u["prompt_tokens"] += int(usage.get("prompt_tokens") or 0)
+        u["completion_tokens"] += int(usage.get("completion_tokens") or 0)
+        if (reply.get("choices") or [{}])[0].get("finish_reason") == "length":
+            u["truncated"] += 1
+        self.usage = u
 
     def predict(self, doc: Document, pages: list[int], progress: Progress) -> dict:
         out, records, raw = {}, [], {}

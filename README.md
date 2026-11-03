@@ -64,6 +64,16 @@ Gold for a page is Markdown in `data/<track>/annotations/<doc>/page-NNN.json` wi
 of `marked` (picked, no text yet), `draft`, `checked` or `skip`, plus its kind and language. Write it in the dashboard's annotation view, prefilled from
 Poppler text or from a model's last run, and correct it against the page image.
 
+### Time and cost
+
+Next to the scores, the leaderboard shows seconds per page, an estimated euro cost per 1,000
+pages and the tokens a model wrote per page. Time is the run's wall time with the model already
+loaded. Cost is the share of one A100 80 GB the card's `slice` takes (20 GB is a quarter, 40 GB
+a half, no slice is CPU and free) times that time times an hourly price, €2 unless
+`BAMBENCH_A100_EUR_PER_HOUR` says otherwise. It is for comparing systems, not a bill. Token
+counts and replies cut off at `max_tokens` come from the vLLM server's usage field, so they
+appear only for `vllm` runs made after this was added; older summaries still get time and cost.
+
 ## Systems
 
 System cards live in `systems/*.json`. The Models page in the dashboard lists them all with
