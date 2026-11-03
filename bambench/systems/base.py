@@ -16,6 +16,8 @@ class System:
     def __init__(self, card: dict):
         self.card = card
         self.id = card["id"]
+        # Token counts across a run, filled by systems that call an LLM server directly. None means unknown.
+        self.usage: dict | None = None
 
     def available(self) -> tuple[bool, str]:
         return True, ""

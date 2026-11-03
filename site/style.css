@@ -135,3 +135,15 @@ table.models th.cap, table.models td.cap { text-align: center; width: 64px; }
 ins { background: color-mix(in srgb, var(--good) 18%, transparent); color: var(--good); text-decoration: none; border-radius: 3px; padding: 0 2px; }
 del { background: color-mix(in srgb, var(--bad) 15%, transparent); color: var(--bad); border-radius: 3px; padding: 0 2px; }
 @media (max-width: 700px) { .ccol, .ccol.scan { flex-basis: 88vw; } }
+
+/* Accuracy against speed chart */
+.chart { width: 100%; max-width: 760px; height: auto; display: block; }
+.chart text { fill: var(--muted); font-size: 12px; }
+.chart .label { fill: var(--ink); font-size: 12px; }
+.chart .gridline { stroke: var(--line); stroke-width: 1; }
+.chart .axis { stroke: var(--muted); stroke-width: 1; }
+.chart .pt { cursor: pointer; }
+.chart .pt circle { fill: var(--accent); stroke: var(--panel); stroke-width: 2; }
+.chart .pt text { fill: var(--ink); font-size: 11px; }
+.chart .pt:hover circle { fill: var(--bad); }
+th.cost, td.cost { background: var(--accent-soft); }
