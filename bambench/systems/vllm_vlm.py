@@ -20,6 +20,10 @@ from ..metrics.records import ValidationError, validate_rows
 from . import outputs
 from .base import Progress, System
 
+# Room for a long table page. A fixed 4,096 cut real answers off; runaway loops still end at the cap
+# and show up as cut-off replies on the leaderboard.
+DEFAULT_MAX_TOKENS = 8192
+
 PAGE_PROMPT = """Convert this document page to Markdown.
 - Keep the reading order. Use # headings for titles.
 - Write every table as an HTML <table> with <tr> and <td>; use colspan/rowspan for merged cells.
@@ -87,7 +91,7 @@ class VllmVlm(System):
         body = {
             "model": self.served_name,
             "temperature": 0,
-            "max_tokens": self.card.get("max_tokens", 4096),
+            "max_tokens": self.card.get("max_tokens", DEFAULT_MAX_TOKENS),
             # Some OCR models (LightOnOCR) are trained on the image alone; an empty prompt sends no text part.
             "messages": [{"role": "user", "content": [
                 {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image_b64}"}},

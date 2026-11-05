@@ -10,10 +10,9 @@
   "weights_gb": 10,
   "slice": "20 GB",
   "gpu": "about 10 GB",
-  "serve": "vllm serve lightonai/LightOnOCR-3-4B --trust-remote-code --max-model-len 8192 --max-num-seqs 16 --limit-mm-per-prompt.image 1 --mm-processor-cache-gb 0 --no-enable-prefix-caching",
+  "serve": "vllm serve lightonai/LightOnOCR-3-4B --trust-remote-code --max-model-len 12288 --max-num-seqs 16 --limit-mm-per-prompt.image 1 --mm-processor-cache-gb 0 --no-enable-prefix-caching",
   "page_prompt": "",
   "dpi": 132,
-  "max_tokens": 4096,
   "extra_body": {
     "chat_template_kwargs": {
       "enable_thinking": false

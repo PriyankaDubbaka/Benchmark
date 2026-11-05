@@ -10,10 +10,9 @@
   "weights_gb": 2,
   "slice": "20 GB",
   "gpu": "about 3 GB",
-  "serve": "vllm serve lightonai/LightOnOCR-2-1B --max-model-len 8192 --limit-mm-per-prompt.image 1 --mm-processor-cache-gb 0 --no-enable-prefix-caching",
+  "serve": "vllm serve lightonai/LightOnOCR-2-1B --max-model-len 12288 --limit-mm-per-prompt.image 1 --mm-processor-cache-gb 0 --no-enable-prefix-caching",
   "page_prompt": "",
   "dpi": 132,
-  "max_tokens": 4096,
   "handles": {
     "tables": true,
     "formulas": true,
