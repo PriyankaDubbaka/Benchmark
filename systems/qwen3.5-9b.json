@@ -8,5 +8,20 @@
   "gpu": "about 20 GB bf16",
   "serve": "vllm serve Qwen/Qwen3.5-9B --max-model-len 16384",
   "records": true,
-  "notes": "General vision model. Also extracts E5 measurement records on certificates."
+  "notes": "General vision model. Also extracts E5 measurement records on certificates. Thinking is off: with it on, the model spends its token budget planning and returns no page.",
+  "publisher": "Alibaba Qwen",
+  "slice": "40 GB",
+  "weights_gb": 19,
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": true
+  },
+  "extra_body": {
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  }
 }

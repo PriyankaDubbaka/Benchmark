@@ -1,0 +1,35 @@
+{
+  "id": "unlimited-ocr",
+  "name": "Unlimited-OCR",
+  "kind": "vllm",
+  "model": "baidu/Unlimited-OCR",
+  "publisher": "Baidu",
+  "released": "2026-06",
+  "license": "MIT",
+  "params": "3B",
+  "weights_gb": 7,
+  "slice": "20 GB",
+  "gpu": "about 8 GB",
+  "serve": "vllm serve baidu/Unlimited-OCR --trust-remote-code --logits_processors vllm.model_executor.models.unlimited_ocr:NGramPerReqLogitsProcessor --max-model-len 12288 --no-enable-prefix-caching --mm-processor-cache-gb 0",
+  "page_prompt": "<image>document parsing.",
+  "output": "deepseek_grounding",
+  "handles": {
+    "tables": true,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": true
+  },
+  "source": "https://huggingface.co/baidu/Unlimited-OCR",
+  "notes": "Long-document OCR model in the DeepSeek-OCR line. Each block comes wrapped in <|det|> type and box tags, which are stripped before scoring. Needs TRITON_ALLOW_NON_CONSTEXPR_GLOBALS=1 with vLLM 0.32, like DeepSeek-OCR 2. The first run looped on coordinate tokens (11 of 17 pages cut off) because it ran without the repetition guard the model needs; the guard and the prompt now follow the vLLM recipe. Special tokens are kept so the tags can be stripped.",
+  "env": {
+    "TRITON_ALLOW_NON_CONSTEXPR_GLOBALS": "1"
+  },
+  "extra_body": {
+    "skip_special_tokens": false,
+    "vllm_xargs": {
+      "ngram_size": 35,
+      "window_size": 128
+    }
+  }
+}

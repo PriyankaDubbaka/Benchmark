@@ -11,6 +11,13 @@ const METRICS = [
   ["e5_record_f1", "E5 Records", "Exact-record F1 on measurement rows"],
 ];
 
+// Speed and cost columns: lower is better. Cost is worked out from the GPU slice and an hourly price.
+const COSTS = [
+  ["seconds_per_page", "Sec / page", "Wall time of the run divided by pages, model already loaded", (x) => x.toFixed(1)],
+  ["eur_per_1000_pages", "€ / 1k pages", "Share of an A100 the slice uses × hours per 1,000 pages × hourly price", (x) => x.toFixed(2)],
+  ["output_tokens_per_page", "Tokens / page", "Tokens the model wrote per page. Recorded from runs after Nov 3", (x) => String(x)],
+];
+
 const $app = document.getElementById("app");
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const pct = (x) => (x === null || x === undefined ? "—" : (100 * x).toFixed(1));
@@ -65,29 +72,91 @@ let lbTrack = store.get("lbTrack", "open");
 let lbSort = "overall";
 async function leaderboard() {
   const rows = await api("leaderboard");
+  const val = (s, k) => (k in s.scores ? s.scores[k] : s.cost?.[k]) ?? null;
+  const lowIsGood = (k) => COSTS.some(([c]) => c === k);
   const draw = () => {
     const have = rows.filter((r) => r[lbTrack]);
-    have.sort((a, b) => (b[lbTrack].scores[lbSort] ?? -1) - (a[lbTrack].scores[lbSort] ?? -1));
+    const up = lowIsGood(lbSort);
+    have.sort((a, b) => {
+      const x = val(a[lbTrack], lbSort), y = val(b[lbTrack], lbSort);
+      if (x === null || y === null) return (x === null) - (y === null);
+      return up ? x - y : y - x;
+    });
     const best = {};
     for (const [k] of METRICS) best[k] = Math.max(...have.map((r) => r[lbTrack].scores[k] ?? -1));
-    const head = METRICS.map(([k, label, tip]) => `<th class="num sort" data-k="${k}" title="${esc(tip)}">${label}${lbSort === k ? " ↓" : ""}</th>`).join("");
+    for (const [k] of COSTS) {
+      const xs = have.map((r) => r[lbTrack].cost?.[k]).filter((x) => x !== null && x !== undefined && x > 0);
+      best[k] = xs.length ? Math.min(...xs) : null;
+    }
+    const arrow = (k) => (lbSort === k ? (lowIsGood(k) ? " ↑" : " ↓") : "");
+    const head = METRICS.map(([k, label, tip]) => `<th class="num sort" data-k="${k}" title="${esc(tip)}">${label}${arrow(k)}</th>`).join("")
+      + COSTS.map(([k, label, tip]) => `<th class="num sort cost" data-k="${k}" title="${esc(tip)}">${label}${arrow(k)}</th>`).join("");
     const body = have.map((r) => {
       const s = r[lbTrack];
       const cells = METRICS.map(([k]) => `<td class="num ${have.length > 1 && s.scores[k] !== null && s.scores[k] === best[k] ? "best" : ""}">${pct(s.scores[k])}</td>`).join("");
-      return `<tr class="click" data-sys="${esc(r.system)}"><td><b>${esc(r.card.name || r.system)}</b><div class="small muted">${esc(r.card.params || "")} · ${esc(r.card.license || "")}</div></td>
-        ${cells}<td class="num">${s.counts.pages}${s.publishable === false ? ' <span class="pill draft" title="Fewer than 20 pages: internal only">internal</span>' : ""}</td><td class="small muted">${esc(s.finished.slice(0, 10))}</td></tr>`;
+      const costs = COSTS.map(([k, , , fmt]) => {
+        const x = s.cost?.[k];
+        const cut = k === "output_tokens_per_page" && s.cost?.truncated_pages ? ` <span class="small muted" title="Replies cut off at max_tokens">${s.cost.truncated_pages} cut</span>` : "";
+        return `<td class="num cost ${have.length > 1 && x && x === best[k] ? "best" : ""}">${x === null || x === undefined ? "—" : fmt(x)}${cut}</td>`;
+      }).join("");
+      return `<tr class="click" data-sys="${esc(r.system)}"><td><b>${esc(r.card.name || r.system)}</b><div class="small muted">${esc(r.card.params || "")} · ${esc(r.card.license || "")}${r.card.slice ? " · " + esc(r.card.slice) : ""}</div></td>
+        ${cells}${costs}<td class="num">${s.counts.pages}${s.publishable === false ? ' <span class="pill draft" title="Fewer than 20 pages: internal only">internal</span>' : ""}</td><td class="small muted">${esc(s.finished.slice(0, 10))}</td></tr>`;
     }).join("");
+    const price = have.find((r) => r[lbTrack].cost)?.[lbTrack].cost.eur_per_hour;
     $app.innerHTML = `<h1>Leaderboard</h1>
-      <p class="lead">Scores are percentages, higher is better. Click a column to sort and a row for details. Every row was produced by a local run with a pinned system card.</p>
+      <p class="lead">Scores are percentages, higher is better. Time and cost are per page, lower is better. Click a column to sort and a row for details. Every row was produced by a local run with a pinned system card.</p>
       <div class="tabs"><button data-t="open" class="${lbTrack === "open" ? "on" : ""}">Open track</button><button data-t="closed" class="${lbTrack === "closed" ? "on" : ""}">Closed track</button></div>
       ${lbTrack === "closed" ? `<div class="note closed small">Closed-track numbers are aggregates over confidential reports. Only publish a number when it is backed by at least 20 pages.</div>` : ""}
-      ${have.length ? `<div class="scroll"><table class="grid"><tr><th>System</th>${head}<th class="num">Pages</th><th>Run</th></tr>${body}</table></div>`
+      ${have.length ? `<div class="scroll"><table class="grid"><tr><th>System</th>${head}<th class="num">Pages</th><th>Run</th></tr>${body}</table></div>
+        <p class="small muted">Cost is an estimate: the share of one A100 80 GB the system's slice takes (20 GB is a quarter, 40 GB a half, CPU is free) × run time × €${price ?? "?"} per A100 hour. Set BAMBENCH_A100_EUR_PER_HOUR to change the price. Time is measured with the model already loaded, so server start-up is not counted.</p>
+        <h2>Accuracy against speed</h2>${speedChart(have.map((r) => ({ name: r.card.name || r.system, sys: r.system, y: r[lbTrack].scores.overall, x: r[lbTrack].cost?.seconds_per_page })))}`
         : `<p class="muted">No ${lbTrack}-track results yet.</p>`}`;
     $app.querySelectorAll("[data-t]").forEach((b) => (b.onclick = () => { lbTrack = b.dataset.t; store.set("lbTrack", lbTrack); draw(); }));
     $app.querySelectorAll("th[data-k]").forEach((th) => (th.onclick = () => { lbSort = th.dataset.k; draw(); }));
-    $app.querySelectorAll("tr[data-sys]").forEach((tr) => (tr.onclick = () => (location.hash = "#/system/" + tr.dataset.sys)));
+    $app.querySelectorAll("tr[data-sys], g[data-sys]").forEach((el) => (el.onclick = () => (location.hash = "#/system/" + el.dataset.sys)));
   };
   draw();
+}
+
+// Overall score (up) against seconds per page (left is faster), log scale on time. Top left is best.
+function speedChart(points) {
+  const pts = points.filter((p) => p.y !== null && p.y !== undefined && p.x > 0);
+  if (pts.length < 2) return `<p class="small muted">Needs two systems with timed runs.</p>`;
+  const W = 720, H = 360, L = 52, R = 24, T = 16, B = 44;
+  const lo = Math.log10(Math.min(...pts.map((p) => p.x)) / 1.3), hi = Math.log10(Math.max(...pts.map((p) => p.x)) * 1.3);
+  const ymax = Math.min(1, Math.ceil(Math.max(...pts.map((p) => p.y)) * 10 + 0.5) / 10);
+  const X = (x) => L + ((Math.log10(x) - lo) / (hi - lo)) * (W - L - R);
+  const Y = (y) => T + (1 - y / ymax) * (H - T - B);
+  const xt = [1, 2, 5, 10, 20, 50, 100, 200, 500].filter((v) => Math.log10(v) >= lo && Math.log10(v) <= hi);
+  const yt = []; for (let v = 0; v <= ymax + 1e-9; v += 0.1) yt.push(+v.toFixed(1));
+  const grid = yt.map((v) => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" class="gridline"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end">${Math.round(v * 100)}</text>`).join("")
+    + xt.map((v) => `<text x="${X(v)}" y="${H - B + 18}" text-anchor="middle">${v}</text>`).join("");
+  // Place each label right, left, above or below its dot, avoiding other dots and labels already placed.
+  const boxes = pts.map((p) => ({ x1: X(p.x) - 6, x2: X(p.x) + 6, y1: Y(p.y) - 6, y2: Y(p.y) + 6 }));
+  const hit = (r) => r.x1 < L || r.x2 > W - 2 || boxes.some((b) => r.x1 < b.x2 && b.x1 < r.x2 && r.y1 < b.y2 && b.y1 < r.y2);
+  const dots = [...pts].sort((a, b) => b.y - a.y).map((p) => {
+    const label = p.name.replace(/\s*\(.*\)$/, "");
+    const w = label.length * 6.3, cx = X(p.x), cy = Y(p.y);
+    const spots = [[cx + 8, cy + 4, "start"], [cx - 8, cy + 4, "end"], [cx, cy - 10, "middle"], [cx, cy + 18, "middle"]];
+    let pick = spots[0], box;
+    for (let dy = 0; dy <= 39; dy += 13) {
+      const found = spots.find(([x, y, a]) => {
+        const x1 = a === "start" ? x : a === "end" ? x - w : x - w / 2;
+        box = { x1, x2: x1 + w, y1: y + dy - 11, y2: y + dy + 2 };
+        return !hit(box);
+      });
+      if (found) { pick = [found[0], found[1] + dy, found[2]]; break; }
+    }
+    const x1 = pick[2] === "start" ? pick[0] : pick[2] === "end" ? pick[0] - w : pick[0] - w / 2;
+    boxes.push({ x1, x2: x1 + w, y1: pick[1] - 11, y2: pick[1] + 2 });
+    return `<g class="pt" data-sys="${esc(p.sys)}"><title>${esc(p.name)}: ${pct(p.y)} overall, ${p.x.toFixed(1)} s per page</title>
+    <circle cx="${cx}" cy="${cy}" r="5"/><text x="${pick[0]}" y="${pick[1]}" text-anchor="${pick[2]}">${esc(label)}</text></g>`;
+  }).join("");
+  return `<div class="scroll"><svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Overall score against seconds per page">
+    ${grid}<line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" class="axis"/>
+    <text x="${(L + W - R) / 2}" y="${H - 6}" text-anchor="middle" class="label">Seconds per page (log scale, faster to the left)</text>
+    <text x="14" y="${(T + H - B) / 2}" text-anchor="middle" class="label" transform="rotate(-90 14 ${(T + H - B) / 2})">Overall</text>
+    ${dots}</svg></div>`;
 }
 
 // ---------- System detail ----------
@@ -126,7 +195,7 @@ async function systemDetail(id) {
     ${docs ? `<h2>Per document, open track</h2><div class="scroll"><table class="grid"><tr><th>Document</th><th class="num">Pages</th><th class="num">E1 Text</th><th class="num">E2 Tables</th><th class="num">E5 Records</th></tr>${docs}</table></div>` : ""}
     <h2>System card</h2><div class="scroll"><table class="grid">${card}</table></div>
     <h2>Run environment</h2><div class="scroll"><table class="grid">
-      ${["open", "closed"].filter((t) => r[t]).map((t) => `<tr><th>${t}</th><td>${esc(r[t].environment.gpu)} · Python ${esc(r[t].environment.python)} · ${r[t].runtime_s}s · run ${esc(r[t].run_id)}</td></tr>`).join("")}
+      ${["open", "closed"].filter((t) => r[t]).map((t) => `<tr><th>${t}</th><td>${esc(r[t].environment.gpu)} · Python ${esc(r[t].environment.python)} · ${r[t].runtime_s}s${r[t].cost?.seconds_per_page != null ? ` (${r[t].cost.seconds_per_page} s per page, about €${r[t].cost.eur_per_1000_pages} per 1,000 pages)` : ""}${r[t].cost?.output_tokens_per_page != null ? ` · ${r[t].cost.prompt_tokens_per_page} tokens in, ${r[t].cost.output_tokens_per_page} out per page${r[t].cost.truncated_pages ? `, ${r[t].cost.truncated_pages} replies cut off` : ""}` : ""} · run ${esc(r[t].run_id)}</td></tr>`).join("")}
     </table></div>`;
 }
 
@@ -262,6 +331,7 @@ async function annotate(track, id, page) {
   $app.innerHTML = `<p class="small"><a href="#/doc/${track}/${encodeURIComponent(id)}">← ${esc(d.title || id)}</a></p>
     <div class="toolbar"><h1 style="margin:0">Page ${page} of ${d.page_count}</h1> ${trackPill(track)}
       <span style="flex:1"></span>
+      <a class="btn" href="#/compare/${track}/${encodeURIComponent(id)}/${page}">Compare models</a>
       <a class="btn" href="${base}${Math.max(1, page - 1)}">← Prev</a><a class="btn" href="${base}${Math.min(d.page_count, page + 1)}">Next →</a></div>
     <div class="annot">
       <div class="img"><img src="/api/documents/${track}/${encodeURIComponent(id)}/pages/${page}.png?dpi=130" alt="Page ${page}"></div>
@@ -357,6 +427,100 @@ async function runs() {
   if (running) poll = setTimeout(() => { if (location.hash.startsWith("#/runs")) runs(); }, 1500);
 }
 
+
+// ---------- Models ----------
+const CAP_LABEL = { tables: "Tables", formulas: "Formulas", handwriting: "Handwriting", german: "German", layout: "Layout boxes" };
+let modelsTrack = store.get("modelsTrack", "closed");
+async function models() {
+  const m = await api("models");
+  const mark = (v) => (v === true ? '<span class="yes" title="claimed by the publisher">✓</span>' : v === false ? '<span class="muted">✗</span>' : '<span class="muted">?</span>');
+  const status = (s) => {
+    const r = s.results[modelsTrack];
+    if (r) return `<span class="pill ok">scored</span>`;
+    if (s.seconds_per_page[modelsTrack] != null) return `<span class="pill marked">drafted</span>`;
+    if (s.weights_downloaded === false) return `<span class="pill no" title="Download the weights on the login node">no weights</span>`;
+    return s.available ? `<span class="pill">ready</span>` : `<span class="pill no" title="${esc(s.reason)}">not ready</span>`;
+  };
+  const draw = () => {
+    const rows = [...m.systems].sort((a, b) => (b.results[modelsTrack]?.overall ?? -1) - (a.results[modelsTrack]?.overall ?? -1));
+    const body = rows.map((s) => {
+      const r = s.results[modelsTrack];
+      const kind = (k) => (r?.by_kind?.[k] !== undefined ? pct(r.by_kind[k]) : "—");
+      const sp = s.seconds_per_page[modelsTrack];
+      return `<tr>
+        <td><b>${s.results.open || s.results.closed ? `<a href="#/system/${esc(s.id)}">${esc(s.name || s.id)}</a>` : esc(s.name || s.id)}</b>
+          <div class="small muted">${esc(s.publisher || "")}${s.released ? " · " + esc(s.released) : ""}</div></td>
+        <td class="num">${esc(s.params || "")}</td><td class="small">${esc(s.license || "")}</td><td class="small">${esc(s.slice || s.gpu || "")}</td>
+        ${m.capabilities.map((c) => `<td class="cap">${mark(s.handles[c])}</td>`).join("")}
+        <td class="num"><b>${r ? pct(r.overall) : "—"}</b></td><td class="num">${r ? pct(r.tables) : "—"}</td><td class="num">${r ? pct(r.formulas) : "—"}</td>
+        <td class="num">${kind("figure")}</td><td class="num">${sp != null ? sp.toFixed(1) : "—"}</td>
+        <td>${status(s)}${r && r.publishable === false ? ' <span class="pill draft" title="Fewer than 20 pages: internal only">internal</span>' : ""}</td></tr>`;
+    }).join("");
+    const watch = m.watchlist.map((w) => `<tr><td><b>${esc(w.name)}</b><div class="small muted">${esc(w.publisher || "")}</div></td>
+      <td class="num">${esc(w.params || "")}</td><td class="small">${esc(w.license || "")}</td><td>${esc(w.reason)}</td></tr>`).join("");
+    $app.innerHTML = `<h1>Models</h1>
+      <p class="lead">Every system in the benchmark, with what its publisher says it handles next to what it scored here. Ticks are claims, not results. All of them run on BAM hardware with open weights.</p>
+      <div class="tabs"><button data-t="open" class="${modelsTrack === "open" ? "on" : ""}">Open track scores</button><button data-t="closed" class="${modelsTrack === "closed" ? "on" : ""}">Closed track scores</button></div>
+      <div class="scroll"><table class="grid models"><tr><th>Model</th><th class="num">Size</th><th>License</th><th>GPU</th>
+        ${m.capabilities.map((c) => `<th class="cap">${CAP_LABEL[c]}</th>`).join("")}
+        <th class="num">Overall</th><th class="num">Tables</th><th class="num">Formulas</th><th class="num">Figures</th><th class="num" title="seconds per page, newest run">s / page</th><th>Status</th></tr>${body}</table></div>
+      <p class="small muted">Scores are percentages over the annotated pages of the ${modelsTrack} track. Figures is the overall score on pages tagged as figure. Status: scored, drafted (ran in draft-only mode), ready, or no weights downloaded yet.</p>
+      ${watch ? `<h2>Watch list</h2><p class="small muted">Promising models that are not in the benchmark yet, and why.</p>
+        <div class="scroll"><table class="grid"><tr><th>Model</th><th class="num">Size</th><th>License</th><th>Why not yet</th></tr>${watch}</table></div>` : ""}`;
+    $app.querySelectorAll("[data-t]").forEach((b) => (b.onclick = () => { modelsTrack = b.dataset.t; store.set("modelsTrack", modelsTrack); draw(); }));
+  };
+  draw();
+}
+
+// ---------- Compare ----------
+let cmpMode = store.get("cmpMode", "rendered");
+async function compare(track, id, page) {
+  page = +page;
+  const c = await api(`compare/${track}/${encodeURIComponent(id)}/${page}`);
+  const hidden = new Set(JSON.parse(store.get("cmpHide", "[]")));
+  const base = `#/compare/${track}/${encodeURIComponent(id)}/`;
+  const g = c.gold;
+  const hasGold = !!g.markdown;
+  const diffHtml = (ops) => ops === null ? '<p class="muted small">Page too long for a word diff.</p>'
+    : `<div class="diff">${ops.map(([op, t]) => op === "eq" ? esc(t) : `<${op}>${esc(t)}</${op}>`).join(" ")}</div>`;
+  const tablesOf = (md) => (md.match(/<table[\s\S]*?<\/table>/gi) || []);
+  const col = (sys) => {
+    const sc = sys.score;
+    const tabs = sc?.tables.length ? sc.tables.map((t) => pct(t)).join(", ") : "—";
+    let body;
+    if (cmpMode === "diff" && hasGold) {
+      const t = tablesOf(sys.markdown);
+      body = diffHtml(sys.diff) + (t.length ? `<h3>Tables</h3>${t.map((x) => `<div class="preview">${renderMarkdown(x)}</div>`).join("")}` : "");
+    } else body = `<div class="preview">${renderMarkdown(sys.markdown)}</div>`;
+    return `<div class="ccol"><div class="chead"><b>${esc(sys.name)}</b>
+        <div class="small muted">${esc(sys.run_id)}${sys.draft_only ? ' · <span class="pill marked">draft only</span>' : ""}</div>
+        ${sc ? `<div class="cscore"><span title="E1 text">Text <b>${pct(sc.text)}</b></span><span title="TEDS per gold table">Tables <b>${tabs}</b></span>${sc.formulas.length ? `<span>Formulas <b>${sc.formulas.map(pct).join(", ")}</b></span>` : ""}</div>` : ""}
+        ${sys.drafted_gold ? '<div class="note small">The gold for this page started from this model\'s draft, so its score here is flattered.</div>' : ""}</div>${body}</div>`;
+  };
+  const shown = c.systems.filter((s) => !hidden.has(s.id));
+  const chips = c.systems.map((s) => `<label class="chip"><input type="checkbox" data-sys="${esc(s.id)}" ${hidden.has(s.id) ? "" : "checked"}> ${esc(s.name)}</label>`).join("");
+  $app.innerHTML = `<p class="small"><a href="#/doc/${track}/${encodeURIComponent(id)}">← ${esc(id)}</a> · <a href="#/annotate/${track}/${encodeURIComponent(id)}/${page}">Annotate this page</a></p>
+    <div class="toolbar"><h1 style="margin:0">Compare page ${page} of ${c.page_count}</h1> ${trackPill(track)}
+      ${g.kind ? `<span class="pill">${esc(g.kind)}</span>` : ""}${g.lang ? `<span class="pill">${esc(g.lang)}</span>` : ""}
+      <span style="flex:1"></span>
+      <div class="tabs" style="margin:0"><button data-m="rendered" class="${cmpMode === "rendered" ? "on" : ""}">Rendered</button><button data-m="diff" class="${cmpMode === "diff" ? "on" : ""}" ${hasGold ? "" : "disabled title=\"Needs gold text for this page\""}>Differences</button></div>
+      <a class="btn" href="${base}${Math.max(1, page - 1)}">← Prev</a><a class="btn" href="${base}${Math.min(c.page_count, page + 1)}">Next →</a></div>
+    ${c.systems.length ? `<div class="chips">${chips}</div>` : `<div class="note">No system has run on this page yet. Pick it on the document page and start a draft-only run.</div>`}
+    ${cmpMode === "diff" && hasGold ? `<p class="small muted"><del>Struck red</del> is in the gold but missing from the model. <ins>Green</ins> is what the model wrote that the gold does not have. Tables are scored separately with TEDS.</p>` : ""}
+    <div class="cmp">
+      <div class="ccol scan"><div class="chead"><b>Page image</b></div><img src="/api/documents/${track}/${encodeURIComponent(id)}/pages/${page}.png?dpi=130" alt="Page ${page}"></div>
+      <div class="ccol"><div class="chead"><b>Gold</b><div class="small muted">${hasGold ? esc(g.status) + (g.draft_source ? " · first draft from " + esc(g.draft_source) : "") : "no gold text yet"}</div></div>
+        ${hasGold ? `<div class="preview">${renderMarkdown(g.markdown)}</div>` : `<p class="muted small" style="padding:0 12px">Scores and differences appear once this page has gold text.</p>`}</div>
+      ${shown.map(col).join("")}
+    </div>`;
+  $app.querySelectorAll("[data-m]").forEach((b) => (b.onclick = () => { cmpMode = b.dataset.m; store.set("cmpMode", cmpMode); compare(track, id, page); }));
+  $app.querySelectorAll("input[data-sys]").forEach((cb) => (cb.onchange = () => {
+    cb.checked ? hidden.delete(cb.dataset.sys) : hidden.add(cb.dataset.sys);
+    store.set("cmpHide", JSON.stringify([...hidden]));
+    compare(track, id, page);
+  }));
+}
+
 // ---------- About ----------
 function about() {
   $app.innerHTML = `<h1>About this benchmark</h1>
@@ -382,13 +546,15 @@ async function route() {
   document.onkeydown = null;
   const parts = (location.hash.slice(2) || "overview").split("/").map(decodeURIComponent);
   document.querySelectorAll("nav a").forEach((a) => a.classList.toggle("active", a.dataset.nav === parts[0] ||
-    (parts[0] === "doc" || parts[0] === "annotate") && a.dataset.nav === "documents" || parts[0] === "system" && a.dataset.nav === "leaderboard"));
+    (parts[0] === "doc" || parts[0] === "annotate" || parts[0] === "compare") && a.dataset.nav === "documents" || parts[0] === "system" && a.dataset.nav === "leaderboard"));
   try {
     if (parts[0] === "leaderboard") await leaderboard();
     else if (parts[0] === "system") await systemDetail(parts[1]);
     else if (parts[0] === "documents") await documents();
     else if (parts[0] === "doc") await docDetail(parts[1], parts[2]);
     else if (parts[0] === "annotate") await annotate(parts[1], parts[2], parts[3]);
+    else if (parts[0] === "compare") await compare(parts[1], parts[2], parts[3]);
+    else if (parts[0] === "models") await models();
     else if (parts[0] === "runs") await runs();
     else if (parts[0] === "about") about();
     else await overview();

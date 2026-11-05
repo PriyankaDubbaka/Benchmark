@@ -64,14 +64,30 @@ Gold for a page is Markdown in `data/<track>/annotations/<doc>/page-NNN.json` wi
 of `marked` (picked, no text yet), `draft`, `checked` or `skip`, plus its kind and language. Write it in the dashboard's annotation view, prefilled from
 Poppler text or from a model's last run, and correct it against the page image.
 
+### Time and cost
+
+Next to the scores, the leaderboard shows seconds per page, an estimated euro cost per 1,000
+pages and the tokens a model wrote per page. Time is the run's wall time with the model already
+loaded. Cost is the share of one A100 80 GB the card's `slice` takes (20 GB is a quarter, 40 GB
+a half, no slice is CPU and free) times that time times an hourly price, €2 unless
+`BAMBENCH_A100_EUR_PER_HOUR` says otherwise. It is for comparing systems, not a bill. Token
+counts and replies cut off at `max_tokens` (8,192 unless a card sets its own) come from the vLLM server's usage field, so they
+appear only for `vllm` runs made after this was added; older summaries still get time and cost.
+
 ## Systems
 
-System cards live in `systems/*.json`. Kinds:
+System cards live in `systems/*.json`. The Models page in the dashboard lists them all with
+their claimed capabilities and scores; `systems/watchlist/models.json` holds models not added
+yet and why. Kinds:
 
 - `pdftotext_rules`: Poppler text, the floor baseline.
 - `docling`: Docling layout + TableFormer (`pip install docling`).
 - `vllm`: any vision model served by vLLM on localhost (or a host named in
-  `BAMBENCH_ALLOWED_HOSTS`). The adapter refuses every other host.
+  `BAMBENCH_ALLOWED_HOSTS`). The adapter refuses every other host. `output` converts a
+  model's own format (`deepseek_grounding`, `dots_layout`, `doctags`) to Markdown.
+- `paddleocr_vl`, `glm_ocr`, `mineru_vl`: two-stage parsers (layout, then each block) whose
+  VLM runs in the same local vLLM server. PaddleOCR and GLM-OCR run from their own
+  environments; see [`slurm/README.md`](slurm/README.md#two-stage-parsers).
 
 On the shared GPU, see [`slurm/README.md`](slurm/README.md).
 

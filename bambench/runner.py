@@ -19,6 +19,7 @@ from statistics import mean
 
 from . import __version__
 from .corpus import load_documents, verify
+from .cost import cost
 from .gold import load_records, page_meta, pages_to_draft, scored_pages
 from .metrics.page import score_page
 from .metrics.records import ValidationError, score_records
@@ -92,7 +93,7 @@ def run(system_id: str, track: str, document_ids: list[str] | None = None, progr
     n_pages = sum(len(p["pages"]) for p in predictions.values())
     (out / "run.json").write_text(json.dumps({
         "system": system_id, "track": track, "run_id": run_id, "draft_only": draft_only,
-        "documents": len(docs), "pages": n_pages, "runtime_s": round(elapsed, 1),
+        "documents": len(docs), "pages": n_pages, "runtime_s": round(elapsed, 1), "usage": system.usage,
     }, indent=2) + "\n", encoding="utf-8")
     if draft_only:
         progress(f"done: drafted {n_pages} pages in {len(docs)} documents, nothing scored")
@@ -154,6 +155,7 @@ def run(system_id: str, track: str, document_ids: list[str] | None = None, progr
         "counts": {"documents": len(docs), "pages": len(page_rows), "tables": len(tables),
                    "formulas": len(formulas), "record_documents": len(rec_f1)},
         "runtime_s": round(elapsed, 1),
+        "usage": system.usage,
         "environment": {"python": platform.python_version(), "platform": platform.platform(), "gpu": _gpu()},
         "finished": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
@@ -190,5 +192,6 @@ def leaderboard() -> list[dict]:
         for f in (files[k] for k in sorted(files)):
             s = json.loads(f.read_text(encoding="utf-8"))
             row = rows.setdefault(s["system"], {"system": s["system"], "card": s.get("card", {})})
+            s["cost"] = cost(s)  # worked out on read, so older summaries get time and cost too
             row[track] = s
     return sorted(rows.values(), key=lambda r: -((r.get("open") or {}).get("scores", {}).get("overall") or -1))

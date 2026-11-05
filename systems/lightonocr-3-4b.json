@@ -1,0 +1,30 @@
+{
+  "id": "lightonocr-3-4b",
+  "name": "LightOnOCR-3-4B",
+  "kind": "vllm",
+  "model": "lightonai/LightOnOCR-3-4B",
+  "publisher": "LightOn (France)",
+  "released": "2026-10",
+  "license": "Apache-2.0",
+  "params": "4B (5B with vision encoder)",
+  "weights_gb": 10,
+  "slice": "20 GB",
+  "gpu": "about 10 GB",
+  "serve": "vllm serve lightonai/LightOnOCR-3-4B --trust-remote-code --max-model-len 12288 --max-num-seqs 16 --limit-mm-per-prompt.image 1 --mm-processor-cache-gb 0 --no-enable-prefix-caching",
+  "page_prompt": "",
+  "dpi": 132,
+  "extra_body": {
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  },
+  "handles": {
+    "tables": true,
+    "formulas": true,
+    "handwriting": null,
+    "german": null,
+    "layout": true
+  },
+  "source": "https://huggingface.co/lightonai/LightOnOCR-3-4B",
+  "notes": "European OCR model built on the Qwen3.5 vision architecture. Trained on the image alone, so no prompt is sent; other instructions are out of distribution per the card. Pages at about 1540 px on the long side. olmOCR-Bench 86.3 per the card. Not yet run on BAM hardware."
+}

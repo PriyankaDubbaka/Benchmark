@@ -1,0 +1,23 @@
+{
+  "id": "mistral-small-3.2-24b",
+  "name": "Mistral Small 3.2 24B",
+  "kind": "vllm",
+  "model": "mistralai/Mistral-Small-3.2-24B-Instruct-2506",
+  "publisher": "Mistral AI",
+  "released": "2025-06",
+  "license": "Apache-2.0",
+  "params": "24B",
+  "weights_gb": 48,
+  "slice": "40 GB",
+  "gpu": "about 24 GB in 8-bit",
+  "serve": "vllm serve mistralai/Mistral-Small-3.2-24B-Instruct-2506 --tokenizer-mode mistral --config-format mistral --load-format mistral --quantization fp8 --max-model-len 16384 --max-num-seqs 16",
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": true,
+    "layout": null
+  },
+  "source": "https://huggingface.co/mistralai/Mistral-Small-3.2-24B-Instruct-2506",
+  "notes": "General vision model. Loaded in 8-bit to fit a 40 GB slice. Not yet run on BAM hardware."
+}

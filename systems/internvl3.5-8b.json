@@ -1,0 +1,23 @@
+{
+  "id": "internvl3.5-8b",
+  "name": "InternVL3.5-8B",
+  "kind": "vllm",
+  "model": "OpenGVLab/InternVL3_5-8B",
+  "publisher": "Shanghai AI Lab (OpenGVLab)",
+  "released": "2025-08",
+  "license": "Apache-2.0",
+  "params": "8.5B",
+  "weights_gb": 17,
+  "slice": "20 GB",
+  "gpu": "about 9 GB in 8-bit",
+  "serve": "vllm serve OpenGVLab/InternVL3_5-8B --trust-remote-code --quantization fp8 --max-model-len 16384 --max-num-seqs 16",
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/OpenGVLab/InternVL3_5-8B",
+  "notes": "General vision model. Thinking is off unless a special system prompt asks for it. Loaded in 8-bit to fit a 20 GB slice. Not yet run on BAM hardware."
+}
