@@ -40,12 +40,5 @@
     "params": "15B",
     "license": "MIT",
     "reason": "Tuned for app and screen understanding rather than documents, and it reasons at length before answering."
-  },
-  {
-    "name": "Gemma 4 31B",
-    "publisher": "Google",
-    "params": "31B",
-    "license": "Apache-2.0",
-    "reason": "Does not fit a 40 GB slice usefully. In 8-bit the weights leave room for about 4,000 tokens of context, less than one page plus its answer, and this GPU cannot store the context cache in 8-bit. It is also above the 27B ceiling. It needs a full 80 GB card."
   }
 ]
