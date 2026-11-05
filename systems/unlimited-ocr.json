@@ -22,5 +22,8 @@
     "layout": true
   },
   "source": "https://huggingface.co/baidu/Unlimited-OCR",
-  "notes": "Long-document OCR model in the DeepSeek-OCR line. Each block comes wrapped in <|det|> type and box tags, which are stripped before scoring. Not yet run on BAM hardware."
+  "notes": "Long-document OCR model in the DeepSeek-OCR line. Each block comes wrapped in <|det|> type and box tags, which are stripped before scoring. Needs TRITON_ALLOW_NON_CONSTEXPR_GLOBALS=1 with vLLM 0.32, like DeepSeek-OCR 2.",
+  "env": {
+    "TRITON_ALLOW_NON_CONSTEXPR_GLOBALS": "1"
+  }
 }

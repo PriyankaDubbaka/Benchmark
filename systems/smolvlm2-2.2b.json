@@ -19,5 +19,5 @@
     "layout": null
   },
   "source": "https://huggingface.co/HuggingFaceTB/SmolVLM2-2.2B-Instruct",
-  "notes": "Tiny general baseline. Not yet run on BAM hardware."
+  "notes": "Tiny general baseline. Its processor needs num2words in the vLLM environment."
 }

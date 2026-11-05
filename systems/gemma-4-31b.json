@@ -10,7 +10,7 @@
   "weights_gb": 63,
   "slice": "40 GB",
   "gpu": "about 32 GB in 8-bit",
-  "serve": "vllm serve google/gemma-4-31B-it --quantization fp8 --max-model-len 8192 --max-num-seqs 8",
+  "serve": "vllm serve google/gemma-4-31B-it --quantization fp8 --kv-cache-dtype fp8 --max-model-len 6144 --max-num-seqs 4",
   "handles": {
     "tables": null,
     "formulas": null,
@@ -19,5 +19,5 @@
     "layout": null
   },
   "source": "https://huggingface.co/google/gemma-4-31B-it",
-  "notes": "Largest Gemma 4, above the 27B ceiling but fits a 40 GB slice in 8-bit with a short context. A 63 GB download. Not yet run on BAM hardware."
+  "notes": "Largest Gemma 4, above the 27B ceiling. Weights in 8-bit take most of a 40 GB slice, so the context cache is 8-bit too and the context is 6k tokens. A 63 GB download."
 }

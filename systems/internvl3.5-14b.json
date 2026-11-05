@@ -8,7 +8,7 @@
   "license": "Apache-2.0",
   "params": "15B",
   "weights_gb": 30,
-  "slice": "20 GB",
+  "slice": "40 GB",
   "gpu": "about 15 GB in 8-bit",
   "serve": "vllm serve OpenGVLab/InternVL3_5-14B --trust-remote-code --quantization fp8 --max-model-len 12288 --max-num-seqs 16",
   "handles": {
@@ -19,5 +19,5 @@
     "layout": null
   },
   "source": "https://huggingface.co/OpenGVLab/InternVL3_5-14B",
-  "notes": "Larger InternVL3.5. Tight on a 20 GB slice in 8-bit; move it to 40 GB if the KV cache is too short. Not yet run on BAM hardware."
+  "notes": "Larger InternVL3.5, loaded in 8-bit. Left only 0.26 GB for context on a 20 GB slice, so it runs on 40 GB."
 }
