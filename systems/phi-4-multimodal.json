@@ -20,5 +20,5 @@
     "layout": null
   },
   "source": "https://huggingface.co/microsoft/Phi-4-multimodal-instruct",
-  "notes": "Images go through a vision LoRA adapter, so the model is served from a local folder with the adapter named vision. Download with: hf download microsoft/Phi-4-multimodal-instruct --local-dir ~/models/phi-4-multimodal. Not yet run on BAM hardware."
+  "notes": "Images go through a vision LoRA adapter, so the model is served from a local folder with the adapter named vision. Download with: hf download microsoft/Phi-4-multimodal-instruct --local-dir ~/models/phi-4-multimodal. Needs scipy in the vLLM environment."
 }
