@@ -10,10 +10,9 @@
   "weights_gb": 7,
   "slice": "20 GB",
   "gpu": "about 8 GB",
-  "serve": "vllm serve deepseek-ai/DeepSeek-OCR-2 --trust-remote-code --max-model-len 8192 --no-enable-prefix-caching --mm-processor-cache-gb 0",
+  "serve": "vllm serve deepseek-ai/DeepSeek-OCR-2 --trust-remote-code --logits_processors vllm.model_executor.models.deepseek_ocr:NGramPerReqLogitsProcessor --max-model-len 12288 --no-enable-prefix-caching --mm-processor-cache-gb 0",
   "page_prompt": "<|grounding|>Convert the document to markdown.",
   "output": "deepseek_grounding",
-  "max_tokens": 6000,
   "handles": {
     "tables": true,
     "formulas": null,
@@ -22,8 +21,19 @@
     "layout": true
   },
   "source": "https://huggingface.co/deepseek-ai/DeepSeek-OCR-2",
-  "notes": "Single call. Grounding tags around each block are stripped before scoring. Needs TRITON_ALLOW_NON_CONSTEXPR_GLOBALS=1 with vLLM 0.32, set under env.",
+  "notes": "Single call, with the n-gram repetition guard and table-tag whitelist from the vLLM recipe (the first run had neither and scored 0.20 with tables near zero). Grounding tags around each block are stripped before scoring. Needs TRITON_ALLOW_NON_CONSTEXPR_GLOBALS=1 with vLLM 0.32, set under env.",
   "env": {
     "TRITON_ALLOW_NON_CONSTEXPR_GLOBALS": "1"
+  },
+  "extra_body": {
+    "skip_special_tokens": false,
+    "vllm_xargs": {
+      "ngram_size": 30,
+      "window_size": 90,
+      "whitelist_token_ids": [
+        128821,
+        128822
+      ]
+    }
   }
 }
