@@ -54,6 +54,7 @@ benchmark sends one page at a time and the default of 256 does not fit a small s
 | Gemma 4 E4B, Pixtral 12B | 16 to 25 GB on disk | 20 GB, loaded in 8-bit |
 | InternVL3.5-14B, Molmo2-8B | 30 to 35 GB on disk | 40 GB, loaded in 8-bit |
 | Qwen3.5-27B-FP8 | about 29 GB | 40 GB, short context |
+| Gemma 4 31B (4-bit) | 63 GB on disk, about 18 GB loaded | 40 GB, quantised on load with bitsandbytes |
 
 A card can set `env` for variables vLLM needs, such as DeepSeek-OCR 2's Triton switch. The
 `serve` line is run through the shell, so it may quote JSON arguments and use `~`.
