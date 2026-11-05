@@ -8,7 +8,7 @@
   "license": "Apache-2.0 (training data partly research-only)",
   "params": "8B",
   "weights_gb": 35,
-  "slice": "20 GB",
+  "slice": "40 GB",
   "gpu": "about 10 GB in 8-bit",
   "serve": "vllm serve allenai/Molmo2-8B --trust-remote-code --dtype bfloat16 --quantization fp8 --max-model-len 12288 --max-num-seqs 16 --max-num-batched-tokens 16384",
   "handles": {
@@ -19,5 +19,5 @@
     "layout": null
   },
   "source": "https://huggingface.co/allenai/Molmo2-8B",
-  "notes": "Fully open model (weights, data and code) on a Qwen3-8B backbone. Weights are stored in 32-bit, so the download is large. Documents are not a stated use; it is here as the open-data reference. One page image is up to 12,284 tokens, so the batch token limit is raised to fit it."
+  "notes": "Fully open model (weights, data and code) on a Qwen3-8B backbone. Weights are stored in 32-bit, so the download is large. On a 20 GB slice nothing was left for the context cache once its large image batch was reserved, so it runs on 40 GB. Documents are not a stated use; it is here as the open-data reference. One page image is up to 12,284 tokens, so the batch token limit is raised to fit it."
 }

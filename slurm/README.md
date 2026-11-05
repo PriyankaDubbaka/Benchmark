@@ -51,9 +51,9 @@ benchmark sends one page at a time and the default of 256 does not fit a small s
 | Qwen3.5-9B on a 20 GB slice | about 11 GB | add `--quantization fp8 --max-num-seqs 16` to its `serve` line |
 | LightOnOCR-2-1B, MiniCPM-V 4.6, SmolVLM2, Qwen3.5-2B, Ministral 3 3B | 2 to 5 GB | 20 GB |
 | LightOnOCR-3-4B, Qianfan-OCR, Unlimited-OCR, Qwen3.5-4B, Qwen3-VL-4B, Ministral 3 8B, olmOCR 2 (FP8), Phi-4-multimodal | 7 to 12 GB | 20 GB |
-| Gemma 4 E4B, Pixtral 12B, InternVL3.5-14B, Molmo2-8B | 16 to 35 GB on disk | 20 GB, loaded in 8-bit |
+| Gemma 4 E4B, Pixtral 12B | 16 to 25 GB on disk | 20 GB, loaded in 8-bit |
+| InternVL3.5-14B, Molmo2-8B | 30 to 35 GB on disk | 40 GB, loaded in 8-bit |
 | Qwen3.5-27B-FP8 | about 29 GB | 40 GB, short context |
-| Gemma 4 31B | 63 GB on disk | 40 GB, loaded in 8-bit, 8k context |
 
 A card can set `env` for variables vLLM needs, such as DeepSeek-OCR 2's Triton switch. The
 `serve` line is run through the shell, so it may quote JSON arguments and use `~`.
