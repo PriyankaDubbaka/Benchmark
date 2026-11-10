@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this benchmark, please cite it as below."
+type: software
+title: "BAM Extraction Benchmark (PW2)"
+abstract: >-
+  A benchmark for extracting text, tables, formulas and measurement records from BAM
+  technical documents with locally run, open-weight systems. It has a public track of
+  reference-material certificates and a confidential track of internal reports, one
+  scorer for both, and a dashboard with a leaderboard.
+authors:
+  - family-names: Dubbaka
+    given-names: Priyanka
+    affiliation: "Bundesanstalt für Materialforschung und -prüfung (BAM)"
+version: 0.1.0
+repository-code: "https://github.com/PriyankaDubbaka/Benchmark"
+keywords:
+  - document parsing
+  - optical character recognition
+  - table recognition
+  - vision language models
+  - benchmark
+  - reference materials

@@ -21,6 +21,8 @@ python3 -m bambench list                       # documents and systems
 python3 -m bambench run pdftotext-rules        # baseline on the open track
 python3 -m bambench serve                      # dashboard on http://127.0.0.1:8765
 python3 -m unittest discover -s tests -t .     # tests
+python3 -m bambench rescore --track open       # rescore saved outputs after labels or the scorer change
+python3 -m bambench export-site public         # read-only copy of the dashboard for GitLab Pages
 ```
 
 ## Annotating internal reports
@@ -58,6 +60,7 @@ the pages a system drafted itself.
 | E2 Tables | HTML or pipe tables | TEDS per gold table (and TEDS-S for structure only) |
 | E3 Formulas | `$$ LaTeX $$` | 1 − normalised edit distance on normalised LaTeX (CDM planned) |
 | E5 Records | Certificate measurement rows | Exact-record F1, plus critical errors (unit, status, uncertainty) |
+| Numbers | Free-standing numbers on the page | Share reproduced digit for digit, pooled over pages. Not part of Overall |
 | Overall | | Mean of E1, E2 and E3, as in OmniDocBench |
 
 Gold for a page is Markdown in `data/<track>/annotations/<doc>/page-NNN.json` with a status
@@ -105,4 +108,17 @@ slurm/              batch job that starts vLLM and runs a system
 code/               earlier prototypes (bam-docbench-starter, bam-vlm-bench), kept for reference
 ```
 
-The protocol behind this benchmark is in `code/bam-docbench-starter/docs/benchmark-proposal.md`.
+## Documentation
+
+| File | What it holds |
+| --- | --- |
+| [docs/project-documentation.md](docs/project-documentation.md) | Purpose, method, data, systems, results, history, limitations, decisions |
+| [docs/datasheet.md](docs/datasheet.md) | The dataset in the Datasheets for Datasets format |
+| [docs/data-management-plan.md](docs/data-management-plan.md) | Data management plan under the BAM Data Policy |
+| [docs/compliance-checklist.md](docs/compliance-checklist.md) | BAM, DFG, FAIR and legal rules with status and open actions |
+| [docs/gap-analysis-and-roadmap.md](docs/gap-analysis-and-roadmap.md) | Comparison with other benchmarks, weaknesses, next features and models |
+| [docs/annotation-guide.md](docs/annotation-guide.md) | Labelling rules |
+| [docs/hosting-on-gitlab.md](docs/hosting-on-gitlab.md) | Publishing the read-only dashboard with GitLab Pages |
+| [docs/CHANGELOG.md](docs/CHANGELOG.md) | Every change that can move a score |
+
+The first protocol draft is in `code/bam-docbench-starter/docs/benchmark-proposal.md`.
