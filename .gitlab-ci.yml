@@ -1,0 +1,33 @@
+# GitLab CI for the BAM extraction benchmark.
+#
+# test   runs the unit tests on every push.
+# pages  publishes a read-only copy of the dashboard with GitLab Pages from the default branch.
+#        It shows what is committed under results/: the open track, and closed-track scores only
+#        after `python3 -m bambench export-closed` has cleared them (20 or more pages each).
+#
+# Both jobs need a runner that can pull a Python image. The tests also need Poppler (pdftoppm,
+# pdftotext); if the runner cannot reach a package mirror, bake Poppler into the image instead.
+
+stages:
+  - test
+  - deploy
+
+default:
+  image: python:3.12-slim
+
+test:
+  stage: test
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq --no-install-recommends poppler-utils git
+  script:
+    - python -m unittest discover -q tests
+
+pages:
+  stage: deploy
+  script:
+    - python -m bambench export-site public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

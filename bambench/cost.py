@@ -27,7 +27,10 @@ def gpu_share(card: dict) -> float:
 
 
 def cost(summary: dict) -> dict:
-    pages = (summary.get("counts") or {}).get("pages") or 0
+    counts = summary.get("counts") or {}
+    # Time and tokens are spent on every page the model read, which on certificates with record
+    # gold is the whole document, not only the annotated pages. Older summaries lack the count.
+    pages = counts.get("predicted_pages") or counts.get("pages") or 0
     runtime = summary.get("runtime_s")
     out = {"seconds_per_page": None, "gpu_share": gpu_share(summary.get("card") or {}),
            "eur_per_hour": eur_per_hour(), "eur_per_1000_pages": None,

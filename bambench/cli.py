@@ -44,6 +44,13 @@ def main(argv=None) -> int:
     s.add_argument("--draft-only", action="store_true",
                    help="predict every picked page as a prefill for annotation; score nothing")
 
+    s = sub.add_parser("rescore", help="score saved outputs against the current gold, without running a model")
+    s.add_argument("system", nargs="?", help="one system; leave out to rescore every system with a run")
+    s.add_argument("--track", choices=TRACKS, default="open")
+
+    s = sub.add_parser("export-site", help="write a read-only copy of the dashboard for static hosting")
+    s.add_argument("out", type=Path, help="folder to write, e.g. public for GitLab Pages")
+
     sub.add_parser("leaderboard", help="print the leaderboard as JSON")
     sub.add_parser("export-closed", help="copy closed-track summaries with enough pages to results/closed")
     sub.add_parser("guard", help="pre-commit check against committing closed-track files")
@@ -78,6 +85,21 @@ def main(argv=None) -> int:
         res = run(a.system, a.track, a.docs, draft_only=a.draft_only)
         if res["summary"]:
             print(json.dumps(res["summary"]["scores"], indent=2))
+    elif a.cmd == "rescore":
+        from .runner import rescore, rescore_all
+        if a.system:
+            res = rescore(a.system, a.track)
+            if not res:
+                print(f"no saved run of {a.system} with annotated pages in the {a.track} track")
+                return 1
+            print(json.dumps(res["summary"]["scores"], indent=2))
+        else:
+            done = rescore_all(a.track)
+            print(f"rescored {len(done)} systems" if done else f"no saved runs in the {a.track} track")
+    elif a.cmd == "export-site":
+        from .static_site import export
+        n = export(a.out)
+        print(f"wrote {n} files to {a.out}; closed-track rows only where 20 or more pages back them")
     elif a.cmd == "leaderboard":
         from .runner import leaderboard
         print(json.dumps(leaderboard(), indent=2))
