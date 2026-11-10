@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-s005c-v2",
+  "page": 8,
+  "pdf_sha256": "a556ad0b36a5eb75ba706ceb37c51412be4ca2f3b5a0d39085b32f37bb2204b9",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-10T13:34:24+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "<!-- \"Abbreviations:\" is printed once, with the five lines to its right -->\nAbbreviations:\nETV – ICP-OES – Electrothermal vaporization ICP-OES\nFAAS – Flame atomic absorption spectrometry\nICP-OES – Inductively coupled plasma - optical emission spectrometry\nICP-MS – Mass spectrometry with inductively coupled plasma\nXRF – X-ray fluorescence spectrometry\n\n## Metrological Traceability\n\nTo ensure traceability of the certified mass fractions to the SI (Système International d’Unités) calibration was performed using either standard solutions prepared from pure metals or stoichiometric compounds or well checked commercial calibration solutions or other certified reference materials or reference materials.\n\n## Technical Report\n\nA detailed technical report describing the analysis procedures and the treatment of the analytical data used to certify BAM-S005c is available on request or can be downloaded from BAM website (www.webshop.bam.de).\n\nAccepted as BAM-CRM on 2020-08-19 (revised 2025-03-03)\n\nBundesanstalt für Materialforschung und -prüfung (BAM)\n\n<!-- signature block read column by column: one person, then the other -->\nDr. S. Richter\nCommittee for Certification\n\nDr. S. Recknagel\nProject Coordinator\n\n<!-- framed note with a logo beside it; written as text, logo left out -->\nBAM holds an accreditation as a reference material producer according to ISO 17034. This accreditation is valid only for the scope as specified in the certificate D-RM-11075-01-00.\nDAkkS is a signatory of the multilateral agreement (MLA) between EA, ILAC and IAF for mutual acceptance.\n\nThis Reference Material is offered by:\nBundesanstalt für Materialforschung und -prüfung (BAM)\nRichard-Willstätter-Str. 11, 12489 Berlin\n\n<!-- contact block read column by column -->\nPhone: +49 30 8104 2061\nFax: +49 30 8104 72061\n\nEmail: sales.crm@bam.de\nInternet: www.webshop.bam.de\n"
+}
