@@ -3,7 +3,7 @@
   "track": "open",
   "run_id": "20261110T133433Z",
   "bambench_version": "0.1.0",
-  "scorer": 2,
+  "scorer": 3,
   "card": {
     "id": "pdftotext-rules",
     "name": "Poppler text + certificate rules",
@@ -28,6 +28,8 @@
     "e2_table_teds": 0.0,
     "e2_table_teds_struct": 0.0,
     "e3_formula": 0.0,
+    "numbers_recall": 1.0,
+    "numbers_precision": 0.9475524475524476,
     "e5_record_f1": 1.0,
     "e5_critical_errors": {
       "wrong_unit": 0,
@@ -47,6 +49,10 @@
     "e2_table_teds": [
       0.0,
       0.0
+    ],
+    "numbers_recall": [
+      1.0,
+      1.0
     ]
   },
   "by_kind": {
@@ -55,28 +61,47 @@
       "overall": 0.48454688318491357,
       "e1_text": 0.9690937663698271,
       "e2_table_teds": null,
-      "e3_formula": 0.0
+      "e3_formula": 0.0,
+      "numbers_recall": 1.0,
+      "numbers_precision": 0.6923076923076923
     },
     "mixed": {
       "pages": 3,
       "overall": 0.44084567801857855,
       "e1_text": 0.8816913560371571,
       "e2_table_teds": 0.0,
-      "e3_formula": null
+      "e3_formula": null,
+      "numbers_recall": 1.0,
+      "numbers_precision": 0.5760869565217391
     },
     "prose": {
       "pages": 8,
       "overall": 0.470560022491844,
       "e1_text": 0.941120044983688,
       "e2_table_teds": null,
-      "e3_formula": 0.0
+      "e3_formula": 0.0,
+      "numbers_recall": 1.0,
+      "numbers_precision": 0.9064327485380117
     },
     "table": {
       "pages": 9,
       "overall": 0.15880941019750008,
       "e1_text": 0.31761882039500017,
       "e2_table_teds": 0.0,
-      "e3_formula": null
+      "e3_formula": null,
+      "numbers_recall": 1.0,
+      "numbers_precision": 0.9861351819757366
+    }
+  },
+  "by_lang": {
+    "en": {
+      "pages": 21,
+      "overall": 0.22224916790326674,
+      "e1_text": 0.6667475037098002,
+      "e2_table_teds": 0.0,
+      "e3_formula": 0.0,
+      "numbers_recall": 1.0,
+      "numbers_precision": 0.9475524475524476
     }
   },
   "excluding_own_drafts": null,
@@ -86,6 +111,7 @@
     "predicted_pages": 21,
     "tables": 13,
     "formulas": 3,
+    "numbers": 1355,
     "record_documents": 1,
     "gold_pages_not_predicted": 0
   },
@@ -96,5 +122,6 @@
     "platform": "Linux-6.18.44-fc-v338-x86_64-with-glibc2.39",
     "gpu": "none detected"
   },
-  "finished": "2026-11-10T13:34:34+00:00"
+  "finished": "2026-11-10T13:34:34+00:00",
+  "rescored": "2026-11-10T13:40:06+00:00"
 }

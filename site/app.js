@@ -8,6 +8,7 @@ const METRICS = [
   ["e2_table_teds", "E2 Tables", "TEDS, structure and cell content"],
   ["e2_table_teds_struct", "E2 Structure", "TEDS, structure only"],
   ["e3_formula", "E3 Formulas", "1 minus normalised edit distance on LaTeX"],
+  ["numbers_recall", "Numbers", "Share of the printed numbers that the output holds digit for digit. Not part of Overall"],
   ["e5_record_f1", "E5 Records", "Exact-record F1 on measurement rows"],
 ];
 
@@ -183,6 +184,7 @@ async function systemDetail(id) {
     .map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(typeof v === "object" ? JSON.stringify(v) : v)}</td></tr>`).join("");
   let docs = "";
   try {
+    if (STATIC) throw new Error("per-document scores live with the run folders, which a hosted copy does not carry");
     const run = await api(`runs/open/${encodeURIComponent(id)}/latest`);
     docs = run.documents.map((d) => {
       const pages = Object.values(d.pages);
@@ -197,9 +199,13 @@ async function systemDetail(id) {
     const k = r[t]?.by_kind;
     if (!k || !Object.keys(k).length) return "";
     const rows = Object.entries(k).map(([name, v]) => `<tr><td>${esc(name)}</td><td class="num">${v.pages}</td><td class="num">${pct(v.overall)}</td>
-      <td class="num">${pct(v.e1_text)}</td><td class="num">${pct(v.e2_table_teds)}</td><td class="num">${pct(v.e3_formula)}</td></tr>`).join("");
+      <td class="num">${pct(v.e1_text)}</td><td class="num">${pct(v.e2_table_teds)}</td><td class="num">${pct(v.e3_formula)}</td><td class="num">${pct(v.numbers_recall)}</td></tr>`).join("");
     const own = r[t].excluding_own_drafts;
-    return `<h3>By page kind, ${t} track</h3><div class="scroll"><table class="grid"><tr><th>Kind</th><th class="num">Pages</th><th class="num">Overall</th><th class="num">E1</th><th class="num">E2</th><th class="num">E3</th></tr>${rows}</table></div>
+    const langs = Object.entries(r[t].by_lang || {});
+    const langRows = langs.map(([name, v]) => `<tr><td>${esc(name)}</td><td class="num">${v.pages}</td><td class="num">${pct(v.overall)}</td>
+      <td class="num">${pct(v.e1_text)}</td><td class="num">${pct(v.e2_table_teds)}</td><td class="num">${pct(v.e3_formula)}</td><td class="num">${pct(v.numbers_recall)}</td></tr>`).join("");
+    return `<h3>By page kind, ${t} track</h3><div class="scroll"><table class="grid"><tr><th>Kind</th><th class="num">Pages</th><th class="num">Overall</th><th class="num">E1</th><th class="num">E2</th><th class="num">E3</th><th class="num">Numbers</th></tr>${rows}</table></div>
+      ${langs.length > 1 ? `<h3>By language, ${t} track</h3><div class="scroll"><table class="grid"><tr><th>Language</th><th class="num">Pages</th><th class="num">Overall</th><th class="num">E1</th><th class="num">E2</th><th class="num">E3</th><th class="num">Numbers</th></tr>${langRows}</table></div>` : ""}
       ${own ? `<p class="small muted">Without the pages this system drafted itself (${r[t].counts.pages - own.pages}): overall ${pct(own.overall)} on ${own.pages} remaining.</p>` : ""}`;
   };
   const sc = (t) => r[t] ? METRICS.map(([k, l]) => `<div class="tile"><div class="k">${l}</div><div class="v">${pct(r[t].scores[k])}</div>${r[t].ci95?.[k] ? `<div class="s">95% interval ${pct(r[t].ci95[k][0])} to ${pct(r[t].ci95[k][1])}</div>` : ""}</div>`).join("") : "";
