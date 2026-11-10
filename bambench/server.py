@@ -25,6 +25,7 @@ from .corpus import get_document, load_documents, page_image, page_texts, regist
 from .paths import SITE, TRACKS
 from .systems import KINDS, load_cards
 
+LOCAL_NAMES = {"127.0.0.1", "localhost", "::1"}
 JOBS: dict[str, dict] = {}
 _LOCK = threading.Lock()
 MAX_UPLOAD = 200 * 1024 * 1024
@@ -122,10 +123,30 @@ class Handler(BaseHTTPRequestHandler):
             raise ValueError("Upload too large")
         return self.rfile.read(n)
 
+    def _trusted(self, method) -> bool:
+        """Refuse requests a web page in the same browser could forge.
+
+        The dashboard has no login because it only listens on this machine. Two attacks still
+        reach a local port from a browser: DNS rebinding (an outside name that suddenly resolves
+        to 127.0.0.1, which would let that site read closed-track pages) and cross-site requests
+        that change data. A Host header that is not this machine stops the first; an Origin that
+        differs from the Host on a write stops the second.
+        """
+        host = self.headers.get("Host") or ""
+        name = host.rsplit(":", 1)[0].strip("[]") if not host.startswith("[") else host[1:].split("]")[0]
+        if getattr(self.server, "local_only", True) and name not in LOCAL_NAMES:
+            return False
+        origin = self.headers.get("Origin")
+        if method != "GET" and origin and urlparse(origin).netloc != host:
+            return False
+        return True
+
     def _route(self, method):
         url = urlparse(self.path)
         q = {k: v[0] for k, v in parse_qs(url.query).items()}
         parts = [unquote(p) for p in url.path.strip("/").split("/") if p]
+        if not self._trusted(method):
+            return self._json({"error": "request refused: open the dashboard as http://localhost:<port>"}, 403)
         try:
             if not parts or parts[0] != "api":
                 return self._static(url.path)
@@ -150,7 +171,7 @@ class Handler(BaseHTTPRequestHandler):
     def _static(self, path):
         rel = path.lstrip("/") or "index.html"
         target = (SITE / rel).resolve()
-        if not str(target).startswith(str(SITE.resolve())) or not target.is_file():
+        if not target.is_relative_to(SITE.resolve()) or not target.is_file():
             target = SITE / "index.html"
         self._file(target)
 
@@ -265,9 +286,10 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def serve(host: str = "127.0.0.1", port: int = 8765) -> None:
-    if host not in ("127.0.0.1", "localhost", "::1"):
+    if host not in LOCAL_NAMES:
         print(f"WARNING: listening on {host}. Anyone who can reach this port can read closed-track pages.")
     httpd = ThreadingHTTPServer((host, port), Handler)
+    httpd.local_only = host in LOCAL_NAMES  # then only requests addressed to this machine are answered
     print(f"BAM extraction benchmark dashboard on http://{host}:{port}  (Ctrl+C to stop)")
     try:
         httpd.serve_forever()

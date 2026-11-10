@@ -26,7 +26,16 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, v); } catch { /* private mode */ } },
 };
 
+// A hosted copy (GitLab Pages) has no server behind it: it reads the JSON files that
+// `bambench export-site` wrote, and everything that changes data is switched off.
+const STATIC = window.BAMBENCH_STATIC || null;
 async function api(path, opts = {}) {
+  if (STATIC) {
+    if (opts.method && opts.method !== "GET") throw new Error("This copy is read-only. Use the dashboard on the BAM cluster to change data.");
+    const r = await fetch("api/" + path.split("?")[0] + ".json");
+    if (!r.ok) throw new Error("Not part of this read-only copy");
+    return r.json();
+  }
   const r = await fetch("/api/" + path, opts);
   const body = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(body.error || r.statusText);
@@ -46,6 +55,8 @@ async function overview() {
   const [ov, lb] = await Promise.all([api("overview"), api("leaderboard")]);
   const tile = (t) => {
     const s = ov.tracks[t], target = TARGETS[t];
+    if (!s) return `<div class="tile"><div class="k">${t} track</div><div class="v"><span class="small muted">not shown in this copy</span></div>
+      <div class="s">Its page counts appear once the first closed-track results are published with <code>export-closed</code>.</div></div>`;
     const c = Math.min(100, (100 * s.pages_checked) / target), d = Math.min(100 - c, (100 * s.pages_draft) / target);
     return `<div class="tile"><div class="k">${t} track</div>
       <div class="v">${s.pages_checked + s.pages_draft} <span class="small muted">/ ${target} pages annotated</span></div>
@@ -63,8 +74,9 @@ async function overview() {
     </div>
     <h2>Leaderboard, top systems</h2>
     ${lb.length ? `<div class="scroll"><table class="grid"><tr><th>System</th><th class="num">Open overall</th><th class="num">Closed overall</th></tr>${top}</table></div>
-      <p class="small"><a href="#/leaderboard">Full leaderboard</a></p>` : `<p class="muted">No results yet. Start one under <a href="#/runs">Runs</a>.</p>`}
-    <div class="note small">All scores so far use <b>draft</b> labels written by one annotator. They show that the pipeline works; they are not yet benchmark results.</div>`;
+      <p class="small"><a href="#/leaderboard">Full leaderboard</a></p>` : `<p class="muted">No results yet. ${STATIC ? "Results appear here once summaries are committed to the repository." : 'Start one under <a href="#/runs">Runs</a>.'}</p>`}
+    <div class="note small">All scores so far use <b>draft</b> labels written by one annotator. They show that the pipeline works; they are not yet benchmark results.</div>
+    ${STATIC ? `<div class="note small">This is a read-only copy built ${esc(STATIC.built.replace("T", " ").slice(0, 16))} UTC${STATIC.commit ? ` from commit <code>${esc(STATIC.commit)}</code>` : ""}. It shows the open track, and closed-track scores only where at least 20 pages back them. Annotation, page comparison and model runs happen in the dashboard on the BAM cluster.</div>` : ""}`;
 }
 
 // ---------- Leaderboard ----------
@@ -74,6 +86,8 @@ async function leaderboard() {
   const rows = await api("leaderboard");
   const val = (s, k) => (k in s.scores ? s.scores[k] : s.cost?.[k]) ?? null;
   const lowIsGood = (k) => COSTS.some(([c]) => c === k);
+  // 95% bootstrap interval over pages, shown under a score when the run recorded one.
+  const ci = (s, k) => (s.ci95?.[k] ? `<div class="ci" title="95% interval: where this score would likely fall with a different sample of pages">${pct(s.ci95[k][0])}–${pct(s.ci95[k][1])}</div>` : "");
   const draw = () => {
     const have = rows.filter((r) => r[lbTrack]);
     const up = lowIsGood(lbSort);
@@ -93,14 +107,14 @@ async function leaderboard() {
       + COSTS.map(([k, label, tip]) => `<th class="num sort cost" data-k="${k}" title="${esc(tip)}">${label}${arrow(k)}</th>`).join("");
     const body = have.map((r) => {
       const s = r[lbTrack];
-      const cells = METRICS.map(([k]) => `<td class="num ${have.length > 1 && s.scores[k] !== null && s.scores[k] === best[k] ? "best" : ""}">${pct(s.scores[k])}</td>`).join("");
+      const cells = METRICS.map(([k]) => `<td class="num ${have.length > 1 && s.scores[k] !== null && s.scores[k] === best[k] ? "best" : ""}">${pct(s.scores[k])}${ci(s, k)}</td>`).join("");
       const costs = COSTS.map(([k, , , fmt]) => {
         const x = s.cost?.[k];
         const cut = k === "output_tokens_per_page" && s.cost?.truncated_pages ? ` <span class="small muted" title="Replies cut off at max_tokens">${s.cost.truncated_pages} cut</span>` : "";
         return `<td class="num cost ${have.length > 1 && x && x === best[k] ? "best" : ""}">${x === null || x === undefined ? "—" : fmt(x)}${cut}</td>`;
       }).join("");
       return `<tr class="click" data-sys="${esc(r.system)}"><td><b>${esc(r.card.name || r.system)}</b><div class="small muted">${esc(r.card.params || "")} · ${esc(r.card.license || "")}${r.card.slice ? " · " + esc(r.card.slice) : ""}</div></td>
-        ${cells}${costs}<td class="num">${s.counts.pages}${s.publishable === false ? ' <span class="pill draft" title="Fewer than 20 pages: internal only">internal</span>' : ""}</td><td class="small muted">${esc(s.finished.slice(0, 10))}</td></tr>`;
+        ${cells}${costs}<td class="num">${s.counts.pages}${s.publishable === false ? ' <span class="pill draft" title="Fewer than 20 pages: internal only">internal</span>' : ""}${s.counts.gold_pages_not_predicted ? ` <span class="pill no" title="${s.counts.gold_pages_not_predicted} annotated pages were added after this run. Rerun the system to cover them.">stale</span>` : ""}</td><td class="small muted">${esc(s.finished.slice(0, 10))}</td></tr>`;
     }).join("");
     const price = have.find((r) => r[lbTrack].cost)?.[lbTrack].cost.eur_per_hour;
     $app.innerHTML = `<h1>Leaderboard</h1>
@@ -108,6 +122,7 @@ async function leaderboard() {
       <div class="tabs"><button data-t="open" class="${lbTrack === "open" ? "on" : ""}">Open track</button><button data-t="closed" class="${lbTrack === "closed" ? "on" : ""}">Closed track</button></div>
       ${lbTrack === "closed" ? `<div class="note closed small">Closed-track numbers are aggregates over confidential reports. Only publish a number when it is backed by at least 20 pages.</div>` : ""}
       ${have.length ? `<div class="scroll"><table class="grid"><tr><th>System</th>${head}<th class="num">Pages</th><th>Run</th></tr>${body}</table></div>
+        <p class="small muted">${have.some((r) => r[lbTrack].ci95) ? "The small range under a score is its 95% interval, from resampling the annotated pages 1,000 times. When two systems' ranges overlap, the benchmark cannot yet tell them apart; more annotated pages narrow the ranges. " : "Runs made before Nov 10 show no interval. Run <code>python3 -m bambench rescore --track " + lbTrack + "</code> to add one without rerunning any model. "}${have.some((r) => r[lbTrack].counts.gold_pages_not_predicted) ? "A row marked stale was scored on fewer pages than are annotated now and needs a rerun." : ""}</p>
         <p class="small muted">Cost is an estimate: the share of one A100 80 GB the system's slice takes (20 GB is a quarter, 40 GB a half, CPU is free) × run time × €${price ?? "?"} per A100 hour. Set BAMBENCH_A100_EUR_PER_HOUR to change the price. Time is measured with the model already loaded, so server start-up is not counted.</p>
         <h2>Accuracy against speed</h2>${speedChart(have.map((r) => ({ name: r.card.name || r.system, sys: r.system, y: r[lbTrack].scores.overall, x: r[lbTrack].cost?.seconds_per_page })))}`
         : `<p class="muted">No ${lbTrack}-track results yet.</p>`}`;
@@ -187,7 +202,7 @@ async function systemDetail(id) {
     return `<h3>By page kind, ${t} track</h3><div class="scroll"><table class="grid"><tr><th>Kind</th><th class="num">Pages</th><th class="num">Overall</th><th class="num">E1</th><th class="num">E2</th><th class="num">E3</th></tr>${rows}</table></div>
       ${own ? `<p class="small muted">Without the pages this system drafted itself (${r[t].counts.pages - own.pages}): overall ${pct(own.overall)} on ${own.pages} remaining.</p>` : ""}`;
   };
-  const sc = (t) => r[t] ? METRICS.map(([k, l]) => `<div class="tile"><div class="k">${l}</div><div class="v">${pct(r[t].scores[k])}</div></div>`).join("") : "";
+  const sc = (t) => r[t] ? METRICS.map(([k, l]) => `<div class="tile"><div class="k">${l}</div><div class="v">${pct(r[t].scores[k])}</div>${r[t].ci95?.[k] ? `<div class="s">95% interval ${pct(r[t].ci95[k][0])} to ${pct(r[t].ci95[k][1])}</div>` : ""}</div>`).join("") : "";
   $app.innerHTML = `<p class="small"><a href="#/leaderboard">← Leaderboard</a></p><h1>${esc(r.card.name || id)}</h1>
     ${r.open ? `<h2>Open track ${trackPill("open")}</h2><div class="tiles">${sc("open")}</div>` : ""}
     ${kinds("open")}
@@ -204,16 +219,16 @@ async function documents() {
   const docs = await api("documents");
   const row = (d) => {
     const done = d.pages_checked + d.pages_draft;
-    return `<tr class="click" data-doc="${esc(d.track)}/${esc(d.document_id)}"><td><b>${esc(d.document_id)}</b><div class="small muted">${esc(d.title)}</div></td>
+    return `<tr ${STATIC ? "" : `class="click" data-doc="${esc(d.track)}/${esc(d.document_id)}"`}><td><b>${esc(d.document_id)}</b><div class="small muted">${esc(d.title)}</div></td>
       <td>${trackPill(d.track)}</td><td>${esc(d.doc_type)}</td><td>${esc(d.department)}</td><td>${esc(d.split)}</td>
       <td class="num">${d.page_count}</td><td class="num">${done}${d.pages_checked ? ` <span class="small muted">(${d.pages_checked} checked)</span>` : ""}${d.pages_marked ? ` <span class="small muted">+${d.pages_marked} picked</span>` : ""}</td>
       <td>${d.has_records ? '<span class="pill ok">records</span>' : ""}</td></tr>`;
   };
   $app.innerHTML = `<h1>Documents</h1>
-    <p class="lead">Every PDF is pinned by its SHA-256 so labels are never scored against another revision. Closed-track PDFs are copied into the confidential folder and never committed.</p>
+    <p class="lead">Every PDF is pinned by its SHA-256 so labels are never scored against another revision. Closed-track PDFs are copied into the confidential folder and never committed.${STATIC ? " This copy lists the open track only; the closed track's documents are named nowhere outside the BAM cluster." : ""}</p>
     <div class="scroll"><table class="grid"><tr><th>Document</th><th>Track</th><th>Type</th><th>Department</th><th>Split</th><th class="num">Pages</th><th class="num">Annotated</th><th></th></tr>
       ${docs.map(row).join("") || `<tr><td colspan="8" class="muted">No documents yet.</td></tr>`}</table></div>
-    <h2>Add a PDF</h2>
+    ${STATIC ? "" : `<h2>Add a PDF</h2>
     <div class="panel pad"><div class="form">
       <label class="f">PDF file<input type="file" id="f-file" accept="application/pdf"></label>
       <label class="f">Track<select id="f-track"><option value="closed">closed (internal report)</option><option value="open">open (publishable)</option></select></label>
@@ -225,8 +240,9 @@ async function documents() {
       <label class="f">Language<select id="f-lang"><option>en</option><option>de</option></select></label>
       <label class="f">Split<select id="f-split"><option>dev</option><option>test</option></select></label>
       <button class="btn primary" id="f-add">Add document</button>
-    </div><p class="small muted">The file goes only to this machine's benchmark folder. Use lowercase letters, digits and dashes for the ID.</p></div>`;
+    </div><p class="small muted">The file goes only to this machine's benchmark folder. Use lowercase letters, digits and dashes for the ID.</p></div>`}`;
   $app.querySelectorAll("tr[data-doc]").forEach((tr) => (tr.onclick = () => (location.hash = "#/doc/" + tr.dataset.doc)));
+  if (STATIC) return;
   document.getElementById("f-add").onclick = async () => {
     const file = document.getElementById("f-file").files[0];
     const id = document.getElementById("f-id").value.trim();
@@ -437,6 +453,7 @@ async function models() {
   const status = (s) => {
     const r = s.results[modelsTrack];
     if (r) return `<span class="pill ok">scored</span>`;
+    if (STATIC) return `<span class="pill">no result here</span>`;
     if (s.seconds_per_page[modelsTrack] != null) return `<span class="pill marked">drafted</span>`;
     if (s.weights_downloaded === false) return `<span class="pill no" title="Download the weights on the login node">no weights</span>`;
     return s.available ? `<span class="pill">ready</span>` : `<span class="pill no" title="${esc(s.reason)}">not ready</span>`;
@@ -548,7 +565,9 @@ async function route() {
   document.querySelectorAll("nav a").forEach((a) => a.classList.toggle("active", a.dataset.nav === parts[0] ||
     (parts[0] === "doc" || parts[0] === "annotate" || parts[0] === "compare") && a.dataset.nav === "documents" || parts[0] === "system" && a.dataset.nav === "leaderboard"));
   try {
-    if (parts[0] === "leaderboard") await leaderboard();
+    if (STATIC && ["doc", "annotate", "compare", "runs"].includes(parts[0])) {
+      $app.innerHTML = `<div class="note">This view needs the dashboard on the BAM cluster. The hosted copy is read-only.</div>`;
+    } else if (parts[0] === "leaderboard") await leaderboard();
     else if (parts[0] === "system") await systemDetail(parts[1]);
     else if (parts[0] === "documents") await documents();
     else if (parts[0] === "doc") await docDetail(parts[1], parts[2]);
@@ -563,5 +582,6 @@ async function route() {
   }
   window.scrollTo(0, 0);
 }
+if (STATIC) document.querySelector('nav a[data-nav="runs"]')?.remove();
 window.addEventListener("hashchange", route);
 route();
