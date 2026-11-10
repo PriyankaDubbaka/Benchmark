@@ -52,8 +52,14 @@ def _scores(items: list[dict]) -> dict:
     e2 = _avg([t["teds"] for s in items for t in s["tables"]])
     e3 = _avg([f for s in items for f in s["formulas"]])
     parts = [x for x in (e1, e2, e3) if x is not None]
+    # Number fidelity is pooled over pages, so a page with two numbers does not weigh like one
+    # with two hundred. It stays out of the overall score.
+    num = [s["numbers"] for s in items if "numbers" in s]
+    gold_n, pred_n, hit = (sum(n[k] for n in num) for k in ("gold", "pred", "matched"))
     return {"pages": len(items), "overall": mean(parts) if parts else None,
-            "e1_text": e1, "e2_table_teds": e2, "e3_formula": e3}
+            "e1_text": e1, "e2_table_teds": e2, "e3_formula": e3,
+            "numbers_recall": hit / gold_n if gold_n else None,
+            "numbers_precision": hit / pred_n if pred_n else None}
 
 
 BOOTSTRAP_RESAMPLES = 1000
@@ -69,7 +75,7 @@ def _ci95(items: list[dict]) -> dict | None:
     if len(items) < 2:
         return None
     rng = random.Random(BOOTSTRAP_SEED)
-    keys = ("overall", "e1_text", "e2_table_teds", "e3_formula")
+    keys = ("overall", "e1_text", "e2_table_teds", "e3_formula", "numbers_recall")
     draws: dict[str, list[float]] = {k: [] for k in keys}
     for _ in range(BOOTSTRAP_RESAMPLES):
         sc = _scores([items[rng.randrange(len(items))] for _ in items])
@@ -145,6 +151,7 @@ def _score(system_id: str, card: dict, track: str, docs: list, predictions: dict
     # Gold is loaded only from here on.
     per_doc, items, rec_f1 = [], [], []
     by_kind: dict[str, list] = {}
+    by_lang: dict[str, list] = {}
     not_own = []  # pages whose gold did not start as this system's own draft
     missing = 0   # gold pages an older run has no prediction for (rescore only)
     critical = {"wrong_unit": 0, "wrong_status": 0, "wrong_uncertainty": 0}
@@ -161,6 +168,7 @@ def _score(system_id: str, card: dict, track: str, docs: list, predictions: dict
             s["kind"] = meta["kind"]
             drow["pages"][p] = s
             by_kind.setdefault(meta["kind"], []).append(s)
+            by_lang.setdefault(meta["lang"] or "unlabelled", []).append(s)
             if meta["draft_source"] != f"run:{system_id}":
                 not_own.append(s)
             items.append(s)
@@ -192,16 +200,20 @@ def _score(system_id: str, card: dict, track: str, docs: list, predictions: dict
             "e2_table_teds": total["e2_table_teds"],
             "e2_table_teds_struct": _avg([t["teds_struct"] for t in tables]),
             "e3_formula": total["e3_formula"],
+            "numbers_recall": total["numbers_recall"],
+            "numbers_precision": total["numbers_precision"],
             "e5_record_f1": _avg(rec_f1),
             "e5_critical_errors": critical if rec_f1 else None,
         },
         # How far each score could move with another draw of pages; see _ci95.
         "ci95": _ci95(items),
         "by_kind": {k: _scores(v) for k, v in sorted(by_kind.items())},
+        "by_lang": {k: _scores(v) for k, v in sorted(by_lang.items())},
         # Same scores without the pages this system drafted, so its head start on them is visible.
         "excluding_own_drafts": _scores(not_own) if len(not_own) < len(items) else None,
         "counts": {"documents": len(docs), "pages": len(items), "predicted_pages": predicted_pages,
                    "tables": len(tables), "formulas": sum(len(s["formulas"]) for s in items),
+                   "numbers": sum(s["numbers"]["gold"] for s in items),
                    "record_documents": len(rec_f1), "gold_pages_not_predicted": missing},
         "runtime_s": round(elapsed, 1) if elapsed is not None else None,
         "usage": usage,

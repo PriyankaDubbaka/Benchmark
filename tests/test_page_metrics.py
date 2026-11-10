@@ -170,3 +170,35 @@ class Notation(unittest.TestCase):
         from bambench.metrics.text import normalize_text as n
         self.assertEqual(n("<p>one</p><p>two</p>"), "one two")
         self.assertEqual(n("a<br>b"), "a b")
+
+
+class Numbers(unittest.TestCase):
+    """Number fidelity: printed numbers must come back digit for digit."""
+
+    def _n(self, md):
+        from bambench.metrics.numbers import numbers
+        return dict(numbers(split(md)))
+
+    def test_one_wrong_digit_is_a_miss(self):
+        gold = "<table><tr><td>Al</td><td>0.587</td><td>0.018</td></tr></table>\n\nk = 2, about 95 %"
+        good = score_page(gold, gold)["numbers"]
+        self.assertEqual(good, {"gold": 4, "pred": 4, "matched": 4})
+        bad = score_page(gold, gold.replace("0.587", "0.578"))["numbers"]
+        self.assertEqual(bad, {"gold": 4, "pred": 4, "matched": 3})
+
+    def test_digits_inside_names_do_not_count(self):
+        self.assertEqual(self._n("BAM-S005c, Al<sub>2</sub>O<sub>3</sub>, C10 and ISO 17034"), {"17034": 1})
+
+    def test_neighbouring_cells_do_not_merge(self):
+        self.assertEqual(self._n("<table><tr><td>40</td><td>0.982</td></tr></table>"), {"40": 1, "0.982": 1})
+
+    def test_decimal_comma_is_kept_as_printed(self):
+        s = score_page("Ethanol 1,0291 g/l", "Ethanol 1.0291 g/l")["numbers"]
+        self.assertEqual(s["matched"], 0)
+
+    def test_repeats_are_counted(self):
+        s = score_page("2.7 and 2.7 and 5", "2.7 and 5")["numbers"]
+        self.assertEqual(s, {"gold": 3, "pred": 2, "matched": 2})
+
+    def test_ranges_and_dates(self):
+        self.assertEqual(self._n("913–915 °C on 2020-08-19"), {"913": 1, "915": 1, "2020": 1, "08": 1, "19": 1})

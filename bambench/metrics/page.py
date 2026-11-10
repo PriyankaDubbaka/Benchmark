@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from .markdown import split
+from .numbers import compare as compare_numbers
 from .teds import teds
 from .text import ned, normalize_formula, normalize_text
 
@@ -39,4 +40,6 @@ def score_page(gold_md: str, pred_md: str) -> dict:
         "pred_tables": len(p["tables"]),
         "formulas": formula_scores,
         "pred_formulas": len(p["formulas"]),
+        # Not part of the overall score; see metrics/numbers.py.
+        "numbers": compare_numbers(g, p),
     }
