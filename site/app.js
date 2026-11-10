@@ -114,7 +114,7 @@ async function leaderboard() {
         return `<td class="num cost ${have.length > 1 && x && x === best[k] ? "best" : ""}">${x === null || x === undefined ? "—" : fmt(x)}${cut}</td>`;
       }).join("");
       return `<tr class="click" data-sys="${esc(r.system)}"><td><b>${esc(r.card.name || r.system)}</b><div class="small muted">${esc(r.card.params || "")} · ${esc(r.card.license || "")}${r.card.slice ? " · " + esc(r.card.slice) : ""}</div></td>
-        ${cells}${costs}<td class="num">${s.counts.pages}${s.publishable === false ? ' <span class="pill draft" title="Fewer than 20 pages: internal only">internal</span>' : ""}${s.counts.gold_pages_not_predicted ? ` <span class="pill no" title="${s.counts.gold_pages_not_predicted} annotated pages were added after this run. Rerun the system to cover them.">stale</span>` : ""}</td><td class="small muted">${esc(s.finished.slice(0, 10))}</td></tr>`;
+        ${cells}${costs}<td class="num">${s.counts.pages}${s.publishable === false ? ' <span class="pill draft" title="Fewer than 20 pages: internal only">internal</span>' : ""}${s.counts.gold_pages_not_predicted ? ` <span class="pill no" title="${s.counts.gold_pages_not_predicted} annotated pages were added after this run. Rerun the system to cover them.">stale</span>` : ""}${s.scorer_current === false ? ' <span class="pill draft" title="Scored with an older version of the metrics. Run bambench rescore to update it; no model run is needed.">old scoring</span>' : ""}</td><td class="small muted">${esc(s.finished.slice(0, 10))}</td></tr>`;
     }).join("");
     const price = have.find((r) => r[lbTrack].cost)?.[lbTrack].cost.eur_per_hour;
     $app.innerHTML = `<h1>Leaderboard</h1>

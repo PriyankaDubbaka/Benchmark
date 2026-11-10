@@ -145,3 +145,22 @@ class RequestGuard(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ScorerVersion(unittest.TestCase):
+    def test_rows_from_an_older_scorer_are_marked(self):
+        import tempfile
+        from pathlib import Path
+        from unittest import mock
+        from bambench import runner
+        from bambench.metrics import SCORER_VERSION
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            base = {"track": "open", "card": {}, "scores": {"overall": 0.5}, "counts": {"pages": 2},
+                    "elapsed_seconds": 1.0}
+            (d / "old.json").write_text(json.dumps({**base, "system": "old"}))
+            (d / "new.json").write_text(json.dumps({**base, "system": "new", "scorer": SCORER_VERSION}))
+            with mock.patch("bambench.runner.summary_dir", lambda t: d if t == "open" else d / "none"), \
+                    mock.patch("bambench.runner.published_dir", lambda t: d / "none"):
+                rows = {r["system"]: r["open"]["scorer_current"] for r in runner.leaderboard()}
+        self.assertEqual(rows, {"old": False, "new": True})

@@ -23,6 +23,7 @@ from . import __version__
 from .corpus import load_documents, verify
 from .cost import cost
 from .gold import load_records, page_meta, pages_to_draft, scored_pages
+from .metrics import SCORER_VERSION
 from .metrics.page import score_page
 from .metrics.records import ValidationError, score_records
 from .paths import published_dir, run_dir, summary_dir, track_dir
@@ -183,6 +184,7 @@ def _score(system_id: str, card: dict, track: str, docs: list, predictions: dict
         "track": track,
         "run_id": run_id,
         "bambench_version": __version__,
+        "scorer": SCORER_VERSION,
         "card": {k: v for k, v in card.items() if k not in ("page_prompt",)},
         "scores": {
             "overall": total["overall"],
@@ -323,5 +325,6 @@ def leaderboard(published_only: bool = False) -> list[dict]:
             s = json.loads(f.read_text(encoding="utf-8"))
             row = rows.setdefault(s["system"], {"system": s["system"], "card": s.get("card", {})})
             s["cost"] = cost(s)  # worked out on read, so older summaries get time and cost too
+            s["scorer_current"] = s.get("scorer", 1) == SCORER_VERSION
             row[track] = s
     return sorted(rows.values(), key=lambda r: -((r.get("open") or {}).get("scores", {}).get("overall") or -1))
