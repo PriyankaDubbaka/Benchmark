@@ -1,7 +1,7 @@
 // BAM Extraction Benchmark dashboard. Plain JavaScript, no build step, works offline.
 "use strict";
 
-const TARGETS = { open: 60, closed: 60 }; // annotated pages planned for the Nov 30 release
+const TARGETS = { open: 60, closed: 100 }; // annotated pages planned for the Nov 30 release
 const METRICS = [
   ["overall", "Overall", "Mean of E1, E2 and E3"],
   ["e1_text", "E1 Text", "1 minus normalised edit distance"],
@@ -19,6 +19,8 @@ const COSTS = [
   ["output_tokens_per_page", "Tokens / page", "Tokens the model wrote per page. Recorded from runs after Nov 3", (x) => String(x)],
 ];
 
+// Views kept in pages.js register here under the first part of their route.
+const PAGES = {};
 const $app = document.getElementById("app");
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const pct = (x) => (x === null || x === undefined ? "—" : (100 * x).toFixed(1));
@@ -80,59 +82,273 @@ async function overview() {
     ${STATIC ? `<div class="note small">This is a read-only copy built ${esc(STATIC.built.replace("T", " ").slice(0, 16))} UTC${STATIC.commit ? ` from commit <code>${esc(STATIC.commit)}</code>` : ""}. It shows the open track, and closed-track scores only where at least 20 pages back them. Annotation, page comparison and model runs happen in the dashboard on the BAM cluster.</div>` : ""}`;
 }
 
+// ---------- Downloads ----------
+const todayIso = () => new Date().toISOString().slice(0, 10);
+function downloadBlob(fileName, blob) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function downloadText(fileName, mime, text) { downloadBlob(fileName, new Blob([text], { type: mime })); }
+// The charts are styled by CSS classes and variables, which a standalone image does not have. So copy the
+// computed paint onto every element of a clone, put the panel colour behind it and draw it at twice the size.
+function downloadSvgPng(svg, fileName) {
+  const props = ["fill", "stroke", "stroke-width", "stroke-dasharray", "font-size", "font-family", "font-weight", "opacity"];
+  const clone = svg.cloneNode(true);
+  const src = [svg, ...svg.querySelectorAll("*")], dst = [clone, ...clone.querySelectorAll("*")];
+  src.forEach((el, i) => {
+    const cs = getComputedStyle(el);
+    dst[i].setAttribute("style", props.map((p) => `${p}:${cs.getPropertyValue(p)}`).join(";"));
+  });
+  clone.querySelectorAll("title").forEach((t) => t.remove());
+  const vb = svg.viewBox.baseVal, w = vb.width, h = vb.height, ns = "http://www.w3.org/2000/svg";
+  clone.setAttribute("xmlns", ns);
+  clone.setAttribute("width", w);
+  clone.setAttribute("height", h);
+  const bg = document.createElementNS(ns, "rect");
+  bg.setAttribute("width", w);
+  bg.setAttribute("height", h);
+  bg.setAttribute("fill", getComputedStyle(document.documentElement).getPropertyValue("--panel").trim() || "#fff");
+  clone.insertBefore(bg, clone.firstChild);
+  const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(new XMLSerializer().serializeToString(clone));
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement("canvas");
+      c.width = w * 2;
+      c.height = h * 2;
+      const g = c.getContext("2d");
+      g.scale(2, 2);
+      g.drawImage(img, 0, 0, w, h);
+      c.toBlob((b) => (b ? (downloadBlob(fileName, b), resolve()) : reject(new Error("Could not make the image"))), "image/png");
+    };
+    img.onerror = () => reject(new Error("Could not draw the chart"));
+    img.src = url;
+  });
+}
+const csvCell = (x) => {
+  const t = x === null || x === undefined ? "" : String(x);
+  return /[",\r\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+};
+
 // ---------- Leaderboard ----------
 let lbTrack = store.get("lbTrack", "open");
-let lbSort = "overall";
+// Every choice on the leaderboard is remembered.
+const lbS = {
+  sort: store.get("lb_sort", "overall"), view: store.get("lb_view", "fair"), cols: store.get("lb_cols", "all"),
+  lic: store.get("lb_lic", "any"), pub: store.get("lb_pub", "any"), size: store.get("lb_size", "any"), type: store.get("lb_type", "any"),
+  fit: store.get("lb_fit", "0") === "1", help: store.get("lb_help", "0") === "1",
+};
+const lbSet = (k, v) => { lbS[k] = v; store.set("lb_" + k, typeof v === "boolean" ? (v ? "1" : "0") : v); };
+const LB_PRESETS = [
+  ["all", "All", null],
+  ["accuracy", "Accuracy", ["overall", "e1_text", "e2_table_teds", "e3_formula"]],
+  ["tables", "Tables and numbers", ["overall", "e2_table_teds", "e2_table_teds_struct", "numbers_recall", "e5_record_f1"]],
+  ["cost", "Cost", ["overall", "seconds_per_page", "eur_per_1000_pages", "output_tokens_per_page"]],
+];
+const LB_LANG = { de: "German", en: "English", "en+de": "bilingual" };
+const lowIsGood = (k) => COSTS.some(([c]) => c === k);
+// The scores of one summary in one view, or null when the view holds no pages. The fair view is the summary
+// without the pages the system drafted itself, or all pages when it drafted none (or the run is old).
+function lbPick(s, view) {
+  let v;
+  if (view === "all" || view === "fair") v = (view === "fair" && s.excluding_own_drafts) || { ...s.scores, pages: s.counts.pages, ci95: s.ci95 };
+  else v = (view.startsWith("kind:") ? s.by_kind : s.by_lang)?.[view.slice(5)];
+  if (!v || !v.pages) return null;
+  // E5 is scored per document, so it has no per-kind or per-language value.
+  const whole = view === "all" || view === "fair";
+  return { pages: v.pages, scores: { ...v, e5_record_f1: whole ? s.scores.e5_record_f1 ?? null : null }, ci95: v.ci95 || null };
+}
+const ownDrafts = (s) => s.counts.own_draft_pages ?? (s.excluding_own_drafts ? s.counts.pages - s.excluding_own_drafts.pages : 0);
+// "12B", "0.9B", "258M", "about 1B", "4B effective (8B with embeddings)": the first number. Null when there is none.
+function paramsB(p) {
+  const m = String(p ?? "").match(/(\d+(?:\.\d+)?)\s*([BM])(?![A-Za-z])/i);
+  return m ? parseFloat(m[1]) / (m[2].toUpperCase() === "M" ? 1000 : 1) : null;
+}
+const isPermissive = (lic) => /^(apache|mit|bsd)/i.test(String(lic ?? "").trim());
+function monthIndex(rel) { // "2026-03" or "2026-03-19" -> months since year 0; "2026" counts as January
+  const m = String(rel ?? "").match(/^(\d{4})(?:-(\d{2}))?/);
+  return m ? +m[1] * 12 + (m[2] ? +m[2] - 1 : 0) : null;
+}
+
 async function leaderboard() {
-  const rows = await api("leaderboard");
-  const val = (s, k) => (k in s.scores ? s.scores[k] : s.cost?.[k]) ?? null;
-  const lowIsGood = (k) => COSTS.some(([c]) => c === k);
+  const [rows, mod] = await Promise.all([api("leaderboard"), api("models")]);
+  const rel = Object.fromEntries(mod.systems.map((s) => [s.id, s.released]));
+  const val = (it, k) => (k in (it.p?.scores || {}) ? it.p.scores[k] : it.s.cost?.[k]) ?? null;
   // 95% bootstrap interval over pages, shown under a score when the run recorded one.
-  const ci = (s, k) => (s.ci95?.[k] ? `<div class="ci" title="95% interval: where this score would likely fall with a different sample of pages">${pct(s.ci95[k][0])}–${pct(s.ci95[k][1])}</div>` : "");
+  const ci = (p, k) => (p?.ci95?.[k] ? `<div class="ci" title="95% interval: where this score would likely fall with a different sample of pages">${pct(p.ci95[k][0])}–${pct(p.ci95[k][1])}</div>` : "");
+  const metricLabel = (k) => [...METRICS, ...COSTS].find(([c]) => c === k)?.[1] ?? k;
   const draw = () => {
-    const have = rows.filter((r) => r[lbTrack]);
-    const up = lowIsGood(lbSort);
-    have.sort((a, b) => {
-      const x = val(a[lbTrack], lbSort), y = val(b[lbTrack], lbSort);
+    const focus = document.activeElement?.dataset?.ctl;
+    const track = lbTrack;
+    const all = rows.filter((r) => r[track]);
+    // Choices that depend on the data: page kinds, languages, publishers. A stale remembered choice falls back.
+    const kinds = [...new Set(all.flatMap((r) => Object.keys(r[track].by_kind || {})))].sort();
+    const langs = [...new Set(all.flatMap((r) => Object.keys(r[track].by_lang || {})))].sort();
+    const pubs = [...new Set(all.map((r) => r.card.publisher).filter(Boolean))].sort();
+    const viewOpts = [["fair", "Fair: without a system's own drafts"], ["all", "All pages"],
+      ...kinds.map((k) => ["kind:" + k, `Only ${k} pages`]), ...langs.map((l) => ["lang:" + l, `Only ${LB_LANG[l] || l} pages`])];
+    if (!viewOpts.some(([v]) => v === lbS.view)) lbSet("view", "fair");
+    if (lbS.pub !== "any" && !pubs.includes(lbS.pub)) lbSet("pub", "any");
+    const preset = LB_PRESETS.find(([k]) => k === lbS.cols) || LB_PRESETS[0];
+    const shownCols = preset[2];
+    const show = (k) => !shownCols || shownCols.includes(k);
+    if (!show(lbS.sort)) lbSet("sort", "overall");
+    const view = lbS.view;
+
+    const items = all.map((r) => ({ r, s: r[track], p: lbPick(r[track], view) })).filter(({ r, s }) => {
+      const c = r.card, b = paramsB(c.params);
+      if (lbS.lic !== "any" && isPermissive(c.license) !== (lbS.lic === "permissive")) return false;
+      if (lbS.pub !== "any" && c.publisher !== lbS.pub) return false;
+      if (lbS.size === "none" ? b !== null : lbS.size !== "any" && (b === null || (lbS.size === "s" ? b > 4 : lbS.size === "m" ? b <= 4 || b > 10 : b <= 10))) return false;
+      if (lbS.type !== "any" && (c.kind === "vllm") !== (lbS.type === "vision")) return false;
+      if (lbS.fit && !(s.cost?.gpu_share <= 0.25)) return false;
+      return true;
+    });
+    const up = lowIsGood(lbS.sort);
+    items.sort((a, b) => {
+      const x = val(a, lbS.sort), y = val(b, lbS.sort);
       if (x === null || y === null) return (x === null) - (y === null);
       return up ? x - y : y - x;
     });
     const best = {};
-    for (const [k] of METRICS) best[k] = Math.max(...have.map((r) => r[lbTrack].scores[k] ?? -1));
+    for (const [k] of METRICS) best[k] = Math.max(...items.map((it) => it.p?.scores[k] ?? -1));
     for (const [k] of COSTS) {
-      const xs = have.map((r) => r[lbTrack].cost?.[k]).filter((x) => x !== null && x !== undefined && x > 0);
+      const xs = items.map((it) => it.s.cost?.[k]).filter((x) => x !== null && x !== undefined && x > 0);
       best[k] = xs.length ? Math.min(...xs) : null;
     }
-    const arrow = (k) => (lbSort === k ? (lowIsGood(k) ? " ↑" : " ↓") : "");
-    const head = METRICS.map(([k, label, tip]) => `<th class="num sort" data-k="${k}" title="${esc(tip)}">${label}${arrow(k)}</th>`).join("")
-      + COSTS.map(([k, label, tip]) => `<th class="num sort cost" data-k="${k}" title="${esc(tip)}">${label}${arrow(k)}</th>`).join("");
-    const body = have.map((r) => {
-      const s = r[lbTrack];
-      const cells = METRICS.map(([k]) => `<td class="num ${have.length > 1 && s.scores[k] !== null && s.scores[k] === best[k] ? "best" : ""}">${pct(s.scores[k])}${ci(s, k)}</td>`).join("");
-      const costs = COSTS.map(([k, , , fmt]) => {
+    const arrow = (k) => (lbS.sort === k ? (lowIsGood(k) ? " ↑" : " ↓") : "");
+    const head = METRICS.filter(([k]) => show(k)).map(([k, label, tip]) => `<th class="num sort" tabindex="0" data-k="${k}" title="${esc(tip)}">${label}${arrow(k)}</th>`).join("")
+      + COSTS.filter(([k]) => show(k)).map(([k, label, tip]) => `<th class="num sort cost" tabindex="0" data-k="${k}" title="${esc(tip)}">${label}${arrow(k)}</th>`).join("");
+    const body = items.map(({ r, s, p }, i) => {
+      const cells = METRICS.filter(([k]) => show(k)).map(([k]) => {
+        const v = p?.scores[k] ?? null;
+        return `<td class="num ${items.length > 1 && v !== null && v === best[k] ? "best" : ""}">${pct(v)}${ci(p, k)}</td>`;
+      }).join("");
+      const costs = COSTS.filter(([k]) => show(k)).map(([k, , , fmt]) => {
         const x = s.cost?.[k];
         const cut = k === "output_tokens_per_page" && s.cost?.truncated_pages ? ` <span class="small muted" title="Replies cut off at max_tokens">${s.cost.truncated_pages} cut</span>` : "";
-        return `<td class="num cost ${have.length > 1 && x && x === best[k] ? "best" : ""}">${x === null || x === undefined ? "—" : fmt(x)}${cut}</td>`;
+        return `<td class="num cost ${items.length > 1 && x && x === best[k] ? "best" : ""}">${x === null || x === undefined ? "—" : fmt(x)}${cut}</td>`;
       }).join("");
-      return `<tr class="click" data-sys="${esc(r.system)}"><td><b>${esc(r.card.name || r.system)}</b><div class="small muted">${esc(r.card.params || "")} · ${esc(r.card.license || "")}${r.card.slice ? " · " + esc(r.card.slice) : ""}</div></td>
-        ${cells}${costs}<td class="num">${s.counts.pages}${s.publishable === false ? ' <span class="pill draft" title="Fewer than 20 pages: internal only">internal</span>' : ""}${s.counts.gold_pages_not_predicted ? ` <span class="pill no" title="${s.counts.gold_pages_not_predicted} annotated pages were added after this run. Rerun the system to cover them.">stale</span>` : ""}${s.scorer_current === false ? ' <span class="pill draft" title="Scored with an older version of the metrics. Run bambench rescore to update it; no model run is needed.">old scoring</span>' : ""}</td><td class="small muted">${esc(s.finished.slice(0, 10))}</td></tr>`;
+      const n = ownDrafts(s);
+      const dagger = n > 0 ? ` <span class="dagger" title="Labels for ${n} of ${s.counts.pages} pages started from this system's own draft. The fair view leaves those pages out for this system.">†</span>` : "";
+      const pages = p ? (p.pages < s.counts.pages ? `${p.pages} of ${s.counts.pages}` : p.pages) : "—";
+      return `<tr class="click" data-sys="${esc(r.system)}"><td class="num muted">${i + 1}</td>
+        <td><b>${esc(r.card.name || r.system)}</b>${dagger}<div class="small muted">${esc(r.card.params || "")} · ${esc(r.card.license || "")}${r.card.slice ? " · " + esc(r.card.slice) : ""}</div></td>
+        ${cells}${costs}<td class="num">${pages}${p && p.pages < 5 ? ' <span class="pill draft" title="This score rests on too few pages to mean much.">few pages</span>' : ""}${s.publishable === false ? ' <span class="pill draft" title="Fewer than 20 pages: internal only">internal</span>' : ""}${s.counts.gold_pages_not_predicted ? ` <span class="pill no" title="${s.counts.gold_pages_not_predicted} annotated pages were added after this run. Rerun the system to cover them.">stale</span>` : ""}${s.scorer_current === false ? ' <span class="pill draft" title="Scored with an older version of the metrics. Run bambench rescore to update it; no model run is needed.">old scoring</span>' : ""}</td><td class="small muted">${esc(s.finished.slice(0, 10))}</td></tr>`;
     }).join("");
-    const price = have.find((r) => r[lbTrack].cost)?.[lbTrack].cost.eur_per_hour;
+    const price = all.find((r) => r[track].cost)?.[track].cost.eur_per_hour;
+    const opts = (xs, cur) => xs.map(([v, l]) => `<option value="${esc(v)}" ${v === cur ? "selected" : ""}>${esc(l)}</option>`).join("");
+    const sel = (ctl, label, xs, cur) => `<label class="ctl">${label}<select data-ctl="${ctl}">${opts(xs, cur)}</select></label>`;
+    const filtering = lbS.lic !== "any" || lbS.pub !== "any" || lbS.size !== "any" || lbS.type !== "any" || lbS.fit;
+    const toolbar = `<div class="lbbar">
+      ${sel("view", "Pages", viewOpts, view)}
+      ${sel("cols", "Columns", LB_PRESETS.map(([k, l]) => [k, l]), preset[0])}
+      ${sel("lic", "Licence", [["any", "Any"], ["permissive", "Permissive (Apache, MIT, BSD)"], ["other", "Other"]], lbS.lic)}
+      ${sel("pub", "Publisher", [["any", "Any"], ...pubs.map((p) => [p, p])], lbS.pub)}
+      ${sel("size", "Size", [["any", "Any"], ["s", "Up to 4B"], ["m", "4B to 10B"], ["l", "Over 10B"], ["none", "No model weights"]], lbS.size)}
+      ${sel("type", "Type", [["any", "Any"], ["vision", "Vision model"], ["pipeline", "Pipeline or baseline"]], lbS.type)}
+      <label class="chk"><input type="checkbox" data-ctl="fit" ${lbS.fit ? "checked" : ""}> Fits a 20 GB slice</label>
+      ${filtering ? '<button class="btn" data-ctl="reset">Reset</button>' : ""}
+      <span class="grow"></span>
+      ${items.length ? '<button class="btn" data-ctl="csv" title="All columns, the rows as shown">Download CSV</button>' : ""}
+    </div>`;
+    const help = `<details class="help" id="lb-help" ${lbS.help ? "open" : ""}><summary>How to read this table</summary><dl>
+      <dt>Scores</dt><dd>Scores are percentages from 0 to 100, and higher is better. Overall is the mean of E1 Text, E2 Tables and E3 Formulas. Numbers and E5 Records are shown beside it and are not part of Overall.</dd>
+      <dt>The range under a score</dt><dd>${all.some((r) => r[track].ci95) ? "The small range is a 95% interval, from resampling the annotated pages 1,000 times. When two systems' ranges overlap, the benchmark cannot yet tell them apart; more annotated pages narrow the ranges. " : ""}${all.some((r) => !r[track].ci95) ? "Runs made before Nov 10 show no interval. Run <code>python3 -m bambench rescore --track " + track + "</code> to add one without rerunning any model." : ""}</dd>
+      <dt>Fair view and the dagger †</dt><dd>A system tends to score better on a page whose label started as its own draft. The fair view leaves those pages out for that system, so each system may be scored on a different number of pages. A dagger † marks a system that drafted labels on this track.</dd>
+      <dt>Other views</dt><dd>All pages counts every scored page. A page-kind or language view scores only the pages of that kind or language. E5 Records is scored per document, so it shows only in the fair and all-pages views. Cost is the same in every view.</dd>
+      <dt>Bold</dt><dd>Bold marks the best value in a column among the rows shown, so a filter can change it.</dd>
+      <dt>Pills</dt><dd><span class="pill draft">internal</span> fewer than 20 pages, for internal use only. <span class="pill no">stale</span> scored on fewer pages than are annotated now; it needs a rerun. <span class="pill draft">old scoring</span> scored with an older version of the metrics; <code>bambench rescore</code> updates it with no model run. <span class="pill draft">few pages</span> the view holds fewer than 5 pages.</dd>
+      <dt>Cost</dt><dd>Cost is an estimate: the share of one A100 80 GB the system's slice takes (20 GB is a quarter, 40 GB a half, CPU is free) × run time × €${price ?? "?"} per A100 hour. Set BAMBENCH_A100_EUR_PER_HOUR to change the price. Time is measured with the model already loaded, so server start-up is not counted.${all.some((r) => r[track].counts.gold_pages_not_predicted) ? " A row marked stale was scored on fewer pages than are annotated now." : ""}</dd>
+    </dl></details>`;
+    const dots = items.map(({ r, p, s }) => ({ name: r.card.name || r.system, sys: r.system, y: p?.scores.overall, x: s.cost?.seconds_per_page }));
+    const speed = speedChart(dots);
+    const dated = items.filter((it) => it.p?.scores.overall != null && monthIndex(rel[it.r.system] ?? it.r.card.released) !== null);
+    const undated = items.filter((it) => it.p?.scores.overall != null).length - dated.length;
+    const prog = progressChart(dated.map((it) => ({ name: it.r.card.name || it.r.system, sys: it.r.system, y: it.p.scores.overall, rel: rel[it.r.system] ?? it.r.card.released, d: monthIndex(rel[it.r.system] ?? it.r.card.released) })));
+    const chartHead = (title, id, html) => `<div class="charthead"><h2>${title}</h2>${html.includes("<svg") ? `<button class="btn small" data-png="${id}" title="Save the chart as an image">PNG</button>` : ""}</div>`;
     $app.innerHTML = `<h1>Leaderboard</h1>
       <p class="lead">Scores are percentages, higher is better. Time and cost are per page, lower is better. Click a column to sort and a row for details. Every row was produced by a local run with a pinned system card.</p>
-      <div class="tabs"><button data-t="open" class="${lbTrack === "open" ? "on" : ""}">Open track</button><button data-t="closed" class="${lbTrack === "closed" ? "on" : ""}">Closed track</button></div>
-      ${lbTrack === "closed" ? `<div class="note closed small">Closed-track numbers are aggregates over confidential reports. Only publish a number when it is backed by at least 20 pages.</div>` : ""}
-      ${have.length ? `<div class="scroll"><table class="grid"><tr><th>System</th>${head}<th class="num">Pages</th><th>Run</th></tr>${body}</table></div>
-        <p class="small muted">${have.some((r) => r[lbTrack].ci95) ? "The small range under a score is its 95% interval, from resampling the annotated pages 1,000 times. When two systems' ranges overlap, the benchmark cannot yet tell them apart; more annotated pages narrow the ranges. " : "Runs made before Nov 10 show no interval. Run <code>python3 -m bambench rescore --track " + lbTrack + "</code> to add one without rerunning any model. "}${have.some((r) => r[lbTrack].counts.gold_pages_not_predicted) ? "A row marked stale was scored on fewer pages than are annotated now and needs a rerun." : ""}</p>
-        <p class="small muted">Cost is an estimate: the share of one A100 80 GB the system's slice takes (20 GB is a quarter, 40 GB a half, CPU is free) × run time × €${price ?? "?"} per A100 hour. Set BAMBENCH_A100_EUR_PER_HOUR to change the price. Time is measured with the model already loaded, so server start-up is not counted.</p>
-        <h2>Accuracy against speed</h2>${speedChart(have.map((r) => ({ name: r.card.name || r.system, sys: r.system, y: r[lbTrack].scores.overall, x: r[lbTrack].cost?.seconds_per_page })))}`
-        : `<p class="muted">No ${lbTrack}-track results yet.</p>`}`;
+      ${help}
+      <div class="tabs"><button data-t="open" class="${track === "open" ? "on" : ""}">Open track</button><button data-t="closed" class="${track === "closed" ? "on" : ""}">Closed track</button></div>
+      ${track === "closed" ? `<div class="note closed small">Closed-track numbers are aggregates over confidential reports. Only publish a number when it is backed by at least 20 pages.</div>` : ""}
+      ${all.length ? `${toolbar}
+        <p class="small muted">Showing ${items.length} of ${all.length} ${all.length === 1 ? "system" : "systems"} with a result on this track, sorted by ${esc(metricLabel(lbS.sort))}. ${mod.systems.length} systems are in the benchmark; the others are listed with their status under <a href="#/models">Models</a>.</p>
+        ${items.length ? `<div class="scroll"><table class="grid"><tr><th class="num">#</th><th>System</th>${head}<th class="num">Pages</th><th>Run</th></tr>${body}</table></div>` : `<p class="muted">No system matches these filters.</p>`}
+        ${chartHead("Accuracy against speed", "speed", speed)}${speed}
+        ${chartHead("Progress over time", "progress", prog)}${prog}
+        ${undated && prog.includes("<svg") ? `<p class="small muted">${undated} system${undated === 1 ? " has" : "s have"} no release date and ${undated === 1 ? "is" : "are"} left out.</p>` : ""}`
+        : `<p class="muted">No ${track}-track results yet.</p>`}`;
     $app.querySelectorAll("[data-t]").forEach((b) => (b.onclick = () => { lbTrack = b.dataset.t; store.set("lbTrack", lbTrack); draw(); }));
-    $app.querySelectorAll("th[data-k]").forEach((th) => (th.onclick = () => { lbSort = th.dataset.k; draw(); }));
+    $app.querySelectorAll("th[data-k]").forEach((th) => {
+      th.onclick = () => { lbSet("sort", th.dataset.k); draw(); };
+      th.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); th.click(); } };
+    });
     $app.querySelectorAll("tr[data-sys], g[data-sys]").forEach((el) => (el.onclick = () => (location.hash = "#/system/" + el.dataset.sys)));
+    $app.querySelectorAll("select[data-ctl]").forEach((el) => (el.onchange = () => { lbSet(el.dataset.ctl, el.value); draw(); }));
+    const fit = $app.querySelector('[data-ctl="fit"]');
+    if (fit) fit.onchange = () => { lbSet("fit", fit.checked); draw(); };
+    const reset = $app.querySelector('[data-ctl="reset"]');
+    if (reset) reset.onclick = () => { for (const k of ["lic", "pub", "size", "type"]) lbSet(k, "any"); lbSet("fit", false); draw(); };
+    const det = document.getElementById("lb-help");
+    if (det) det.ontoggle = () => lbSet("help", det.open);
+    const csv = $app.querySelector('[data-ctl="csv"]');
+    if (csv) csv.onclick = () => exportCsv(items, track, view);
+    $app.querySelectorAll("[data-png]").forEach((b) => (b.onclick = () => {
+      const svg = $app.querySelector(`svg[data-chart="${b.dataset.png}"]`);
+      if (svg) downloadSvgPng(svg, `bambench-${b.dataset.png}-${track}-${todayIso()}.png`).catch((e) => toast(e.message));
+    }));
+    if (focus) $app.querySelector(`[data-ctl="${focus}"]`)?.focus();
   };
   draw();
 }
+
+// The rows as shown (track, view, filters, order), with every column whatever the column preset.
+function exportCsv(items, track, view) {
+  const keys = ["overall", "e1_text", "e2_table_teds", "e2_table_teds_struct", "e3_formula", "numbers_recall"];
+  const f4 = (x) => (x === null || x === undefined ? "" : x.toFixed(4));
+  const head = ["rank", "system", "name", "publisher", "licence", "params", "slice", "track", "view", "pages", "pages_in_run", "own_draft_pages",
+    ...keys.flatMap((k) => [k, k + "_lo", k + "_hi"]), "e5_record_f1", "seconds_per_page", "eur_per_1000_pages", "output_tokens_per_page", "publishable", "scorer_current", "finished"];
+  const lines = [head.join(",")];
+  items.forEach(({ r, s, p }, i) => {
+    const c = r.card, iv = p?.ci95 || {};
+    lines.push([i + 1, r.system, c.name || r.system, c.publisher, c.license, c.params, c.slice, track, view, p ? p.pages : 0, s.counts.pages, s.counts.own_draft_pages,
+      ...keys.flatMap((k) => [f4(p?.scores[k]), f4(iv[k]?.[0]), f4(iv[k]?.[1])]), f4(p?.scores.e5_record_f1),
+      s.cost?.seconds_per_page, s.cost?.eur_per_1000_pages, s.cost?.output_tokens_per_page,
+      s.publishable ?? true, s.scorer_current ?? "", s.finished].map(csvCell).join(","));
+  });
+  const internal = track === "closed" && items.some(({ s }) => s.publishable === false);
+  const slug = view.replace(/[^a-z0-9]+/gi, "-");
+  downloadText(`bambench-${track}-${slug}-${todayIso()}${internal ? "-internal" : ""}.csv`, "text/csv;charset=utf-8", lines.join("\n") + "\n");
+}
+
+// Place each label right, left, above or below its dot, avoiding other dots and labels already placed.
+// `boxes` holds every dot and grows with each label. Returns one [x, y, anchor] per entry of `dots`.
+function placeLabels(dots, boxes, W, L) {
+  const hit = (r) => r.x1 < L || r.x2 > W - 2 || boxes.some((b) => r.x1 < b.x2 && b.x1 < r.x2 && r.y1 < b.y2 && b.y1 < r.y2);
+  return dots.map(({ cx, cy, label }) => {
+    const w = label.length * 6.3;
+    const spots = [[cx + 8, cy + 4, "start"], [cx - 8, cy + 4, "end"], [cx, cy - 10, "middle"], [cx, cy + 18, "middle"]];
+    let pick = spots[0], box;
+    for (let dy = 0; dy <= 39; dy += 13) {
+      const found = spots.find(([x, y, a]) => {
+        const x1 = a === "start" ? x : a === "end" ? x - w : x - w / 2;
+        box = { x1, x2: x1 + w, y1: y + dy - 11, y2: y + dy + 2 };
+        return !hit(box);
+      });
+      if (found) { pick = [found[0], found[1] + dy, found[2]]; break; }
+    }
+    const x1 = pick[2] === "start" ? pick[0] : pick[2] === "end" ? pick[0] - w : pick[0] - w / 2;
+    boxes.push({ x1, x2: x1 + w, y1: pick[1] - 11, y2: pick[1] + 2 });
+    return pick;
+  });
+}
+const shortName = (n) => n.replace(/\s*\(.*\)$/, "");
 
 // Overall score (up) against seconds per page (left is faster), log scale on time. Top left is best.
 function speedChart(points) {
@@ -147,44 +363,96 @@ function speedChart(points) {
   const yt = []; for (let v = 0; v <= ymax + 1e-9; v += 0.1) yt.push(+v.toFixed(1));
   const grid = yt.map((v) => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" class="gridline"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end">${Math.round(v * 100)}</text>`).join("")
     + xt.map((v) => `<text x="${X(v)}" y="${H - B + 18}" text-anchor="middle">${v}</text>`).join("");
-  // Place each label right, left, above or below its dot, avoiding other dots and labels already placed.
+  const order = [...pts].sort((a, b) => b.y - a.y);
   const boxes = pts.map((p) => ({ x1: X(p.x) - 6, x2: X(p.x) + 6, y1: Y(p.y) - 6, y2: Y(p.y) + 6 }));
-  const hit = (r) => r.x1 < L || r.x2 > W - 2 || boxes.some((b) => r.x1 < b.x2 && b.x1 < r.x2 && r.y1 < b.y2 && b.y1 < r.y2);
-  const dots = [...pts].sort((a, b) => b.y - a.y).map((p) => {
-    const label = p.name.replace(/\s*\(.*\)$/, "");
-    const w = label.length * 6.3, cx = X(p.x), cy = Y(p.y);
-    const spots = [[cx + 8, cy + 4, "start"], [cx - 8, cy + 4, "end"], [cx, cy - 10, "middle"], [cx, cy + 18, "middle"]];
-    let pick = spots[0], box;
-    for (let dy = 0; dy <= 39; dy += 13) {
-      const found = spots.find(([x, y, a]) => {
-        const x1 = a === "start" ? x : a === "end" ? x - w : x - w / 2;
-        box = { x1, x2: x1 + w, y1: y + dy - 11, y2: y + dy + 2 };
-        return !hit(box);
-      });
-      if (found) { pick = [found[0], found[1] + dy, found[2]]; break; }
-    }
-    const x1 = pick[2] === "start" ? pick[0] : pick[2] === "end" ? pick[0] - w : pick[0] - w / 2;
-    boxes.push({ x1, x2: x1 + w, y1: pick[1] - 11, y2: pick[1] + 2 });
-    return `<g class="pt" data-sys="${esc(p.sys)}"><title>${esc(p.name)}: ${pct(p.y)} overall, ${p.x.toFixed(1)} s per page</title>
-    <circle cx="${cx}" cy="${cy}" r="5"/><text x="${pick[0]}" y="${pick[1]}" text-anchor="${pick[2]}">${esc(label)}</text></g>`;
-  }).join("");
-  return `<div class="scroll"><svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Overall score against seconds per page">
+  const picks = placeLabels(order.map((p) => ({ cx: X(p.x), cy: Y(p.y), label: shortName(p.name) })), boxes, W, L);
+  const dots = order.map((p, i) => `<g class="pt" data-sys="${esc(p.sys)}"><title>${esc(p.name)}: ${pct(p.y)} overall, ${p.x.toFixed(1)} s per page</title>
+    <circle cx="${X(p.x)}" cy="${Y(p.y)}" r="5"/><text x="${picks[i][0]}" y="${picks[i][1]}" text-anchor="${picks[i][2]}">${esc(shortName(p.name))}</text></g>`).join("");
+  return `<div class="scroll"><svg class="chart" data-chart="speed" viewBox="0 0 ${W} ${H}" role="img" aria-label="Overall score against seconds per page">
     ${grid}<line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" class="axis"/>
     <text x="${(L + W - R) / 2}" y="${H - 6}" text-anchor="middle" class="label">Seconds per page (log scale, faster to the left)</text>
     <text x="14" y="${(T + H - B) / 2}" text-anchor="middle" class="label" transform="rotate(-90 14 ${(T + H - B) / 2})">Overall</text>
     ${dots}</svg></div>`;
 }
 
+// Overall score (up) against release month (across), with a step line of the best score so far.
+// Only a dot that sets a new best is labelled.
+function progressChart(points) {
+  if (points.length < 2) return `<p class="small muted">Needs two systems with a release date.</p>`;
+  const W = 720, H = 360, L = 52, R = 24, T = 16, B = 44;
+  const lo = Math.min(...points.map((p) => p.d)) - 2, hi = Math.max(...points.map((p) => p.d)) + 2;
+  const ymax = Math.min(1, Math.ceil(Math.max(...points.map((p) => p.y)) * 10 + 0.5) / 10);
+  const X = (d) => L + ((d - lo) / (hi - lo)) * (W - L - R);
+  const Y = (y) => T + (1 - y / ymax) * (H - T - B);
+  const yt = []; for (let v = 0; v <= ymax + 1e-9; v += 0.1) yt.push(+v.toFixed(1));
+  const ticks = [];
+  if (hi - lo >= 14) for (let y = Math.ceil(lo / 12); y * 12 <= hi; y++) ticks.push([y * 12, String(y)]);
+  else for (let v = Math.ceil(lo / 3) * 3; v <= hi; v += 3) ticks.push([v, `${Math.floor(v / 12)}-${String((v % 12) + 1).padStart(2, "0")}`]);
+  const grid = yt.map((v) => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" class="gridline"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end">${Math.round(v * 100)}</text>`).join("")
+    + ticks.map(([v, l]) => `<line x1="${X(v)}" x2="${X(v)}" y1="${Y(0)}" y2="${Y(0) + 4}" class="axis"/><text x="${X(v)}" y="${H - B + 18}" text-anchor="middle">${l}</text>`).join("");
+  const byDate = [...points].sort((a, b) => a.d - b.d || b.y - a.y);
+  let top = -1;
+  const records = byDate.filter((p) => (p.y > top ? ((top = p.y), true) : false));
+  const path = records.map((p, i) => (i ? `H${X(p.d)} V${Y(p.y)}` : `M${X(p.d)} ${Y(p.y)}`)).join(" ") + ` H${W - R}`;
+  const boxes = points.map((p) => ({ x1: X(p.d) - 6, x2: X(p.d) + 6, y1: Y(p.y) - 6, y2: Y(p.y) + 6 }));
+  const picks = placeLabels(records.map((p) => ({ cx: X(p.d), cy: Y(p.y), label: shortName(p.name) })), boxes, W, L);
+  const dot = (p, label) => `<g class="pt" data-sys="${esc(p.sys)}"><title>${esc(p.name)}: released ${esc(String(p.rel).slice(0, 7))}, ${pct(p.y)} overall</title>
+    <circle cx="${X(p.d)}" cy="${Y(p.y)}" r="5"/>${label ? `<text x="${label[0]}" y="${label[1]}" text-anchor="${label[2]}">${esc(shortName(p.name))}</text>` : ""}</g>`;
+  const dots = byDate.filter((p) => !records.includes(p)).map((p) => dot(p)).join("") + records.map((p, i) => dot(p, picks[i])).join("");
+  return `<div class="scroll"><svg class="chart" data-chart="progress" viewBox="0 0 ${W} ${H}" role="img" aria-label="Overall score against release month">
+    ${grid}<line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" class="axis"/><path class="step" d="${path}"/>
+    <text x="${(L + W - R) / 2}" y="${H - 6}" text-anchor="middle" class="label">Release month of the model (line: best score so far)</text>
+    <text x="14" y="${(T + H - B) / 2}" text-anchor="middle" class="label" transform="rotate(-90 14 ${(T + H - B) / 2})">Overall</text>
+    ${dots}</svg></div>`;
+}
+
 // ---------- System detail ----------
+const STATUS_PILL = { active: "ok", pending: "", failed: "failed", superseded: "superseded", withdrawn: "withdrawn" };
+const statusPill = (s) => `<span class="pill ${STATUS_PILL[s] ?? ""}">${esc(s)}</span>`;
+const CARD_LABEL = { kind: "Kind", model: "Model", weights_gb: "Weights (GB)", gpu: "GPU memory", serve: "Serve command", output: "Output format", notes: "Notes",
+  handles: "Claimed to handle", env: "Environment variables", extra_body: "Extra request fields", records: "Extracts E5 records", revision: "Weights revision",
+  max_tokens: "Max tokens", prompt: "Prompt", params: "Size", license: "Licence", slice: "GPU slice" };
+// Keys the header already shows, and the fields the models endpoint adds on top of the card.
+const CARD_SKIP = new Set(["id", "name", "publisher", "released", "license", "params", "slice", "source", "paper", "repo", "status", "status_note", "superseded_by",
+  "available", "reason", "weights_downloaded", "results", "seconds_per_page", "failure"]);
+function cardValue(k, v) {
+  const yn = (x) => (x === true ? "yes" : x === false ? "no" : "unknown");
+  if (v === null || v === undefined || v === "") return '<span class="muted">—</span>';
+  if (k === "handles" && typeof v === "object") return esc(Object.entries(v).map(([c, x]) => `${c} ${yn(x)}`).join(", "));
+  if (typeof v === "boolean") return yn(v);
+  if (Array.isArray(v)) return esc(v.join(", "));
+  if (typeof v === "object") {
+    const flat = Object.values(v).every((x) => x === null || typeof x !== "object");
+    return flat ? esc(Object.entries(v).map(([a, b]) => `${a}: ${typeof b === "boolean" ? yn(b) : b}`).join(", ")) : `<code>${esc(JSON.stringify(v))}</code>`;
+  }
+  if (typeof v === "string" && /^https?:\/\//.test(v)) return `<a href="${esc(v)}" target="_blank" rel="noopener">${esc(v)}</a>`;
+  return ["serve", "model", "revision"].includes(k) ? `<code>${esc(v)}</code>` : esc(v);
+}
 async function systemDetail(id) {
-  const rows = await api("leaderboard");
+  const [rows, m] = await Promise.all([api("leaderboard"), api("models")]);
   const r = rows.find((x) => x.system === id);
-  if (!r) { $app.innerHTML = `<p>No results for ${esc(id)} yet.</p>`; return; }
-  const card = Object.entries(r.card).filter(([k]) => !["id"].includes(k))
-    .map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(typeof v === "object" ? JSON.stringify(v) : v)}</td></tr>`).join("");
+  const ms = m.systems.find((x) => x.id === id);
+  if (!r && !ms) { $app.innerHTML = `<p class="small"><a href="#/leaderboard">← Leaderboard</a></p><p>No system called ${esc(id)}.</p>`; return; }
+  const card = ms || r.card;
+  const name = card.name || id;
+  const nameOf = (sid) => m.systems.find((x) => x.id === sid)?.name || sid;
+  const status = ms?.status || (r ? "active" : "pending");
+  const tracks = ["open", "closed"].filter((t) => r?.[t]);
+  const link = (label, u) => (typeof u === "string" && /^https?:\/\//.test(u) ? `<a href="${esc(u)}" target="_blank" rel="noopener">${label}</a>` : "");
+  const fails = status === "failed" ? ["open", "closed"].filter((t) => ms?.failure?.[t]).map((t) =>
+    `<div class="note small">The last ${t}-track run failed on ${esc(ms.failure[t].when.slice(0, 10))}: ${esc(ms.failure[t].error)}</div>`).join("") : "";
+  const facts = [card.publisher && esc(card.publisher), card.released && "Released " + esc(card.released), card.params && "Size " + esc(card.params),
+    card.license && `Licence ${esc(card.license)} <span class="muted">as stated by the publisher</span>`, card.slice && "Slice " + esc(card.slice)].filter(Boolean);
+  const links = [link("Model card", card.source), link("Paper", card.paper), link("Code", card.repo)].filter(Boolean);
+  const header = `<p class="small"><a href="#/leaderboard">← Leaderboard</a></p><h1>${esc(name)}</h1>
+    <p>${statusPill(status)} ${card.status_note ? `<span class="muted">${esc(card.status_note)}</span>` : ""}
+      ${status === "superseded" && card.superseded_by ? ` Replaced by <a href="#/system/${esc(card.superseded_by)}">${esc(nameOf(card.superseded_by))}</a>.` : ""}</p>
+    ${fails}
+    <p class="facts small muted">${facts.join(" · ")}</p>${links.length ? `<p class="small links">${links.join(" · ")}</p>` : ""}`;
+
   let docs = "";
   try {
-    if (STATIC) throw new Error("per-document scores live with the run folders, which a hosted copy does not carry");
+    if (STATIC || !r?.open) throw new Error("per-document scores live with the run folders, which a hosted copy does not carry");
     const run = await api(`runs/open/${encodeURIComponent(id)}/latest`);
     docs = run.documents.map((d) => {
       const pages = Object.values(d.pages);
@@ -195,29 +463,83 @@ async function systemDetail(id) {
         <td class="num">${d.records ? pct(d.records.record_f1) : "—"}</td></tr>`;
     }).join("");
   } catch { /* no open run */ }
+
   const kinds = (t) => {
-    const k = r[t]?.by_kind;
+    const k = r[t].by_kind;
     if (!k || !Object.keys(k).length) return "";
-    const rows = Object.entries(k).map(([name, v]) => `<tr><td>${esc(name)}</td><td class="num">${v.pages}</td><td class="num">${pct(v.overall)}</td>
-      <td class="num">${pct(v.e1_text)}</td><td class="num">${pct(v.e2_table_teds)}</td><td class="num">${pct(v.e3_formula)}</td><td class="num">${pct(v.numbers_recall)}</td></tr>`).join("");
-    const own = r[t].excluding_own_drafts;
+    const line = ([n, v]) => `<tr><td>${esc(n)}</td><td class="num">${v.pages}</td><td class="num">${pct(v.overall)}${ci(v, "overall")}</td>
+      <td class="num">${pct(v.e1_text)}</td><td class="num">${pct(v.e2_table_teds)}</td><td class="num">${pct(v.e3_formula)}</td><td class="num">${pct(v.numbers_recall)}</td></tr>`;
+    const ci = (v, key) => (v.ci95?.[key] ? `<div class="ci">${pct(v.ci95[key][0])}–${pct(v.ci95[key][1])}</div>` : "");
     const langs = Object.entries(r[t].by_lang || {});
-    const langRows = langs.map(([name, v]) => `<tr><td>${esc(name)}</td><td class="num">${v.pages}</td><td class="num">${pct(v.overall)}</td>
-      <td class="num">${pct(v.e1_text)}</td><td class="num">${pct(v.e2_table_teds)}</td><td class="num">${pct(v.e3_formula)}</td><td class="num">${pct(v.numbers_recall)}</td></tr>`).join("");
-    return `<h3>By page kind, ${t} track</h3><div class="scroll"><table class="grid"><tr><th>Kind</th><th class="num">Pages</th><th class="num">Overall</th><th class="num">E1</th><th class="num">E2</th><th class="num">E3</th><th class="num">Numbers</th></tr>${rows}</table></div>
-      ${langs.length > 1 ? `<h3>By language, ${t} track</h3><div class="scroll"><table class="grid"><tr><th>Language</th><th class="num">Pages</th><th class="num">Overall</th><th class="num">E1</th><th class="num">E2</th><th class="num">E3</th><th class="num">Numbers</th></tr>${langRows}</table></div>` : ""}
-      ${own ? `<p class="small muted">Without the pages this system drafted itself (${r[t].counts.pages - own.pages}): overall ${pct(own.overall)} on ${own.pages} remaining.</p>` : ""}`;
+    const th = (a) => `<tr><th>${a}</th><th class="num">Pages</th><th class="num">Overall</th><th class="num">E1</th><th class="num">E2</th><th class="num">E3</th><th class="num">Numbers</th></tr>`;
+    return `<h3>By page kind, ${t} track</h3><div class="scroll"><table class="grid">${th("Kind")}${Object.entries(k).map(line).join("")}</table></div>
+      ${langs.length > 1 ? `<h3>By language, ${t} track</h3><div class="scroll"><table class="grid">${th("Language")}${langs.map(line).join("")}</table></div>` : ""}`;
   };
-  const sc = (t) => r[t] ? METRICS.map(([k, l]) => `<div class="tile"><div class="k">${l}</div><div class="v">${pct(r[t].scores[k])}</div>${r[t].ci95?.[k] ? `<div class="s">95% interval ${pct(r[t].ci95[k][0])} to ${pct(r[t].ci95[k][1])}</div>` : ""}</div>`).join("") : "";
-  $app.innerHTML = `<p class="small"><a href="#/leaderboard">← Leaderboard</a></p><h1>${esc(r.card.name || id)}</h1>
-    ${r.open ? `<h2>Open track ${trackPill("open")}</h2><div class="tiles">${sc("open")}</div>` : ""}
-    ${kinds("open")}
-    ${r.closed ? `<h2>Closed track ${trackPill("closed")}</h2><div class="tiles">${sc("closed")}</div>${kinds("closed")}` : ""}
+  const rankOf = (t, k, v, get) => {
+    const peers = rows.filter((x) => x[t]);
+    if (v === null || v === undefined) return "—";
+    return `#${1 + peers.filter((x) => (get(x[t]) ?? -1) > v).length} of ${peers.length}`;
+  };
+  const section = (t) => {
+    const s = r[t];
+    const tiles = METRICS.map(([k, l]) => `<div class="tile"><div class="k">${l}</div><div class="v">${pct(s.scores[k])}</div>
+      ${s.ci95?.[k] ? `<div class="s">95% interval ${pct(s.ci95[k][0])} to ${pct(s.ci95[k][1])}</div>` : ""}
+      <div class="s rank" title="Rank among the systems with a result on this track, all pages">${rankOf(t, k, s.scores[k], (x) => x.scores[k])}</div></div>`).join("");
+    const n = ownDrafts(s), ex = s.excluding_own_drafts;
+    let dag = "";
+    if (n > 0) {
+      const fair = (x) => lbPick(x, "fair")?.scores.overall;
+      dag = ex && ex.pages
+        ? `† This system drafted the labels of ${n} of ${s.counts.pages} pages. Without them it scores ${pct(ex.overall)} overall on ${ex.pages} pages${ex.ci95?.overall ? ` (95% interval ${pct(ex.ci95.overall[0])} to ${pct(ex.ci95.overall[1])})` : ""}, which is rank ${rankOf(t, "overall", fair(s), (x) => fair(x))} in the fair view the leaderboard uses.`
+        : `† This system drafted the labels of ${n} of ${s.counts.pages} pages, so no page is left for a fair score.`;
+    }
+    const others = rows.filter((x) => x[t] && x.system !== id).sort((a, b) => (a.card.name || a.system).localeCompare(b.card.name || b.system));
+    const cmp = others.length && !(STATIC && t === "closed")
+      ? `<label class="ctl">Compare with…<select data-cmp="${t}"><option value="">Choose a system</option>${others.map((x) => `<option value="${esc(x.system)}">${esc(x.card.name || x.system)}</option>`).join("")}</select></label>` : "";
+    return `<h2>${t === "open" ? "Open" : "Closed"} track ${trackPill(t)}</h2><div class="tiles">${tiles}</div>
+      ${dag ? `<div class="note small">${dag}</div>` : ""}${cmp ? `<p>${cmp}</p>` : ""}${kinds(t)}`;
+  };
+
+  // How the system is run: the job script starts the model server on the GPU node.
+  const gres = card.slice === "20 GB" ? "2g.20gb" : card.slice === "40 GB" ? "4g.40gb" : "1";
+  const cmd = card.serve
+    ? `sbatch --gres=gpu:${gres}:1 slurm/serve_and_run.sbatch ${id} closed\n# The job starts this model server on the GPU node:\n${card.serve}\n# then runs the system against it:\npython3 -m bambench run ${id} --track closed`
+    : `python3 -m bambench run ${id} --track closed`;
+  const runIt = `<h2>Run it</h2>
+    <p class="small muted">${card.serve ? "Submit the first line from the repository folder. The job starts the model server on the GPU node, runs the system and stops the server. The lines below it show what the job does." : "This system needs no model server. Run it from the repository folder."}</p>
+    <div class="cmdbox"><pre class="cmd"><code>${esc(cmd)}</code></pre>${navigator.clipboard ? '<button class="btn small" id="copy-cmd">Copy</button>' : ""}</div>`;
+
+  const nr = '<span class="muted">not recorded</span>';
+  const record = (t) => {
+    const s = r[t], e = s.environment || {};
+    const kv = (o) => (o && Object.keys(o).length ? esc(Object.entries(o).map(([a, b]) => `${a} ${b}`).join(", ")) : nr);
+    const rev = e.weights_revision || card.revision;
+    const c = s.cost;
+    const line = [
+      ["Run id", `<code>${esc(s.run_id)}</code>`],
+      ["Finished", esc(String(s.finished).replace("T", " ").slice(0, 16)) + " UTC"],
+      ...(s.rescored ? [["Rescored", typeof s.rescored === "string" ? esc(s.rescored.replace("T", " ").slice(0, 16)) + " UTC" : "yes"]] : []),
+      ["Scorer version", `${esc(s.scorer ?? "")}${s.scorer_current === false ? ' <span class="pill draft" title="Scored with an older version of the metrics. Run bambench rescore to update it; no model run is needed.">old scoring</span>' : ""}` || nr],
+      ["GPU", e.gpu ? esc(e.gpu) : nr], ["Python", e.python ? esc(e.python) : nr], ["Packages", kv(e.packages)], ["Model server", kv(e.server)],
+      ["Weights revision", rev ? `<code title="${esc(rev)}">${esc(rev.slice(0, 12))}</code>` : nr],
+      ["Time", s.runtime_s != null ? `${esc(s.runtime_s)} s${c?.seconds_per_page != null ? ` (${esc(c.seconds_per_page)} s per page)` : ""}` : nr],
+      ["Cost", c?.eur_per_1000_pages != null ? `about €${esc(c.eur_per_1000_pages)} per 1,000 pages` : nr],
+      ["Tokens", c?.output_tokens_per_page != null ? `${esc(c.prompt_tokens_per_page)} in, ${esc(c.output_tokens_per_page)} out per page${c.truncated_pages ? `, ${c.truncated_pages} replies cut off` : ""}` : nr],
+    ];
+    return `<h3>${t} track ${trackPill(t)}</h3><div class="scroll"><table class="grid kv">${line.map(([a, b]) => `<tr><th>${a}</th><td>${b}</td></tr>`).join("")}</table></div>`;
+  };
+  const cardRows = Object.entries(r ? r.card : card).filter(([k]) => !CARD_SKIP.has(k))
+    .map(([k, v]) => `<tr><th>${esc(CARD_LABEL[k] || k.charAt(0).toUpperCase() + k.slice(1).replace(/_/g, " "))}</th><td>${cardValue(k, v)}</td></tr>`).join("");
+
+  $app.innerHTML = `${header}
+    ${tracks.length ? tracks.map(section).join("") : `<div class="note small">No result on either track yet.</div>`}
     ${docs ? `<h2>Per document, open track</h2><div class="scroll"><table class="grid"><tr><th>Document</th><th class="num">Pages</th><th class="num">E1 Text</th><th class="num">E2 Tables</th><th class="num">E5 Records</th></tr>${docs}</table></div>` : ""}
-    <h2>System card</h2><div class="scroll"><table class="grid">${card}</table></div>
-    <h2>Run environment</h2><div class="scroll"><table class="grid">
-      ${["open", "closed"].filter((t) => r[t]).map((t) => `<tr><th>${t}</th><td>${esc(r[t].environment.gpu)} · Python ${esc(r[t].environment.python)} · ${r[t].runtime_s}s${r[t].cost?.seconds_per_page != null ? ` (${r[t].cost.seconds_per_page} s per page, about €${r[t].cost.eur_per_1000_pages} per 1,000 pages)` : ""}${r[t].cost?.output_tokens_per_page != null ? ` · ${r[t].cost.prompt_tokens_per_page} tokens in, ${r[t].cost.output_tokens_per_page} out per page${r[t].cost.truncated_pages ? `, ${r[t].cost.truncated_pages} replies cut off` : ""}` : ""} · run ${esc(r[t].run_id)}</td></tr>`).join("")}
-    </table></div>`;
+    ${runIt}
+    ${tracks.length ? `<h2>Run record</h2>${tracks.map(record).join("")}` : ""}
+    <h2>System card</h2><div class="scroll"><table class="grid kv">${cardRows}</table></div>`;
+  $app.querySelectorAll("select[data-cmp]").forEach((el) => (el.onchange = () => { if (el.value) location.hash = `#/versus/${el.dataset.cmp}/${encodeURIComponent(id)}/${encodeURIComponent(el.value)}`; }));
+  const copy = document.getElementById("copy-cmd");
+  if (copy) copy.onclick = () => navigator.clipboard.writeText(cmd).then(() => toast("Copied"), () => toast("Could not copy. Select the text instead."));
 }
 
 // ---------- Documents ----------
@@ -464,6 +786,10 @@ async function models() {
     if (s.weights_downloaded === false) return `<span class="pill no" title="Download the weights on the login node">no weights</span>`;
     return s.available ? `<span class="pill">ready</span>` : `<span class="pill no" title="${esc(s.reason)}">not ready</span>`;
   };
+  // One line of reason: the status note, else why a failed system failed, else why it is not ready.
+  const why = (s) => s.status_note || (s.status === "failed" ? (s.failure?.[modelsTrack] || s.failure?.open || s.failure?.closed)?.error : "")
+    || (!s.available && !s.results.open && !s.results.closed ? s.reason : "") || "";
+  const counts = ["active", "pending", "failed", "superseded", "withdrawn"].map((k) => [m.systems.filter((s) => s.status === k).length, k]).filter(([n]) => n).map(([n, k]) => `${n} ${k}`).join(", ");
   const draw = () => {
     const rows = [...m.systems].sort((a, b) => (b.results[modelsTrack]?.overall ?? -1) - (a.results[modelsTrack]?.overall ?? -1));
     const body = rows.map((s) => {
@@ -471,19 +797,20 @@ async function models() {
       const kind = (k) => (r?.by_kind?.[k] !== undefined ? pct(r.by_kind[k]) : "—");
       const sp = s.seconds_per_page[modelsTrack];
       return `<tr>
-        <td><b>${s.results.open || s.results.closed ? `<a href="#/system/${esc(s.id)}">${esc(s.name || s.id)}</a>` : esc(s.name || s.id)}</b>
+        <td><b><a href="#/system/${esc(s.id)}">${esc(s.name || s.id)}</a></b>
           <div class="small muted">${esc(s.publisher || "")}${s.released ? " · " + esc(s.released) : ""}</div></td>
         <td class="num">${esc(s.params || "")}</td><td class="small">${esc(s.license || "")}</td><td class="small">${esc(s.slice || s.gpu || "")}</td>
         ${m.capabilities.map((c) => `<td class="cap">${mark(s.handles[c])}</td>`).join("")}
         <td class="num"><b>${r ? pct(r.overall) : "—"}</b></td><td class="num">${r ? pct(r.tables) : "—"}</td><td class="num">${r ? pct(r.formulas) : "—"}</td>
         <td class="num">${kind("figure")}</td><td class="num">${sp != null ? sp.toFixed(1) : "—"}</td>
-        <td>${status(s)}${r && r.publishable === false ? ' <span class="pill draft" title="Fewer than 20 pages: internal only">internal</span>' : ""}</td></tr>`;
+        <td>${statusPill(s.status)} ${status(s)}${r && r.publishable === false ? ' <span class="pill draft" title="Fewer than 20 pages: internal only">internal</span>' : ""}${why(s) ? `<div class="small muted why">${esc(why(s))}</div>` : ""}</td></tr>`;
     }).join("");
     const watch = m.watchlist.map((w) => `<tr><td><b>${esc(w.name)}</b><div class="small muted">${esc(w.publisher || "")}</div></td>
       <td class="num">${esc(w.params || "")}</td><td class="small">${esc(w.license || "")}</td><td>${esc(w.reason)}</td></tr>`).join("");
     $app.innerHTML = `<h1>Models</h1>
       <p class="lead">Every system in the benchmark, with what its publisher says it handles next to what it scored here. Ticks are claims, not results. All of them run on BAM hardware with open weights.</p>
       <div class="tabs"><button data-t="open" class="${modelsTrack === "open" ? "on" : ""}">Open track scores</button><button data-t="closed" class="${modelsTrack === "closed" ? "on" : ""}">Closed track scores</button></div>
+      <p class="small muted">${esc(counts)}</p>
       <div class="scroll"><table class="grid models"><tr><th>Model</th><th class="num">Size</th><th>License</th><th>GPU</th>
         ${m.capabilities.map((c) => `<th class="cap">${CAP_LABEL[c]}</th>`).join("")}
         <th class="num">Overall</th><th class="num">Tables</th><th class="num">Formulas</th><th class="num">Figures</th><th class="num" title="seconds per page, newest run">s / page</th><th>Status</th></tr>${body}</table></div>
@@ -544,32 +871,13 @@ async function compare(track, id, page) {
   }));
 }
 
-// ---------- About ----------
-function about() {
-  $app.innerHTML = `<h1>About this benchmark</h1>
-  <div class="panel pad" style="max-width:820px">
-  <p>Given a PDF page, a system writes the page as Markdown: text in reading order, tables as HTML, display formulas as LaTeX. It is scored per element type, so a parser that reads text well but breaks tables cannot hide behind an average.</p>
-  <table class="grid"><tr><th>Task</th><th>Metric</th></tr>
-  <tr><td>E1 Text</td><td>1 minus normalised Levenshtein distance on whitespace-normalised text, tables and formulas removed</td></tr>
-  <tr><td>E2 Tables</td><td>TEDS (tree edit distance similarity) per gold table, greedy one-to-one matching; TEDS-S ignores cell text</td></tr>
-  <tr><td>E3 Formulas</td><td>1 minus normalised edit distance on normalised LaTeX</td></tr>
-  <tr><td>E5 Records</td><td>Exact-record F1 on certificate measurement rows: value, unit, expanded uncertainty, k, certified status, oxide, page. Uncertainty is never a tolerance</td></tr>
-  <tr><td>Overall</td><td>Mean of E1, E2 and E3, as in OmniDocBench</td></tr></table>
-  <h2>Rules</h2>
-  <ul><li>Only open-weight models running on BAM hardware. No cloud APIs on the closed track.</li>
-  <li>Closed-track PDFs, labels and raw outputs stay in <code>data/closed</code>, which Git ignores and the pre-commit hook guards.</li>
-  <li>Splits are by document family, never by page.</li>
-  <li>Labels are drafts until a page is re-checked; drafts are marked everywhere they are used.</li></ul>
-  </div>`;
-}
-
 // ---------- Router ----------
 async function route() {
   clearTimeout(poll);
   document.onkeydown = null;
   const parts = (location.hash.slice(2) || "overview").split("/").map(decodeURIComponent);
   document.querySelectorAll("nav a").forEach((a) => a.classList.toggle("active", a.dataset.nav === parts[0] ||
-    (parts[0] === "doc" || parts[0] === "annotate" || parts[0] === "compare") && a.dataset.nav === "documents" || parts[0] === "system" && a.dataset.nav === "leaderboard"));
+    (parts[0] === "doc" || parts[0] === "annotate" || parts[0] === "compare") && a.dataset.nav === "documents" || (parts[0] === "system" || parts[0] === "versus") && a.dataset.nav === "leaderboard" || parts[0] === "changelog" && a.dataset.nav === "about"));
   try {
     if (STATIC && ["doc", "annotate", "compare", "runs"].includes(parts[0])) {
       $app.innerHTML = `<div class="note">This view needs the dashboard on the BAM cluster. The hosted copy is read-only.</div>`;
@@ -581,7 +889,7 @@ async function route() {
     else if (parts[0] === "compare") await compare(parts[1], parts[2], parts[3]);
     else if (parts[0] === "models") await models();
     else if (parts[0] === "runs") await runs();
-    else if (parts[0] === "about") about();
+    else if (PAGES[parts[0]]) await PAGES[parts[0]](...parts.slice(1));
     else await overview();
   } catch (e) {
     $app.innerHTML = `<div class="note">Could not load this view: ${esc(e.message)}</div>`;
@@ -590,4 +898,5 @@ async function route() {
 }
 if (STATIC) document.querySelector('nav a[data-nav="runs"]')?.remove();
 window.addEventListener("hashchange", route);
-route();
+// pages.js loads after this file and must have registered its views before the first route.
+window.addEventListener("DOMContentLoaded", route);
