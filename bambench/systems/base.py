@@ -25,3 +25,7 @@ class System:
     def predict(self, doc: Document, pages: list[int], progress: Progress) -> dict:
         """Return {"pages": {page: markdown}, "records": list | None}."""
         raise NotImplementedError
+
+    def server_info(self) -> dict | None:
+        """Version of the model server behind this system, when it has one and can say."""
+        return None
