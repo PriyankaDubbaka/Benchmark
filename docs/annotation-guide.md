@@ -92,3 +92,26 @@ These came up while drafting the public certificates. Whatever is decided, apply
 - A standalone equation on its own line is a display formula, including short ones.
 - A word printed with a gap or an obvious slip is written as printed, with a comment if it could be read two ways.
 - Numbers keep their printed form. A decimal comma stays a comma.
+
+## 5. The second annotator
+
+One annotator cannot say how much of a score difference is label noise. A second person who labels a sample of the same pages can. Scoring one label against the other with the benchmark's own scorer gives the agreement between two people. That number is also the ceiling: a system that scores close to it is within the noise of the labels.
+
+**How it works**
+
+1. The first annotator opens Documents, then Second annotator, and picks the sample. Ten pages is the minimum that says anything. The pick is spread over page kinds and documents.
+2. The second annotator opens the same page and works through the queue. The view shows the page image and an empty text box. It never shows the first label.
+3. The second annotator follows sections 3 and 4 of this guide and saves each page as `checked` when done.
+4. From then on the two labels can be opened side by side with their differences marked. Real mistakes in the first label get corrected there.
+
+**Rules that keep the number honest**
+
+- The second annotator does not open the first label of a page before saving their own as `checked`. The dashboard refuses the comparison until then.
+- The two annotators do not discuss a page before both labels exist.
+- The second label is not prefilled from the model that drafted the first label. The dashboard refuses that source. Poppler text or another model is fine, and the source is recorded.
+- The agreement is computed against the first label as it stood when the second label was saved as `checked`. Correcting the first label afterwards improves the benchmark and leaves the agreement figure where it was.
+- The second annotator needs this guide and nothing else. If a rule here is unclear to them, the rule is unclear: fix the guide, not the label.
+
+**What may be published**
+
+On the open track, everything. On the closed track, only the overall agreement, and only when it rests on 20 or more pages. Fewer pages give a figure for internal use. Second labels on the public certificates count without that limit, so a mixed sample of internal and public pages is a good choice.

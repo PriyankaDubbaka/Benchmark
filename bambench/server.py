@@ -19,7 +19,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
-from . import __version__, gold, models, runner
+from . import __version__, gold, models, runner, second
 from .about import about
 from .compare import compare_page, latest_output, runs_of
 from .composition import composition
@@ -178,6 +178,37 @@ class Handler(BaseHTTPRequestHandler):
             target = SITE / "index.html"
         self._file(target)
 
+    def _draft(self, track, doc, page, src):
+        """A prefill for a page: Poppler text or the newest output of a system."""
+        if src == "pdftotext":
+            text = page_texts(doc)[page - 1]
+            return {"source": src, "draft_source": src, "markdown": "\n".join(
+                re.sub(r"\s{2,}", "  ", l).strip() for l in text.split("\n")).strip()}
+        if src.startswith("run:"):
+            # The newest run of that system that covers this page, scored or draft-only.
+            found = latest_output(track, src[4:], doc, page)
+            if not found:
+                raise KeyError(f"No run of {src[4:]} covers this page yet")
+            return {"source": src, "draft_source": src, "run_id": found[1]["run_id"], "markdown": found[0]}
+        raise ValueError("unknown draft source")
+
+    def _second_api(self, method, track, rest):
+        """The queue of the blind second annotator and its agreement figures (local dashboard only)."""
+        if not rest and method == "GET":
+            return self._json({"queue": second.queue(track), "agreement": second.agreement(track, detail=True)})
+        if rest == ["pick"] and method == "POST":
+            b = json.loads(self._body() or b"{}")
+            n = int(b.get("n", 10))
+            if not 1 <= n <= 200:
+                raise ValueError("n must be between 1 and 200")
+            picked = second.pick(track, n)
+            return self._json({"picked": [list(x) for x in picked], "queue": second.queue(track)})
+        if rest == ["unpick"] and method == "POST":
+            b = json.loads(self._body() or b"{}")
+            removed = second.unpick(get_document(track, b.get("document_id", "")), int(b.get("page", 0)))
+            return self._json({"removed": removed, "queue": second.queue(track)})
+        raise KeyError("Unknown API route")
+
     def _api(self, method, p, q):
         if p == ["overview"] and method == "GET":
             docs = [d for t in TRACKS for d in load_documents(t)]
@@ -187,7 +218,11 @@ class Handler(BaseHTTPRequestHandler):
                             "pages_checked": sum(s["pages_checked"] for s in sums if s["track"] == t),
                             "pages_draft": sum(s["pages_draft"] for s in sums if s["track"] == t)} for t in TRACKS}
             return self._json({"version": __version__, "tracks": by_track,
-                               "systems": len(load_cards()), "leaderboard_rows": len(runner.leaderboard())})
+                               "systems": len(load_cards()), "leaderboard_rows": len(runner.leaderboard()),
+                               "agreement": {t: second.agreement(t) for t in TRACKS}})
+
+        if len(p) >= 2 and p[0] == "second" and p[1] in TRACKS:
+            return self._second_api(method, p[1], p[2:])
 
         if p == ["documents"] and method == "GET":
             tracks = [q["track"]] if q.get("track") in TRACKS else list(TRACKS)
@@ -240,19 +275,21 @@ class Handler(BaseHTTPRequestHandler):
                                                          b.get("annotator", ""), b.get("notes", ""),
                                                          b.get("kind", ""), b.get("lang", ""), b.get("draft_source")))
                 if len(p) == 6 and p[5] == "draft" and method == "GET":
+                    return self._json(self._draft(track, doc, page, q.get("source", "pdftotext")))
+                if len(p) == 6 and p[5] == "second":
+                    if method == "GET":  # never carries the copy of the first label
+                        return self._json(second.public(second.load(doc, page), page))
+                    if method == "PUT":
+                        b = json.loads(self._body() or b"{}")
+                        return self._json(second.public(second.save(
+                            doc, page, b.get("markdown", ""), b.get("status", "draft"), b.get("annotator", ""),
+                            b.get("notes", ""), b.get("draft_source")), page))
+                if len(p) == 7 and p[5] == "second" and p[6] == "draft" and method == "GET":
                     src = q.get("source", "pdftotext")
-                    if src == "pdftotext":
-                        text = page_texts(doc)[page - 1]
-                        return self._json({"source": src, "draft_source": src, "markdown": "\n".join(
-                            re.sub(r"\s{2,}", "  ", l).strip() for l in text.split("\n")).strip()})
-                    if src.startswith("run:"):
-                        # The newest run of that system that covers this page, scored or draft-only.
-                        found = latest_output(track, src[4:], doc, page)
-                        if not found:
-                            raise KeyError(f"No run of {src[4:]} covers this page yet")
-                        return self._json({"source": src, "draft_source": src, "run_id": found[1]["run_id"],
-                                           "markdown": found[0]})
-                    raise ValueError("unknown draft source")
+                    second.check_source(doc, page, src)
+                    return self._json(self._draft(track, doc, page, src))
+                if len(p) == 6 and p[5] == "agree" and method == "GET":
+                    return self._json(second.compare(doc, page))
             raise KeyError("Unknown document route")
 
         if p == ["systems"] and method == "GET":

@@ -23,6 +23,8 @@ python3 -m bambench serve                      # dashboard on http://127.0.0.1:8
 python3 -m unittest discover -s tests -t .     # tests
 python3 -m bambench rescore --track open       # rescore saved outputs after labels or the scorer change
 python3 -m bambench export-site public         # read-only copy of the dashboard for GitLab Pages
+python3 -m bambench check-cards                # check every system card against its schema
+python3 -m bambench meta <document> --year 2014 --family <name> --split test   # edit a document's manifest
 ```
 
 ## Annotating internal reports

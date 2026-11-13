@@ -33,7 +33,7 @@ Three things stand out.
 
 **Where it is behind.** Size by two orders of magnitude. No rendered formula metric. No separate reading-order score. No chart score. No page attributes for scan quality. No paper, no DOI, no licence.
 
-**What to copy from Matbench Discovery,** since that was the model named for this project: one metadata file per model checked against a schema, a lifecycle field (pending, active, superseded), a field that discloses any contact with the test set, submissions by merge request with automatic checks, a changelog, a citation file, and predictions archived with a DOI.
+**What was copied from Matbench Discovery,** since that was the model named for this project: one metadata file per model checked against a schema, a status field (pending, active, failed, superseded, withdrawn), a marker for systems that had contact with the labels, automatic checks of a new card in CI, filters and views on the leaderboard, a page per model, a changelog and a citation in the dashboard. Still to copy: predictions archived with a DOI. Matbench Discovery shows no intervals; this benchmark does.
 
 ## 2. Weaknesses a reviewer would find
 
@@ -43,8 +43,8 @@ Ordered by how much they threaten the conclusions.
 
 | # | Weakness | Why it matters | Closing it |
 | --- | --- | --- | --- |
-| 1 | One annotator, no agreement figure | Nobody can say how much of a score difference is label noise | Ask one colleague for a blind second label on 10 pages. Score one label against the other with the existing scorer. That number is also the human ceiling. Cost: about half a day of their time |
-| 2 | Labels start from a model's draft | The drafting model led the interim closed leaderboard by a wide margin on its own pages | Already measured (score without own drafts). Next: alternate two drafting models by report family, and show the bias-free score by default |
+| 1 | One annotator, no agreement figure | Nobody can say how much of a score difference is label noise | A colleague has agreed to label a sample blind. **The blind view and the agreement score were built on 13 November.** Open until at least 10 pages have a second label |
+| 2 | Labels start from a model's draft | The drafting model led the interim closed leaderboard by a wide margin on its own pages | **Closed on 13 November: the leaderboard ranks without a system's own drafts and marks such systems.** Still worth doing: alternate two drafting models by report family |
 | 3 | No page is `checked` yet | The test split only counts checked pages | Second look on all pages before 20 November |
 | 4 | Label errors go unnoticed | One wrong reference cell lowers every system | Build the disagreement finder: pages where the best systems agree with each other and differ from the label |
 
@@ -54,7 +54,7 @@ Ordered by how much they threaten the conclusions.
 | --- | --- | --- | --- |
 | 5 | 17 pages | If page scores spread with a standard deviation near 0.25, the interval is about ±0.12 at 17 pages, ±0.06 at 60 and ±0.05 at 100. Most neighbours on the leaderboard overlap today. The real intervals appear after `rescore` | More pages. 60 is the minimum for the release, 100 to 150 for firm ranks |
 | 6 | Intervals treat pages as independent | Pages of one report share layout, so the true uncertainty is larger | Resample report families instead of pages once there are enough families |
-| 7 | No paired comparison | Two overlapping intervals can still hide a consistent winner | Paired bootstrap on the per-page difference of two systems. The data is already stored |
+| 7 | No paired comparison | Two overlapping intervals can still hide a consistent winner | **Closed on 13 November: paired bootstrap on the difference of two systems, on the pages both were scored on** |
 | 8 | One run per system | Run-to-run variation is unknown | Three runs of the top five systems |
 
 ### What is measured
@@ -77,7 +77,7 @@ Ordered by how much they threaten the conclusions.
 | 17 | One prompt, one resolution | A model may lose to a setting, not to a rival | Three prompt wordings and two resolutions for the top systems; report the spread |
 | 18 | Looping under greedy decoding | Some small models fail on long tables for a decoding reason | Repetition-penalty variants are in; report both settings |
 | 19 | Requests sent one by one | Time per page understates batched throughput | Second timing with eight parallel requests |
-| 20 | Model revisions not pinned | A publisher can change the weights under the same name | Record the snapshot commit in the card and in every run |
+| 20 | Model revisions not pinned | A publisher can change the weights under the same name | **Recorded for every run from 13 November: weights commit, package versions, model server version.** Older runs need a rerun to carry them |
 
 ### Data and governance
 
@@ -85,7 +85,7 @@ Ordered by how much they threaten the conclusions.
 | --- | --- | --- | --- |
 | 21 | Public certificates may be in model training data | Open-track scores can flatter | Treat the closed track as the result, the open track as the demonstration |
 | 22 | Public certificates also sit in the closed track | They are not unseen | Remove them before the freeze |
-| 23 | Composition of the closed track is undocumented | Readers cannot judge what the scores cover | Fill the datasheet; add a composition view with counts by kind, language, department and decade |
+| 23 | Composition of the closed track is undocumented | Readers cannot judge what the scores cover | **The Data page shows counts by kind, language, type, status and draft source since 13 November.** Still open: the datasheet fields, and the year of each report (`bambench meta <document> --year`) |
 | 24 | No licence, no DOI, personal GitHub account | Nobody may reuse it, and BAM's rules point to BAM systems | See the [compliance checklist](compliance-checklist.md#6-the-seven-decisions-only-bam-can-take) |
 | 25 | Labels exist in one place | A disk fault would cost weeks | Backup before the freeze |
 
@@ -100,27 +100,25 @@ Stated carefully, because each point needs the final data to stand.
 
 ## 4. Dashboard features
 
-Already built: leaderboard with intervals, accuracy against speed chart, time, cost and token columns, Models page, side-by-side page view, annotation view with prefill, scores by kind and by language, Numbers score, markers for stale rows and old scoring, read-only hosted copy.
+Built by 10 November: leaderboard with intervals, accuracy against speed chart, time, cost and token columns, Models page, side-by-side page view, annotation view with prefill, scores by kind and by language, Numbers score, markers for stale rows and old scoring, read-only hosted copy.
+
+Built on 13 November, after a feature-by-feature comparison with Matbench Discovery: fair ranking with a marker for systems that drafted labels, views by page kind and language, filters, column presets, a panel on how to read the table, CSV and PNG export, a chart of progress over time, a page per system with rank, run command and run record, status with a reason for every system, system cards checked against a schema in CI, comparison of two systems with a paired interval, the Data page, changelog, citation and contact in the dashboard, and the blind second-annotator view with its agreement score.
 
 Next, in order of value before the release:
 
 | # | Feature | What it gives BAM staff | Effort |
 | --- | --- | --- | --- |
-| 1 | Disagreement finder | Finds label errors with one annotator | small |
+| 1 | Disagreement finder | Finds label errors: pages where the best systems agree with each other and differ from the label | small |
 | 2 | Annotation progress with recheck queue | Pages checked against the freeze date; drafts older than two days waiting for their second look | small |
-| 3 | Bias-free score as the default column | Removes the head start of the drafting model from the ranking | small |
-| 4 | Paired comparison of two systems | "A beats B on 41 of 60 pages" with a significance statement | small |
-| 5 | CSV and PNG export | Numbers and charts for reports | small |
-| 6 | Pick a model for my documents | Choose page kind, language and GPU budget, get the three best systems | medium |
-| 7 | Composition view | What the benchmark contains, counts only | small |
-| 8 | Second-annotator view | Agreement between two people on the same page | medium |
-| 9 | Error breakdown per page | Missing text, invented text, table structure, wrong numbers | medium |
-| 10 | Page attributes | Scan quality, rotation, handwriting present; scores for each | medium |
-| 11 | Release pages | Frozen versions with changelog, DOI and citation | small |
-| 12 | Submission by merge request | A new card is validated by CI, as in Matbench Discovery | small |
-| 13 | How to add your documents | A page for other departments: tracks, families, what stays confidential | small |
-| 14 | Throughput under load and energy per 1,000 pages | Fairer cost picture | medium |
-| 15 | Prompt and resolution sensitivity | Shows how stable a rank is | medium |
+| 3 | Pick a model for my documents | Choose page kind, language and GPU budget, get the three best systems | medium |
+| 4 | Error breakdown per page | Missing text, invented text, table structure, wrong numbers | medium |
+| 5 | Page strip per system | One coloured cell per page, click to open the side-by-side view. Local dashboard only | medium |
+| 6 | Page attributes | Scan quality, rotation, handwriting present; scores for each | medium |
+| 7 | Release pages with a DOI | Frozen versions that can be cited | small |
+| 8 | How to add your documents | A page for other departments: tracks, families, what stays confidential | small |
+| 9 | Throughput under load, peak GPU memory and repeat runs | Fairer cost picture and run-to-run spread | medium |
+| 10 | Prompt and resolution sensitivity | Shows how stable a rank is | medium |
+| 11 | Adjustable weights for Overall | A department can weigh tables higher. The fixed default stays the published one | medium |
 
 ## 5. Models
 

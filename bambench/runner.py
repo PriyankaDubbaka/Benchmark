@@ -356,9 +356,12 @@ def closed_progress() -> dict | None:
         docs = load_documents("closed")
         st = [s for d in docs for s in page_statuses(d).values()]
         from .composition import composition
+        from .second import agreement
+        agree = agreement("closed")  # the aggregate only, and only when 20 or more pages back it
         return {"documents": len(docs), "pages": sum(d.page_count for d in docs),
                 "pages_checked": st.count("checked"), "pages_draft": st.count("draft"),
-                "composition": composition("closed", public=True)}
+                "composition": composition("closed", public=True),
+                "agreement": agree if agree and agree["publishable"] else None}
     f = published_dir("closed").parent / "progress.json"
     return json.loads(f.read_text(encoding="utf-8")) if f.exists() else None
 

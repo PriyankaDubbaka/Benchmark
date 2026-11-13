@@ -73,6 +73,7 @@ async function overview() {
     <p class="lead">How well do local, open-weight systems pull text, tables, formulas and measurement records out of BAM technical documents? Public certificates form the open track. Internal reports form the closed track, which never leaves BAM.</p>
     <div class="tiles">${tile("open")}${tile("closed")}
       <div class="tile"><div class="k">Systems</div><div class="v">${ov.systems}</div><div class="s">${ov.leaderboard_rows} with results</div></div>
+      ${agreeTile(ov.agreement)}
       <div class="tile"><div class="k">Release</div><div class="v">Nov 30</div><div class="s">v0.1, annotated pages frozen before the final runs</div></div>
     </div>
     <h2>Leaderboard, top systems</h2>
@@ -176,7 +177,7 @@ function monthIndex(rel) { // "2026-03" or "2026-03-19" -> months since year 0; 
 }
 
 async function leaderboard() {
-  const [rows, mod] = await Promise.all([api("leaderboard"), api("models")]);
+  const [rows, mod, ov] = await Promise.all([api("leaderboard"), api("models"), api("overview").catch(() => null)]);
   const rel = Object.fromEntries(mod.systems.map((s) => [s.id, s.released]));
   const val = (it, k) => (k in (it.p?.scores || {}) ? it.p.scores[k] : it.s.cost?.[k]) ?? null;
   // 95% bootstrap interval over pages, shown under a score when the run recorded one.
@@ -277,6 +278,7 @@ async function leaderboard() {
       ${help}
       <div class="tabs"><button data-t="open" class="${track === "open" ? "on" : ""}">Open track</button><button data-t="closed" class="${track === "closed" ? "on" : ""}">Closed track</button></div>
       ${track === "closed" ? `<div class="note closed small">Closed-track numbers are aggregates over confidential reports. Only publish a number when it is backed by at least 20 pages.</div>` : ""}
+      ${agreeLine(ov?.agreement, track)}
       ${all.length ? `${toolbar}
         <p class="small muted">Showing ${items.length} of ${all.length} ${all.length === 1 ? "system" : "systems"} with a result on this track, sorted by ${esc(metricLabel(lbS.sort))}. ${mod.systems.length} systems are in the benchmark; the others are listed with their status under <a href="#/models">Models</a>.</p>
         ${items.length ? `<div class="scroll"><table class="grid"><tr><th class="num">#</th><th>System</th>${head}<th class="num">Pages</th><th>Run</th></tr>${body}</table></div>` : `<p class="muted">No system matches these filters.</p>`}
@@ -552,7 +554,7 @@ async function documents() {
       <td class="num">${d.page_count}</td><td class="num">${done}${d.pages_checked ? ` <span class="small muted">(${d.pages_checked} checked)</span>` : ""}${d.pages_marked ? ` <span class="small muted">+${d.pages_marked} picked</span>` : ""}</td>
       <td>${d.has_records ? '<span class="pill ok">records</span>' : ""}</td></tr>`;
   };
-  $app.innerHTML = `<h1>Documents</h1>
+  $app.innerHTML = `<div class="toolbar"><h1 style="margin:0">Documents</h1>${STATIC ? "" : '<a class="btn" href="#/second">Second annotator</a>'}</div>
     <p class="lead">Every PDF is pinned by its SHA-256 so labels are never scored against another revision. Closed-track PDFs are copied into the confidential folder and never committed.${STATIC ? " This copy lists the open track only; the closed track's documents are named nowhere outside the BAM cluster." : ""}</p>
     <div class="scroll"><table class="grid"><tr><th>Document</th><th>Track</th><th>Type</th><th>Department</th><th>Split</th><th class="num">Pages</th><th class="num">Annotated</th><th></th></tr>
       ${docs.map(row).join("") || `<tr><td colspan="8" class="muted">No documents yet.</td></tr>`}</table></div>
@@ -877,9 +879,9 @@ async function route() {
   document.onkeydown = null;
   const parts = (location.hash.slice(2) || "overview").split("/").map(decodeURIComponent);
   document.querySelectorAll("nav a").forEach((a) => a.classList.toggle("active", a.dataset.nav === parts[0] ||
-    (parts[0] === "doc" || parts[0] === "annotate" || parts[0] === "compare") && a.dataset.nav === "documents" || (parts[0] === "system" || parts[0] === "versus") && a.dataset.nav === "leaderboard" || parts[0] === "changelog" && a.dataset.nav === "about"));
+    (parts[0] === "doc" || parts[0] === "annotate" || parts[0] === "compare" || parts[0] === "second" || parts[0] === "agree") && a.dataset.nav === "documents" || (parts[0] === "system" || parts[0] === "versus") && a.dataset.nav === "leaderboard" || parts[0] === "changelog" && a.dataset.nav === "about"));
   try {
-    if (STATIC && ["doc", "annotate", "compare", "runs"].includes(parts[0])) {
+    if (STATIC && ["doc", "annotate", "compare", "runs", "second", "agree"].includes(parts[0])) {
       $app.innerHTML = `<div class="note">This view needs the dashboard on the BAM cluster. The hosted copy is read-only.</div>`;
     } else if (parts[0] === "leaderboard") await leaderboard();
     else if (parts[0] === "system") await systemDetail(parts[1]);
