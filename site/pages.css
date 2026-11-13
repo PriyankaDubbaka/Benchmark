@@ -1,0 +1,64 @@
+/* Styles for the views in pages.js. Colours come from the variables in style.css. */
+
+/* Versus */
+.vs-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; justify-content: space-between; }
+.vs-head h1 { margin: 0; overflow-wrap: anywhere; }
+.vs-tools { display: flex; gap: 8px; align-items: center; }
+.vs-tools .btn { text-decoration: none; padding: 3px 10px; font-size: 12px; }
+.vs-pick { display: flex; align-items: center; gap: 8px; }
+.vs-pick select { max-width: 100%; }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: baseline; }
+.dot.a, .split .a { background: var(--accent); }
+.dot.b, .split .b { background: var(--warn); }
+.split .t { background: var(--line); }
+table.vs td.ci { white-space: nowrap; color: var(--muted); font-size: 12px; }
+table.vs td.small { white-space: nowrap; }
+.read { font-weight: 600; }
+.read.a { color: var(--accent); }
+.read.b { color: var(--warn); }
+.read.tie { color: var(--muted); font-weight: 400; }
+.vs-sentence { margin: 0 0 8px; }
+.split { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: var(--line); max-width: 640px; }
+.split span { display: block; height: 100%; }
+
+/* Data */
+.dtiles { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.dtiles .tile { padding: 10px 12px; }
+.obs { margin: 12px 0 16px; padding-left: 20px; max-width: 760px; }
+.blists { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.blist h3 { font-size: 13px; margin: 0 0 8px; }
+.blist p { margin: -4px 0 8px; }
+.brow { display: grid; grid-template-columns: minmax(80px, 38%) 1fr auto; gap: 8px; align-items: center; padding: 3px 0; font-size: 13px; }
+.bl { overflow-wrap: anywhere; min-width: 0; }
+.bt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.bf { height: 8px; min-width: 2px; border-radius: 4px; background: var(--accent); }
+.bf.two { height: 4px; background: var(--good); }
+.bn { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* Changelog and About */
+.doc { max-width: 820px; }
+.md h1 { font-size: 22px; margin: 4px 0 8px; }
+.md h2 { font-size: 17px; margin: 28px 0 8px; padding-top: 14px; border-top: 1px solid var(--line); }
+.md h3 { font-size: 14px; margin: 18px 0 6px; }
+.md p { margin: 8px 0; }
+.md ul, .doc ul { padding-left: 20px; margin: 8px 0; }
+.md li { margin: 4px 0; }
+.doc h2:first-child { margin-top: 0; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; background: var(--accent-soft); padding: 0 4px; border-radius: 3px; overflow-wrap: anywhere; }
+.cff { border: 1px solid var(--line); border-radius: var(--radius); margin: 8px 0; }
+.cff summary { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 10px; cursor: pointer; }
+.cff summary .btn { padding: 2px 10px; font-size: 12px; }
+.cff pre { margin: 0; padding: 10px; border-top: 1px solid var(--line); font-size: 12px; overflow-x: auto; background: var(--bg); border-radius: 0 0 var(--radius) var(--radius); }
+
+/* Footer */
+.foot { max-width: 1240px; margin: 24px auto 0; padding: 14px 24px 24px; border-top: 1px solid var(--line); text-align: center; color: var(--muted); font-size: 12px; }
+.foot a { color: var(--muted); text-decoration: underline; }
+.foot a:hover { color: var(--ink); }
+
+@media (max-width: 860px) {
+  .foot { padding: 14px 16px 24px; }
+}
+@media (max-width: 480px) {
+  .brow { grid-template-columns: minmax(70px, 36%) 1fr auto; }
+  .blists { grid-template-columns: minmax(0, 1fr); }
+}
