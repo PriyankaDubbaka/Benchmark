@@ -4,7 +4,7 @@
   "kind": "vllm",
   "model": "Qwen/Qwen3-VL-8B-Instruct",
   "publisher": "Alibaba Qwen",
-  "released": "2025-10-15",
+  "released": "2025-10",
   "license": "Apache-2.0",
   "params": "8B",
   "weights_gb": 17.5,

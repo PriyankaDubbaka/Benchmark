@@ -4,7 +4,7 @@
   "kind": "vllm",
   "model": "rednote-hilab/dots.mocr",
   "publisher": "rednote hi lab",
-  "released": "2026-03-19",
+  "released": "2026-03",
   "license": "MIT, plus the dots.mocr licence agreement in its GitHub repo",
   "params": "3B",
   "weights_gb": 6,

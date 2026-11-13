@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 
+from . import cards, failures
 from .compare import runs_of
 from .paths import SYSTEMS, TRACKS
 
@@ -65,6 +66,9 @@ def catalog(systems: list[dict], leaderboard: list[dict]) -> dict:
     rows = []
     for s in systems:
         res = results.get(s["id"], {})
+        fail = {t: failures.last(t, s["id"]) for t in TRACKS}
+        newest = max((f for f in fail.values() if f), key=lambda f: f.get("when", ""), default=None)
+        status, note = cards.status_of(s, any(res.get(t) for t in TRACKS), newest)
         rows.append({
             **{k: v for k, v in s.items() if k not in ("serve",)},
             "serve": s.get("serve", ""),
@@ -72,6 +76,10 @@ def catalog(systems: list[dict], leaderboard: list[dict]) -> dict:
             "weights_downloaded": weights_downloaded(s.get("model")),
             "results": {t: _scores(res.get(t)) for t in TRACKS},
             "seconds_per_page": {t: _speed(t, s["id"]) for t in TRACKS},
+            "status": status,
+            "status_note": note,
+            "superseded_by": s.get("superseded_by"),
+            "failure": fail,
         })
     watch = json.loads(WATCHLIST.read_text(encoding="utf-8")) if WATCHLIST.exists() else []
     return {"capabilities": list(CAPABILITIES), "systems": rows, "watchlist": watch}

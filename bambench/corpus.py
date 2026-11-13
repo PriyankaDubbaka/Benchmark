@@ -120,6 +120,7 @@ def register(track: str, pdf: Path, document_id: str, copy_into_track: bool, **m
         rel = str(pdf.relative_to(ROOT))
     except ValueError:
         rel = str(pdf)
+    year = meta.pop("year", None)
     doc = Document(
         document_id=document_id,
         track=track,
@@ -129,9 +130,39 @@ def register(track: str, pdf: Path, document_id: str, copy_into_track: bool, **m
         added=date.today().isoformat(),
         **{k: v for k, v in meta.items() if v is not None},
     )
+    if year is not None:
+        doc.extra["year"] = year
     d = _manifest_dir(track)
     d.mkdir(parents=True, exist_ok=True)
     (d / f"{document_id}.json").write_text(json.dumps(doc.to_json(), indent=2) + "\n", encoding="utf-8")
+    return doc
+
+
+META_KEYS = ("title", "doc_type", "department", "family_id", "language", "split", "rights_status", "notes")
+
+
+def update_meta(track: str, document_id: str, **changes) -> Document:
+    """Rewrite a document's manifest with new descriptive fields. The PDF, its hash and page
+    count are never changed here; fields not named stay as they are, extra fields included."""
+    bad = sorted(set(changes) - set(META_KEYS) - {"year"})
+    if bad:
+        raise ValueError(f"cannot change {', '.join(bad)}; allowed: {', '.join(META_KEYS + ('year',))}")
+    doc = get_document(track, document_id)
+    for k, v in changes.items():
+        if k == "year":
+            if isinstance(v, bool) or not isinstance(v, int) or not 1900 <= v <= 2100:
+                raise ValueError(f"year must be a whole number from 1900 to 2100, not {v!r}")
+        elif not isinstance(v, str):
+            raise ValueError(f"{k} must be text, not {v!r}")
+        elif k == "split" and v not in ("dev", "test"):
+            raise ValueError(f"split must be dev or test, not {v!r}")
+    for k, v in changes.items():
+        if k == "year":
+            doc.extra["year"] = v
+        else:
+            setattr(doc, k, v)
+    f = _manifest_dir(track) / f"{document_id}.json"
+    f.write_text(json.dumps(doc.to_json(), indent=2) + "\n", encoding="utf-8")
     return doc
 
 
