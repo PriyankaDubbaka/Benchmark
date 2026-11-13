@@ -19,11 +19,16 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
-from . import __version__, gold, runner
+from . import __version__, gold, models, runner, second
+from .about import about
+from .compare import compare_page, latest_output, runs_of
+from .composition import composition
 from .corpus import get_document, load_documents, page_image, page_texts, register
-from .paths import SITE, TRACKS, run_dir
+from .pairs import versus
+from .paths import SITE, TRACKS, track_dir
 from .systems import KINDS, load_cards
 
+LOCAL_NAMES = {"127.0.0.1", "localhost", "::1"}
 JOBS: dict[str, dict] = {}
 _LOCK = threading.Lock()
 MAX_UPLOAD = 200 * 1024 * 1024
@@ -56,16 +61,8 @@ def _systems():
     return out
 
 
-def _runs(track, system_id):
-    """Finished runs of a system, newest first. Draft-only runs have run.json but no scores."""
-    d = run_dir(track) / system_id
-    if not d.exists():
-        return []
-    return sorted((p for p in d.iterdir() if (p / "scores.json").exists() or (p / "run.json").exists()), reverse=True)
-
-
 def _latest_run(track, system_id):
-    scored = [p for p in _runs(track, system_id) if (p / "scores.json").exists()]
+    scored = [p for p in runs_of(track, system_id) if (p / "scores.json").exists()]
     return scored[0] if scored else None
 
 
@@ -129,10 +126,30 @@ class Handler(BaseHTTPRequestHandler):
             raise ValueError("Upload too large")
         return self.rfile.read(n)
 
+    def _trusted(self, method) -> bool:
+        """Refuse requests a web page in the same browser could forge.
+
+        The dashboard has no login because it only listens on this machine. Two attacks still
+        reach a local port from a browser: DNS rebinding (an outside name that suddenly resolves
+        to 127.0.0.1, which would let that site read closed-track pages) and cross-site requests
+        that change data. A Host header that is not this machine stops the first; an Origin that
+        differs from the Host on a write stops the second.
+        """
+        host = self.headers.get("Host") or ""
+        name = host.rsplit(":", 1)[0].strip("[]") if not host.startswith("[") else host[1:].split("]")[0]
+        if getattr(self.server, "local_only", True) and name not in LOCAL_NAMES:
+            return False
+        origin = self.headers.get("Origin")
+        if method != "GET" and origin and urlparse(origin).netloc != host:
+            return False
+        return True
+
     def _route(self, method):
         url = urlparse(self.path)
         q = {k: v[0] for k, v in parse_qs(url.query).items()}
         parts = [unquote(p) for p in url.path.strip("/").split("/") if p]
+        if not self._trusted(method):
+            return self._json({"error": "request refused: open the dashboard as http://localhost:<port>"}, 403)
         try:
             if not parts or parts[0] != "api":
                 return self._static(url.path)
@@ -157,9 +174,40 @@ class Handler(BaseHTTPRequestHandler):
     def _static(self, path):
         rel = path.lstrip("/") or "index.html"
         target = (SITE / rel).resolve()
-        if not str(target).startswith(str(SITE.resolve())) or not target.is_file():
+        if not target.is_relative_to(SITE.resolve()) or not target.is_file():
             target = SITE / "index.html"
         self._file(target)
+
+    def _draft(self, track, doc, page, src):
+        """A prefill for a page: Poppler text or the newest output of a system."""
+        if src == "pdftotext":
+            text = page_texts(doc)[page - 1]
+            return {"source": src, "draft_source": src, "markdown": "\n".join(
+                re.sub(r"\s{2,}", "  ", l).strip() for l in text.split("\n")).strip()}
+        if src.startswith("run:"):
+            # The newest run of that system that covers this page, scored or draft-only.
+            found = latest_output(track, src[4:], doc, page)
+            if not found:
+                raise KeyError(f"No run of {src[4:]} covers this page yet")
+            return {"source": src, "draft_source": src, "run_id": found[1]["run_id"], "markdown": found[0]}
+        raise ValueError("unknown draft source")
+
+    def _second_api(self, method, track, rest):
+        """The queue of the blind second annotator and its agreement figures (local dashboard only)."""
+        if not rest and method == "GET":
+            return self._json({"queue": second.queue(track), "agreement": second.agreement(track, detail=True)})
+        if rest == ["pick"] and method == "POST":
+            b = json.loads(self._body() or b"{}")
+            n = int(b.get("n", 10))
+            if not 1 <= n <= 200:
+                raise ValueError("n must be between 1 and 200")
+            picked = second.pick(track, n)
+            return self._json({"picked": [list(x) for x in picked], "queue": second.queue(track)})
+        if rest == ["unpick"] and method == "POST":
+            b = json.loads(self._body() or b"{}")
+            removed = second.unpick(get_document(track, b.get("document_id", "")), int(b.get("page", 0)))
+            return self._json({"removed": removed, "queue": second.queue(track)})
+        raise KeyError("Unknown API route")
 
     def _api(self, method, p, q):
         if p == ["overview"] and method == "GET":
@@ -170,7 +218,11 @@ class Handler(BaseHTTPRequestHandler):
                             "pages_checked": sum(s["pages_checked"] for s in sums if s["track"] == t),
                             "pages_draft": sum(s["pages_draft"] for s in sums if s["track"] == t)} for t in TRACKS}
             return self._json({"version": __version__, "tracks": by_track,
-                               "systems": len(load_cards()), "leaderboard_rows": len(runner.leaderboard())})
+                               "systems": len(load_cards()), "leaderboard_rows": len(runner.leaderboard()),
+                               "agreement": {t: second.agreement(t) for t in TRACKS}})
+
+        if len(p) >= 2 and p[0] == "second" and p[1] in TRACKS:
+            return self._second_api(method, p[1], p[2:])
 
         if p == ["documents"] and method == "GET":
             tracks = [q["track"]] if q.get("track") in TRACKS else list(TRACKS)
@@ -223,24 +275,48 @@ class Handler(BaseHTTPRequestHandler):
                                                          b.get("annotator", ""), b.get("notes", ""),
                                                          b.get("kind", ""), b.get("lang", ""), b.get("draft_source")))
                 if len(p) == 6 and p[5] == "draft" and method == "GET":
+                    return self._json(self._draft(track, doc, page, q.get("source", "pdftotext")))
+                if len(p) == 6 and p[5] == "second":
+                    if method == "GET":  # never carries the copy of the first label
+                        return self._json(second.public(second.load(doc, page), page))
+                    if method == "PUT":
+                        b = json.loads(self._body() or b"{}")
+                        return self._json(second.public(second.save(
+                            doc, page, b.get("markdown", ""), b.get("status", "draft"), b.get("annotator", ""),
+                            b.get("notes", ""), b.get("draft_source")), page))
+                if len(p) == 7 and p[5] == "second" and p[6] == "draft" and method == "GET":
                     src = q.get("source", "pdftotext")
-                    if src == "pdftotext":
-                        text = page_texts(doc)[page - 1]
-                        return self._json({"source": src, "draft_source": src, "markdown": "\n".join(
-                            re.sub(r"\s{2,}", "  ", l).strip() for l in text.split("\n")).strip()})
-                    if src.startswith("run:"):
-                        # The newest run of that system that covers this page, scored or draft-only.
-                        for r in _runs(track, src[4:]):
-                            f = r / doc.document_id / f"page-{page:03d}.md"
-                            if f.exists():
-                                return self._json({"source": src, "draft_source": src, "run_id": r.name,
-                                                   "markdown": f.read_text(encoding="utf-8")})
-                        raise KeyError(f"No run of {src[4:]} covers this page yet")
-                    raise ValueError("unknown draft source")
+                    second.check_source(doc, page, src)
+                    return self._json(self._draft(track, doc, page, src))
+                if len(p) == 6 and p[5] == "agree" and method == "GET":
+                    return self._json(second.compare(doc, page))
             raise KeyError("Unknown document route")
 
         if p == ["systems"] and method == "GET":
             return self._json(_systems())
+
+        if p == ["models"] and method == "GET":
+            return self._json(models.catalog(_systems(), runner.leaderboard()))
+
+        if len(p) == 4 and p[0] == "compare" and method == "GET":
+            if not p[3].isdigit():
+                raise KeyError("page")
+            return self._json(compare_page(get_document(p[1], p[2]), int(p[3])))
+
+        if len(p) == 4 and p[0] == "versus" and method == "GET":
+            if p[1] not in TRACKS:
+                raise ValueError("track must be open or closed")
+            return self._json(versus(p[1], p[2], p[3]))
+
+        if p == ["composition"] and method == "GET":
+            if (track_dir("closed") / "documents").exists():
+                closed = composition("closed")
+            else:
+                closed = (runner.closed_progress() or {}).get("composition")
+            return self._json({"open": composition("open"), "closed": closed})
+
+        if p == ["about"] and method == "GET":
+            return self._json(about())
 
         if p == ["leaderboard"] and method == "GET":
             return self._json(runner.leaderboard())
@@ -265,9 +341,10 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def serve(host: str = "127.0.0.1", port: int = 8765) -> None:
-    if host not in ("127.0.0.1", "localhost", "::1"):
+    if host not in LOCAL_NAMES:
         print(f"WARNING: listening on {host}. Anyone who can reach this port can read closed-track pages.")
     httpd = ThreadingHTTPServer((host, port), Handler)
+    httpd.local_only = host in LOCAL_NAMES  # then only requests addressed to this machine are answered
     print(f"BAM extraction benchmark dashboard on http://{host}:{port}  (Ctrl+C to stop)")
     try:
         httpd.serve_forever()

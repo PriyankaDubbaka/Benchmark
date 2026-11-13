@@ -1,0 +1,23 @@
+{
+  "id": "gemma-4-26b-a4b",
+  "name": "Gemma 4 26B-A4B",
+  "kind": "vllm",
+  "model": "google/gemma-4-26B-A4B-it",
+  "publisher": "Google",
+  "released": "2026-07",
+  "license": "Apache-2.0",
+  "params": "26B (4B active)",
+  "weights_gb": 50,
+  "slice": "40 GB",
+  "gpu": "about 26 GB in 8-bit",
+  "serve": "vllm serve google/gemma-4-26B-A4B-it --quantization fp8 --max-model-len 16384 --max-num-seqs 16",
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": true,
+    "german": true,
+    "layout": null
+  },
+  "source": "https://huggingface.co/google/gemma-4-26B-A4B",
+  "notes": "Mixture-of-experts: 26B weights, 4B used per token, so it is fast for its size. The card lists OmniDocBench 1.5 edit distance 0.149. Loaded in 8-bit to fit a 40 GB slice. Not yet run on BAM hardware."
+}

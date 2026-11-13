@@ -1,0 +1,23 @@
+{
+  "id": "smolvlm2-2.2b",
+  "name": "SmolVLM2 2.2B",
+  "kind": "vllm",
+  "model": "HuggingFaceTB/SmolVLM2-2.2B-Instruct",
+  "publisher": "Hugging Face",
+  "released": "2025-02",
+  "license": "Apache-2.0",
+  "params": "2.2B",
+  "weights_gb": 4.5,
+  "slice": "20 GB",
+  "gpu": "about 5 GB",
+  "serve": "vllm serve HuggingFaceTB/SmolVLM2-2.2B-Instruct --max-model-len 8192 --max-num-seqs 16",
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/HuggingFaceTB/SmolVLM2-2.2B-Instruct",
+  "notes": "Tiny general baseline. Its processor needs num2words in the vLLM environment."
+}

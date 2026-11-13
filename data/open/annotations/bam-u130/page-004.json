@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-u130",
+  "page": 4,
+  "pdf_sha256": "82101b6a435b77a857da789ff27e0177533ceee04d46b848e92bf4b6d8e6a115",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-10T13:34:21+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "## Technical Report\n\nA detailed technical report describing the analysis procedures and the treatment of the analytical data used to certify BAM-U130 is available on request or can be downloaded from BAM website (www.bam.de).\n\n## Reference\n\n[1] EN 13657 (2002): Characterization of waste - Digestion for subsequent determination of aqua regia soluble portion of elements\n\n<!-- no date is printed after \"on\"; the round stamp is left out -->\nAccepted as BAM-CRM on\n\nBundesanstalt für Materialforschung und -prüfung (BAM)\n\n<!-- signature block read column by column: one person, then the other -->\nDr. S. Richter\nCommittee for Certification\n\nDr. S. Recknagel\nProject Coordinator\n\nThis Reference Material is offered by:\n\nBundesanstalt für Materialforschung und -prüfung (BAM)\nRichard-Willstätter-Str. 11, 12489 Berlin\n\n<!-- contact block read column by column -->\nPhone: +49 30 8104 2061\nFax: +49 30 8104 72061\n\nEmail: sales.crm@bam.de\nInternet: www.webshop.bam.de\n"
+}

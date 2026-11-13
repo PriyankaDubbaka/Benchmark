@@ -1,0 +1,24 @@
+{
+  "id": "gemma-4-31b",
+  "name": "Gemma 4 31B (4-bit)",
+  "kind": "vllm",
+  "model": "google/gemma-4-31B-it",
+  "publisher": "Google",
+  "released": "2026-04",
+  "license": "Apache-2.0",
+  "params": "31B",
+  "weights_gb": 63,
+  "slice": "40 GB",
+  "gpu": "about 18 GB in 4-bit",
+  "serve": "vllm serve google/gemma-4-31B-it --quantization bitsandbytes --max-model-len 12288 --max-num-seqs 4",
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": true,
+    "german": true,
+    "layout": null
+  },
+  "source": "https://huggingface.co/google/gemma-4-31B-it",
+  "notes": "Largest Gemma 4, above the 27B ceiling. In 8-bit it left room for about 4,000 tokens of context on a 40 GB slice, so it is loaded in 4-bit (bitsandbytes, quantised on load from Google's own weights, no third-party upload). That frees about 14 GB for context. 4-bit costs some accuracy, so read this row as the 4-bit model, not full Gemma 4 31B. Needs pip install bitsandbytes in the vLLM environment. A 63 GB download. Not yet run on BAM hardware.",
+  "status_note": "Not run yet. Needs bitsandbytes, the weights and a 40 GB slice."
+}

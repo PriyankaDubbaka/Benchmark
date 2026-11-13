@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-k009a",
+  "page": 1,
+  "pdf_sha256": "dabe7762a486fd3ce1c6c0ef3b07f634a723d36b0283b638540258e84242be18",
+  "status": "draft",
+  "kind": "mixed",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-10T13:34:20+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "# Certified Reference Material\n\n## BAM-K009a\n\nLubricating oil\n(additive free)\n\n### Certified Value\n\n<table>\n<tr><td>Parameter</td><td>Value in g g<sup>-1</sup></td><td>Uncertainty U <sup>1)</sup> in g g<sup>-1</sup></td></tr>\n<tr><td>Mass fraction of the boiling range C<sub>10</sub> – C<sub>40</sub></td><td>0.982</td><td>0.011</td></tr>\n</table>\n\n<sup>1)</sup> Estimated expanded uncertainty U with a coverage factor of k = 2, corresponding to a level of confidence of approximately 95 %, as defined in the Guide to the expression of uncertainty in measurement (GUM, ISO/IEC Guide 98-3:2008).\n\n## Material Description\n<!-- printed with a gap, \"Materia l Description\"; written as the word it is -->\n\nBAM-K009a (Lot II) is bottled in amber glass vials containing at least 2.0 mL of additive free lubricating oil. Figure 1 displays the GC-FID chromatogram of BAM-K009a.\n\n## Intended Use\n\nBAM-K009a is intended to be used as a type B mineral oil of a calibration standard for the gas chromatographic determination of mineral oil hydrocarbons in water, soil and waste according to the analytical standard procedures ISO 9377-2, ISO 16703 and EN 14039. The concentration of a calibration solution prepared by dilution of BAM-K009a has to be corrected by the certified mass fraction of the boiling range C<sub>10</sub> – C<sub>40</sub>.\n\n<!-- chromatogram: axis labels and the column, oven, heating and injection lines inside the plot are left out -->\nFig. 1: GC-FID chromatogram of BAM-K009a (diluted in n-heptane)\n\n## Technical Report\n\nA detailed technical report describing the preparation and certification of BAM-K009a is available on request or can be downloaded from the BAM website (www.bam.de).\n\nThis certificate is valid for a period of two years after dispatch of the reference material.\n\nLot-No. II -\n\nDate of dispatch:\n"
+}

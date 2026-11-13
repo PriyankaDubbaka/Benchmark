@@ -1,0 +1,8 @@
+/* Blind second annotator: hub, labelling and comparison views (second.js). Colours come from style.css. */
+.steps { max-width: 760px; margin: 8px 0 16px; padding-left: 22px; }
+.steps li { margin: 4px 0; }
+.nowrap { white-space: nowrap; }
+.note.blind { border-left-color: var(--accent); font-weight: 600; }
+table.grid td.nowrap a[data-drop] { color: var(--muted); }
+.tile[title] { cursor: help; }
+.tile .v .pill { font-size: 12px; font-weight: 400; vertical-align: middle; }

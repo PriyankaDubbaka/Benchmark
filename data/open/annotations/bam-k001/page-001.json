@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-k001",
+  "page": 1,
+  "pdf_sha256": "e2777bf90012e54586b1c47cf2d7b1033de8a3f72fff9534995bb279af9ee51c",
+  "status": "draft",
+  "kind": "mixed",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-10T13:34:20+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "# CERTIFICATE\n\n## CERTIFIED REFERENCE MATERIAL\n\n## BAM-K001 / Bottle No.\n\nEthanol in Water\n\n### Certified Value\n\n<!-- degree sign is printed as a raised 0 -->\n<table>\n<tr><td>Characteristic</td><td>Concentration at 20 °C in g/l</td><td>Uncertainty U* at 20 °C in g/l</td></tr>\n<tr><td>Ethanol</td><td>1,0291</td><td>0,0010</td></tr>\n</table>\n\n\\* Uncertainty U is the expanded uncertainty (coverage factor k = 2, corresponding to a confidence level of approximately 95%) and was calculated in accordance with the Guide to the Expression of Uncertainty in Measurement (GUM) [1]\n\n## End of Validity\n\nThe validity of this certificate ends 6 months after shipment of the material.\nDate of shipment:\n\n## Material Description\n\nThe material BAM-K001 is a solution of ethanol in water, produced by gravimetric single-bottle dosing in units of approximately 4 liters. The solution is contained in a brown glass bottle with a screw cap according to DIN 45, equipped with a Teflon septum. The starting material used was ethanol absolute (≥ 99.8%) and water of quality grade 2 (DIN ISO 3696).\n\n## Recommended Use\n\nThe reference material is intended for the periodic calibration of breath alcohol analyzers in accordance with DIN VDE 0405-4 [1] and for applications according to the international recommendation OIML-R126 [2]. In addition, it can be used for the validation of analytical methods for the determination of ethanol in water.\n\n## Handling\n\nWhen used in Evidential Breath Analysers the requirements of the relevant regulations must be observed. The material must be brought to ambient temperature before aliquots are taken and homogenized by shaking. The homogeneity of the material is ensured if the withdrawn\n"
+}

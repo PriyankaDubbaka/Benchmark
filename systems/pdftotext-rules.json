@@ -5,5 +5,14 @@
   "license": "GPL-2.0 (Poppler)",
   "params": "none",
   "gpu": "none",
-  "notes": "Floor baseline. Plain layout text, no table structure. Record rules were written with BAM-S005c visible, so its E5 score is not a model result."
+  "notes": "Floor baseline. Plain layout text, no table structure. Record rules were written with BAM-S005c visible, so its E5 score is not a model result.",
+  "publisher": "freedesktop.org (Poppler)",
+  "slice": "CPU",
+  "handles": {
+    "tables": false,
+    "formulas": false,
+    "handwriting": false,
+    "german": true,
+    "layout": false
+  }
 }

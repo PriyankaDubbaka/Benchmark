@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-d001",
+  "page": 1,
+  "pdf_sha256": "cd5d86381201e8fb3579f63e687f55a1a3669ca5e6f76718b03eac07a0a004e0",
+  "status": "draft",
+  "kind": "table",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-10T13:34:20+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "# Certified Reference Material\n\n## BAM-D001\n\nParticle Size Distribution by Laser Diffraction Methods according to ISO 13320\n\n### Certified Values\n\n<!-- the three value rows are printed without lines between them; written as three rows -->\n<table>\n<tr><td>Specific Particle Diameter Corresponding to the Cumulative Undersize Volume Distribution Q3</td><td>Equivalent Spherical Diameter <sup>1)</sup> in µm</td><td>Uncertainty U <sup>2)</sup> in µm</td></tr>\n<tr><td>d<sub>10</sub></td><td>7.02</td><td>0.25</td></tr>\n<tr><td>d<sub>50</sub></td><td>12.48</td><td>0.21</td></tr>\n<tr><td>d<sub>90</sub></td><td>20.8</td><td>1.1</td></tr>\n</table>\n\n<sup>1)</sup> The certified value is the weighted mean of 13 laboratory means which participated in the interlaboratory comparison for certification according to ISO 13320:2009.\n\n<sup>2)</sup> Estimated expanded uncertainty U with a coverage factor of k = 2, corresponding to a level of confidence of about 95 %, as defined in the Guide to the Expression of Uncertainty in Measurement (ISO/IEC Guide 98-3:2008).\n\n### Values for Information\n\n<table>\n<tr><td>Refractive index n<sub>p</sub> <sup>3)</sup></td><td>2.645</td></tr>\n<tr><td>Imaginary part k<sub>p</sub> of particles’ refractive index (absorption) <sup>3)</sup></td><td>0.1</td></tr>\n<tr><td>Density ρ in g/ cm<sup>3</sup></td><td>3.205</td></tr>\n</table>\n\n<sup>3)</sup> Wavelength: 633 nm\n\nThis certificate is valid for a period of five years beginning with the dispatch of the reference material from BAM.\n\nDate of Dispatch:\n"
+}

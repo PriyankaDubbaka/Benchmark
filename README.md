@@ -21,6 +21,10 @@ python3 -m bambench list                       # documents and systems
 python3 -m bambench run pdftotext-rules        # baseline on the open track
 python3 -m bambench serve                      # dashboard on http://127.0.0.1:8765
 python3 -m unittest discover -s tests -t .     # tests
+python3 -m bambench rescore --track open       # rescore saved outputs after labels or the scorer change
+python3 -m bambench export-site public         # read-only copy of the dashboard for GitLab Pages
+python3 -m bambench check-cards                # check every system card against its schema
+python3 -m bambench meta <document> --year 2014 --family <name> --split test   # edit a document's manifest
 ```
 
 ## Annotating internal reports
@@ -58,20 +62,37 @@ the pages a system drafted itself.
 | E2 Tables | HTML or pipe tables | TEDS per gold table (and TEDS-S for structure only) |
 | E3 Formulas | `$$ LaTeX $$` | 1 − normalised edit distance on normalised LaTeX (CDM planned) |
 | E5 Records | Certificate measurement rows | Exact-record F1, plus critical errors (unit, status, uncertainty) |
+| Numbers | Free-standing numbers on the page | Share reproduced digit for digit, pooled over pages. Not part of Overall |
 | Overall | | Mean of E1, E2 and E3, as in OmniDocBench |
 
 Gold for a page is Markdown in `data/<track>/annotations/<doc>/page-NNN.json` with a status
 of `marked` (picked, no text yet), `draft`, `checked` or `skip`, plus its kind and language. Write it in the dashboard's annotation view, prefilled from
 Poppler text or from a model's last run, and correct it against the page image.
 
+### Time and cost
+
+Next to the scores, the leaderboard shows seconds per page, an estimated euro cost per 1,000
+pages and the tokens a model wrote per page. Time is the run's wall time with the model already
+loaded. Cost is the share of one A100 80 GB the card's `slice` takes (20 GB is a quarter, 40 GB
+a half, no slice is CPU and free) times that time times an hourly price, €2 unless
+`BAMBENCH_A100_EUR_PER_HOUR` says otherwise. It is for comparing systems, not a bill. Token
+counts and replies cut off at `max_tokens` (8,192 unless a card sets its own) come from the vLLM server's usage field, so they
+appear only for `vllm` runs made after this was added; older summaries still get time and cost.
+
 ## Systems
 
-System cards live in `systems/*.json`. Kinds:
+System cards live in `systems/*.json`. The Models page in the dashboard lists them all with
+their claimed capabilities and scores; `systems/watchlist/models.json` holds models not added
+yet and why. Kinds:
 
 - `pdftotext_rules`: Poppler text, the floor baseline.
 - `docling`: Docling layout + TableFormer (`pip install docling`).
 - `vllm`: any vision model served by vLLM on localhost (or a host named in
-  `BAMBENCH_ALLOWED_HOSTS`). The adapter refuses every other host.
+  `BAMBENCH_ALLOWED_HOSTS`). The adapter refuses every other host. `output` converts a
+  model's own format (`deepseek_grounding`, `dots_layout`, `doctags`) to Markdown.
+- `paddleocr_vl`, `glm_ocr`, `mineru_vl`: two-stage parsers (layout, then each block) whose
+  VLM runs in the same local vLLM server. PaddleOCR and GLM-OCR run from their own
+  environments; see [`slurm/README.md`](slurm/README.md#two-stage-parsers).
 
 On the shared GPU, see [`slurm/README.md`](slurm/README.md).
 
@@ -89,4 +110,17 @@ slurm/              batch job that starts vLLM and runs a system
 code/               earlier prototypes (bam-docbench-starter, bam-vlm-bench), kept for reference
 ```
 
-The protocol behind this benchmark is in `code/bam-docbench-starter/docs/benchmark-proposal.md`.
+## Documentation
+
+| File | What it holds |
+| --- | --- |
+| [docs/project-documentation.md](docs/project-documentation.md) | Purpose, method, data, systems, results, history, limitations, decisions |
+| [docs/datasheet.md](docs/datasheet.md) | The dataset in the Datasheets for Datasets format |
+| [docs/data-management-plan.md](docs/data-management-plan.md) | Data management plan under the BAM Data Policy |
+| [docs/compliance-checklist.md](docs/compliance-checklist.md) | BAM, DFG, FAIR and legal rules with status and open actions |
+| [docs/gap-analysis-and-roadmap.md](docs/gap-analysis-and-roadmap.md) | Comparison with other benchmarks, weaknesses, next features and models |
+| [docs/annotation-guide.md](docs/annotation-guide.md) | Labelling rules |
+| [docs/hosting-on-gitlab.md](docs/hosting-on-gitlab.md) | Publishing the read-only dashboard with GitLab Pages |
+| [docs/CHANGELOG.md](docs/CHANGELOG.md) | Every change that can move a score |
+
+The first protocol draft is in `code/bam-docbench-starter/docs/benchmark-proposal.md`.

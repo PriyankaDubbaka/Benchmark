@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-u130",
+  "page": 1,
+  "pdf_sha256": "82101b6a435b77a857da789ff27e0177533ceee04d46b848e92bf4b6d8e6a115",
+  "status": "draft",
+  "kind": "table",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-10T13:34:20+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "Bundesanstalt für Materialforschung und -prüfung (BAM)\n\n# Certified Reference Material\n\n## BAM-U130\n\nTrace elements in wood\n\n### Certified Values\n\n<table>\n<tr><td>Element</td><td>Mass fraction <sup>1) 3)</sup> in mg/kg</td><td>Uncertainty <sup>2)</sup> in mg/kg</td></tr>\n<tr><td>As</td><td>4.0</td><td>0.4</td></tr>\n<tr><td>Cd</td><td>2.52</td><td>0.30</td></tr>\n<tr><td>Cr</td><td>39.3</td><td>2.7</td></tr>\n<tr><td>Cu</td><td>30.0</td><td>2.7</td></tr>\n<tr><td>Hg</td><td>0.66</td><td>0.06</td></tr>\n<tr><td>Pb</td><td>41</td><td>5</td></tr>\n</table>\n\n<!-- the footnotes are printed inside the table frame; written as text below it, as on BAM-S005c -->\n<sup>1)</sup> Unweighted mean value of the means of accepted sets of data (consisting of 4 single results), each set being obtained by a different laboratory and/or a different method of measurement.\n\n<sup>2)</sup> Estimated expanded uncertainty U with a coverage factor of k = 2, corresponding to a level of confidence of approx. 95 %, as defined in the Guide to the expression of uncertainty in measurement, (GUM, ISO/IEC Guide 98-3:2008).\n\n<sup>3)</sup> All results are corrected to the dry mass content of the wood material determined after drying to constant mass at (103 ± 2) °C.\n\nThis certificate is valid for a period of 24 months beginning with the dispatch of the reference material from BAM.\n\nDate of dispatch:\n\nSample-No.:\n\n### Additional material information\n\nThe moisture content of the bottled wood material at the time of certification was (7.10 ± 0.22) %, corresponding to a drying temperature of (103 ± 2) °C. The indicated uncertainty represents the standard deviation of the mean of 14 laboratory means. The given value of the moisture content should be regarded as being indicative.\n"
+}
