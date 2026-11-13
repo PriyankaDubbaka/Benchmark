@@ -19,5 +19,6 @@
     "layout": null
   },
   "source": "https://huggingface.co/google/gemma-4-31B-it",
-  "notes": "Largest Gemma 4, above the 27B ceiling. In 8-bit it left room for about 4,000 tokens of context on a 40 GB slice, so it is loaded in 4-bit (bitsandbytes, quantised on load from Google's own weights, no third-party upload). That frees about 14 GB for context. 4-bit costs some accuracy, so read this row as the 4-bit model, not full Gemma 4 31B. Needs pip install bitsandbytes in the vLLM environment. A 63 GB download. Not yet run on BAM hardware."
+  "notes": "Largest Gemma 4, above the 27B ceiling. In 8-bit it left room for about 4,000 tokens of context on a 40 GB slice, so it is loaded in 4-bit (bitsandbytes, quantised on load from Google's own weights, no third-party upload). That frees about 14 GB for context. 4-bit costs some accuracy, so read this row as the 4-bit model, not full Gemma 4 31B. Needs pip install bitsandbytes in the vLLM environment. A 63 GB download. Not yet run on BAM hardware.",
+  "status_note": "Not run yet. Needs bitsandbytes, the weights and a 40 GB slice."
 }

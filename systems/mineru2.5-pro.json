@@ -4,7 +4,7 @@
   "kind": "mineru_vl",
   "model": "opendatalab/MinerU2.5-Pro-2605-1.2B",
   "publisher": "OpenDataLab (Shanghai AI Lab)",
-  "released": "2026-05-21",
+  "released": "2026-05",
   "license": "Apache-2.0 (weights); MinerU toolkit adds conditions",
   "params": "1.2B",
   "weights_gb": 2.3,
@@ -19,5 +19,6 @@
     "layout": true
   },
   "source": "https://huggingface.co/opendatalab/MinerU2.5-Pro-2605-1.2B",
-  "notes": "Two-step extraction (layout, then each block) through mineru-vl-utils: pip install \"mineru-vl-utils[vllm]\". Not yet run on BAM hardware."
+  "notes": "Two-step extraction (layout, then each block) through mineru-vl-utils: pip install \"mineru-vl-utils[vllm]\". Not yet run on BAM hardware.",
+  "status_note": "Not run yet."
 }

@@ -4,7 +4,7 @@
   "kind": "vllm",
   "model": "ibm-granite/granite-docling-258M",
   "publisher": "IBM",
-  "released": "2025-09-17",
+  "released": "2025-09",
   "license": "Apache-2.0",
   "params": "258M",
   "weights_gb": 0.5,
@@ -22,5 +22,6 @@
     "layout": true
   },
   "source": "https://huggingface.co/ibm-granite/granite-docling-258M",
-  "notes": "Answers in DocTags, converted with docling-core (pip install docling-core). Download with hf download ibm-granite/granite-docling-258M --revision untied. English first; German is not claimed. Not yet run on BAM hardware."
+  "notes": "Answers in DocTags, converted with docling-core (pip install docling-core). Download with hf download ibm-granite/granite-docling-258M --revision untied. English first; German is not claimed. Not yet run on BAM hardware.",
+  "status_note": "Not run yet."
 }

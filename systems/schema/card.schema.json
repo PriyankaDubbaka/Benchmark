@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "card.schema.json",
+  "title": "System card",
+  "description": "One system under test: systems/<id>.json. Checked by python3 -m bambench check-cards.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "kind",
+    "license",
+    "params"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "System id. Must equal the file name without .json.",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name shown in the dashboard.",
+      "minLength": 1
+    },
+    "kind": {
+      "type": "string",
+      "description": "Implementation in bambench.systems that runs this card (checked against KINDS)."
+    },
+    "model": {
+      "type": "string",
+      "description": "Hugging Face repository of the weights, as owner/name."
+    },
+    "publisher": {
+      "type": "string",
+      "description": "Organisation that published the model."
+    },
+    "released": {
+      "type": "string",
+      "description": "Release month as YYYY-MM (a bare year where the month is not known).",
+      "pattern": "^\\d{4}(-(0[1-9]|1[0-2]))?$"
+    },
+    "license": {
+      "type": "string",
+      "description": "Licence of the weights, as stated by the publisher.",
+      "minLength": 1
+    },
+    "params": {
+      "type": "string",
+      "description": "Parameter count as text, such as 9B, or small for a classic pipeline.",
+      "minLength": 1
+    },
+    "weights_gb": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Size of the weights download in GB."
+    },
+    "slice": {
+      "type": "string",
+      "description": "GPU slice the system needs: CPU, or a size such as 40 GB.",
+      "pattern": "^(CPU|\\d+(\\.\\d+)? GB)$"
+    },
+    "gpu": {
+      "type": "string",
+      "description": "Free-text note on GPU memory use, such as about 8 GB or optional."
+    },
+    "serve": {
+      "type": "string",
+      "description": "vllm serve command the job starts for this system, without --port."
+    },
+    "page_prompt": {
+      "type": "string",
+      "description": "Prompt sent with each page image; empty sends the image alone."
+    },
+    "output": {
+      "type": "string",
+      "description": "Converter turning the model's native output into Markdown (see bambench.systems.outputs)."
+    },
+    "handles": {
+      "type": "object",
+      "description": "What the publisher claims the model handles: true, false, or null when not stated.",
+      "additionalProperties": false,
+      "properties": {
+        "tables": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Publisher claim for tables."
+        },
+        "formulas": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Publisher claim for formulas."
+        },
+        "handwriting": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Publisher claim for handwriting."
+        },
+        "german": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Publisher claim for german."
+        },
+        "layout": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "Publisher claim for layout."
+        }
+      }
+    },
+    "source": {
+      "type": "string",
+      "description": "URL of the model card.",
+      "pattern": "^https://\\S+$"
+    },
+    "paper": {
+      "type": "string",
+      "description": "URL of the paper.",
+      "pattern": "^https://\\S+$"
+    },
+    "repo": {
+      "type": "string",
+      "description": "URL of the code repository.",
+      "pattern": "^https://\\S+$"
+    },
+    "revision": {
+      "type": "string",
+      "description": "Commit of the weights snapshot that was benchmarked, 7 to 40 hex characters.",
+      "pattern": "^[0-9a-fA-F]{7,40}$"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-text notes on setup, caveats and history."
+    },
+    "status": {
+      "type": "string",
+      "description": "Set only to override: pending, active, failed, superseded or withdrawn. Normally left out and worked out from results.",
+      "enum": [
+        "pending",
+        "active",
+        "failed",
+        "superseded",
+        "withdrawn"
+      ]
+    },
+    "status_note": {
+      "type": "string",
+      "description": "One sentence on the status, such as why a system has not run yet."
+    },
+    "superseded_by": {
+      "type": "string",
+      "description": "Id of the card that replaces this one. Set exactly when status is superseded."
+    },
+    "env": {
+      "type": "object",
+      "description": "Environment variables set for the model server.",
+      "additionalProperties": true
+    },
+    "extra_body": {
+      "type": "object",
+      "description": "Extra fields merged into each chat request body.",
+      "additionalProperties": true
+    },
+    "ocr": {
+      "type": "boolean",
+      "description": "Whether the pipeline runs its own OCR."
+    },
+    "max_tokens": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Cap on output tokens per page."
+    },
+    "served_model_name": {
+      "type": "string",
+      "description": "Name the model is served under, when it differs from the repository."
+    },
+    "cli": {
+      "type": "string",
+      "description": "Path of the command-line tool a pipeline system calls."
+    },
+    "layout_device": {
+      "type": "string",
+      "description": "Device for the layout model of a pipeline system, such as cpu."
+    },
+    "dpi": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Resolution at which page images are rendered."
+    },
+    "records": {
+      "type": "boolean",
+      "description": "Whether the system keeps per-page records such as token counts."
+    }
+  }
+}

@@ -4,7 +4,7 @@
   "kind": "vllm",
   "model": "ibm-granite/granite-vision-4.1-4b",
   "publisher": "IBM",
-  "released": "2026-04-29",
+  "released": "2026-04",
   "license": "Apache-2.0",
   "params": "4B",
   "weights_gb": 8,
