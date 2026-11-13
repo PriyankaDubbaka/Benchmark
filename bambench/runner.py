@@ -51,13 +51,14 @@ def _scores(items: list[dict]) -> dict:
     e1 = _avg([s["text_score"] for s in items])
     e2 = _avg([t["teds"] for s in items for t in s["tables"]])
     e3 = _avg([f for s in items for f in s["formulas"]])
+    struct = _avg([t["teds_struct"] for s in items for t in s["tables"] if "teds_struct" in t])
     parts = [x for x in (e1, e2, e3) if x is not None]
     # Number fidelity is pooled over pages, so a page with two numbers does not weigh like one
     # with two hundred. It stays out of the overall score.
     num = [s["numbers"] for s in items if "numbers" in s]
     gold_n, pred_n, hit = (sum(n[k] for n in num) for k in ("gold", "pred", "matched"))
     return {"pages": len(items), "overall": mean(parts) if parts else None,
-            "e1_text": e1, "e2_table_teds": e2, "e3_formula": e3,
+            "e1_text": e1, "e2_table_teds": e2, "e2_table_teds_struct": struct, "e3_formula": e3,
             "numbers_recall": hit / gold_n if gold_n else None,
             "numbers_precision": hit / pred_n if pred_n else None}
 
@@ -75,7 +76,8 @@ def _ci95(items: list[dict]) -> dict | None:
     if len(items) < 2:
         return None
     rng = random.Random(BOOTSTRAP_SEED)
-    keys = ("overall", "e1_text", "e2_table_teds", "e3_formula", "numbers_recall")
+    # Appended last: the draws come from rng alone, so the older keys keep their published intervals.
+    keys = ("overall", "e1_text", "e2_table_teds", "e3_formula", "numbers_recall", "e2_table_teds_struct")
     draws: dict[str, list[float]] = {k: [] for k in keys}
     for _ in range(BOOTSTRAP_RESAMPLES):
         sc = _scores([items[rng.randrange(len(items))] for _ in items])
@@ -91,6 +93,23 @@ def _ci95(items: list[dict]) -> dict | None:
     return out or None
 
 
+def _view(items: list[dict]) -> dict:
+    """The scores of a set of pages together with how far they could move (see _ci95)."""
+    return {**_scores(items), "ci95": _ci95(items)}
+
+
+def _page_items(keyed: list[tuple[str, dict]]) -> dict:
+    """Compact per-page scores keyed "<document_id>/<page>", enough to recompute any score and to
+    compare two systems page by page without the raw outputs. Open track only."""
+    out = {}
+    for key, s in keyed:
+        n = s.get("numbers")
+        out[key] = {"t": s["text_score"], "tb": [t["teds"] for t in s["tables"]],
+                    "ts": [t.get("teds_struct") for t in s["tables"]], "f": list(s["formulas"]),
+                    "n": [n["gold"], n["pred"], n["matched"]] if n else None, "o": bool(s.get("own_draft"))}
+    return out
+
+
 def _pages_for(doc, draft_only: bool) -> list[int]:
     if draft_only:
         return pages_to_draft(doc)
@@ -100,14 +119,36 @@ def _pages_for(doc, draft_only: bool) -> list[int]:
 
 def run(system_id: str, track: str, document_ids: list[str] | None = None, progress=print,
         draft_only: bool = False) -> dict:
-    system = get_system(system_id)
+    """Run a system and remember when it fails, so the dashboard can say why a system has no result."""
+    from . import failures
+
+    system = get_system(system_id)  # an unknown id is a typo, not a failed run
+    try:
+        res = _run(system, track, document_ids, progress, draft_only)
+    except NothingToRun:
+        raise
+    except Exception as e:
+        failures.record(track, system_id, e)
+        raise
+    failures.clear(track, system_id)
+    return res
+
+
+class NothingToRun(RuntimeError):
+    """The track has no page for this run. That says nothing about the system."""
+
+
+def _run(system, track: str, document_ids: list[str] | None, progress, draft_only: bool) -> dict:
+    from .provenance import packages, weights_revision
+
+    system_id = system.id
     ok, why = system.available()
     if not ok:
         raise RuntimeError(f"{system_id} is not available: {why}")
     docs = [d for d in load_documents(track) if not document_ids or d.document_id in document_ids]
     docs = [d for d in docs if _pages_for(d, draft_only)]
     if not docs:
-        raise RuntimeError(f"No {'picked' if draft_only else 'annotated'} pages in the {track} track yet")
+        raise NothingToRun(f"No {'picked' if draft_only else 'annotated'} pages in the {track} track yet")
 
     run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     out = run_dir(track) / system_id / run_id
@@ -137,12 +178,16 @@ def run(system_id: str, track: str, document_ids: list[str] | None = None, progr
         progress(f"done: drafted {n_pages} pages in {len(docs)} documents, nothing scored")
         return {"summary": None, "run_id": run_id, "pages": n_pages}
 
+    # Facts about the software and weights behind these numbers; a rescore keeps the original run's.
+    env = {"packages": packages(), "server": system.server_info(),
+           "weights_revision": weights_revision(system.card.get("model"))}
     return _score(system_id, system.card, track, docs, predictions, run_id, out, elapsed, system.usage,
-                  n_pages, progress)
+                  n_pages, progress, environment=env)
 
 
 def _score(system_id: str, card: dict, track: str, docs: list, predictions: dict, run_id: str, out, elapsed,
-           usage, predicted_pages: int, progress=print, only_predicted: bool = False, keep: dict | None = None) -> dict:
+           usage, predicted_pages: int, progress=print, only_predicted: bool = False, keep: dict | None = None,
+           environment: dict | None = None) -> dict:
     """Score saved predictions against the gold as it is now and write the summary.
 
     only_predicted is for rescoring an older run: a gold page the run never saw is left out and
@@ -152,6 +197,7 @@ def _score(system_id: str, card: dict, track: str, docs: list, predictions: dict
     per_doc, items, rec_f1 = [], [], []
     by_kind: dict[str, list] = {}
     by_lang: dict[str, list] = {}
+    keyed = []    # (document_id/page, page scores), for page_items
     not_own = []  # pages whose gold did not start as this system's own draft
     missing = 0   # gold pages an older run has no prediction for (rescore only)
     critical = {"wrong_unit": 0, "wrong_status": 0, "wrong_uncertainty": 0}
@@ -165,13 +211,16 @@ def _score(system_id: str, card: dict, track: str, docs: list, predictions: dict
                 continue
             s = score_page(gmd, pred["pages"].get(p, ""))
             meta = page_meta(doc, p)
+            own = meta["draft_source"] == f"run:{system_id}"
             s["kind"] = meta["kind"]
+            s["own_draft"] = own
             drow["pages"][p] = s
             by_kind.setdefault(meta["kind"], []).append(s)
             by_lang.setdefault(meta["lang"] or "unlabelled", []).append(s)
-            if meta["draft_source"] != f"run:{system_id}":
+            if not own:
                 not_own.append(s)
             items.append(s)
+            keyed.append((f"{doc.document_id}/{p}", s))
         gold_rec = load_records(doc)
         if gold_rec and pred.get("records") is not None:
             try:
@@ -207,22 +256,26 @@ def _score(system_id: str, card: dict, track: str, docs: list, predictions: dict
         },
         # How far each score could move with another draw of pages; see _ci95.
         "ci95": _ci95(items),
-        "by_kind": {k: _scores(v) for k, v in sorted(by_kind.items())},
-        "by_lang": {k: _scores(v) for k, v in sorted(by_lang.items())},
+        "by_kind": {k: _view(v) for k, v in sorted(by_kind.items())},
+        "by_lang": {k: _view(v) for k, v in sorted(by_lang.items())},
         # Same scores without the pages this system drafted, so its head start on them is visible.
-        "excluding_own_drafts": _scores(not_own) if len(not_own) < len(items) else None,
+        "excluding_own_drafts": _view(not_own) if len(not_own) < len(items) else None,
         "counts": {"documents": len(docs), "pages": len(items), "predicted_pages": predicted_pages,
                    "tables": len(tables), "formulas": sum(len(s["formulas"]) for s in items),
                    "numbers": sum(s["numbers"]["gold"] for s in items),
-                   "record_documents": len(rec_f1), "gold_pages_not_predicted": missing},
+                   "record_documents": len(rec_f1), "gold_pages_not_predicted": missing,
+                   "own_draft_pages": len(items) - len(not_own)},
         "runtime_s": round(elapsed, 1) if elapsed is not None else None,
         "usage": usage,
         "environment": keep.get("environment") or
-        {"python": platform.python_version(), "platform": platform.platform(), "gpu": _gpu()},
+        {"python": platform.python_version(), "platform": platform.platform(), "gpu": _gpu(),
+         **(environment or {})},
         "finished": keep.get("finished") or datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
     if keep:
         summary["rescored"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    if track == "open":  # never for the closed track: per-page keys would name its documents
+        summary["page_items"] = _page_items(keyed)
     if track == "closed":
         summary["publishable"] = len(items) >= MIN_CLOSED_PAGES
     (out / "scores.json").write_text(json.dumps({"summary": summary, "documents": per_doc}, indent=2) + "\n",
@@ -302,8 +355,10 @@ def closed_progress() -> dict | None:
     if (track_dir("closed") / "documents").exists():
         docs = load_documents("closed")
         st = [s for d in docs for s in page_statuses(d).values()]
+        from .composition import composition
         return {"documents": len(docs), "pages": sum(d.page_count for d in docs),
-                "pages_checked": st.count("checked"), "pages_draft": st.count("draft")}
+                "pages_checked": st.count("checked"), "pages_draft": st.count("draft"),
+                "composition": composition("closed", public=True)}
     f = published_dir("closed").parent / "progress.json"
     return json.loads(f.read_text(encoding="utf-8")) if f.exists() else None
 
@@ -336,6 +391,7 @@ def leaderboard(published_only: bool = False) -> list[dict]:
         for f in (files[k] for k in sorted(files)):
             s = json.loads(f.read_text(encoding="utf-8"))
             row = rows.setdefault(s["system"], {"system": s["system"], "card": s.get("card", {})})
+            s.pop("page_items", None)  # per-page detail is for the pair view, not the table
             s["cost"] = cost(s)  # worked out on read, so older summaries get time and cost too
             s["scorer_current"] = s.get("scorer", 1) == SCORER_VERSION
             row[track] = s

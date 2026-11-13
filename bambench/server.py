@@ -20,9 +20,12 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
 from . import __version__, gold, models, runner
+from .about import about
 from .compare import compare_page, latest_output, runs_of
+from .composition import composition
 from .corpus import get_document, load_documents, page_image, page_texts, register
-from .paths import SITE, TRACKS
+from .pairs import versus
+from .paths import SITE, TRACKS, track_dir
 from .systems import KINDS, load_cards
 
 LOCAL_NAMES = {"127.0.0.1", "localhost", "::1"}
@@ -262,6 +265,21 @@ class Handler(BaseHTTPRequestHandler):
             if not p[3].isdigit():
                 raise KeyError("page")
             return self._json(compare_page(get_document(p[1], p[2]), int(p[3])))
+
+        if len(p) == 4 and p[0] == "versus" and method == "GET":
+            if p[1] not in TRACKS:
+                raise ValueError("track must be open or closed")
+            return self._json(versus(p[1], p[2], p[3]))
+
+        if p == ["composition"] and method == "GET":
+            if (track_dir("closed") / "documents").exists():
+                closed = composition("closed")
+            else:
+                closed = (runner.closed_progress() or {}).get("composition")
+            return self._json({"open": composition("open"), "closed": closed})
+
+        if p == ["about"] and method == "GET":
+            return self._json(about())
 
         if p == ["leaderboard"] and method == "GET":
             return self._json(runner.leaderboard())

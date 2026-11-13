@@ -85,6 +85,18 @@ class VllmVlm(System):
             return False, f"server is running {', '.join(served) or 'nothing'}, not {self.served_name}"
         return True, ""
 
+    def server_info(self) -> dict | None:
+        """The vLLM version, asked from the server's /version endpoint (on the root, not under /v1)."""
+        if not allowed_host(self.base_url):
+            return None
+        root = re.sub(r"/v1/?$", "", self.base_url.rstrip("/"))
+        try:
+            with _OPENER.open(root + "/version", timeout=5) as r:
+                version = json.load(r).get("version")
+        except (urllib.error.URLError, OSError, ValueError, AttributeError):
+            return None
+        return {"vllm": str(version)} if version else None
+
     def _chat(self, image_b64: str, prompt: str) -> str:
         if not allowed_host(self.base_url):
             raise PermissionError(f"Refusing to send document pages to {self.base_url}")
