@@ -80,7 +80,9 @@ Reports are long, so pages are sampled: four to six pages per report, one of eac
 3. The annotator corrects the draft against the page image and saves it as `draft`.
 4. After at least two days the annotator checks the page again and saves it as `checked`.
 
-Only `checked` pages count on the test split. A system is also scored without the pages whose labels started from its own draft, because it has a head start on those.
+Only `checked` pages count on the test split. A system is ranked without the pages whose labels started from its own draft, because it has a head start on those. The leaderboard marks such a system and shows both scores.
+
+A second annotator can label a sample of pages without seeing the first label. Scoring one label against the other gives the agreement between two people, which is the ceiling a system can be measured against. The procedure is in section 5 of the [annotation guide](annotation-guide.md#5-the-second-annotator).
 
 ### 4.2 Running a system
 
@@ -116,15 +118,15 @@ systems/            one JSON card per system
 results/            score summaries
 site/               dashboard, plain HTML and JavaScript, no build step
 slurm/              batch job that serves a model and runs a system
-tests/              94 unit tests
+tests/              unit tests
 docs/               this documentation
 ```
 
 The core needs Python 3.10 or later and Poppler, and has no Python dependencies. vLLM is needed only on the GPU server.
 
-Commands: `list`, `add`, `mark`, `run`, `rescore`, `leaderboard`, `export-closed`, `export-site`, `serve`, `guard`.
+Commands: `list`, `add`, `meta`, `mark`, `run`, `rescore`, `leaderboard`, `check-cards`, `export-closed`, `export-site`, `serve`, `guard`.
 
-The dashboard has an overview, a leaderboard with an accuracy against speed chart, a Models page, a document browser, an annotation view with prefill, and a side-by-side view of the page image, the reference and each system's output.
+The dashboard has an overview, a leaderboard with views, filters, export and two charts, a page per system, a comparison of two systems, a Models page with the status of every system, a Data page with the composition of both tracks, a document browser, an annotation view with prefill, a blind view for a second annotator, a side-by-side view of the page image, the reference and each system's output, and the changelog.
 
 ## 6. Systems
 
@@ -225,7 +227,7 @@ Open points that need a decision from BAM, not from the author alone: the softwa
 git clone <repository>
 cd Benchmark
 git config core.hooksPath .githooks
-python3 -m unittest discover -q tests          # 94 tests
+python3 -m unittest discover -q tests          # all tests pass
 python3 -m bambench run pdftotext-rules        # baseline on the open track
 python3 -m bambench serve                      # dashboard on http://127.0.0.1:8765
 ```

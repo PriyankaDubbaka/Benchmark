@@ -12,11 +12,11 @@ Each rule the project has to follow, what it asks for, where the project stands 
 
 | Rule | What it asks | Status | Evidence | To do |
 | --- | --- | --- | --- | --- |
-| BAM Code §1 | Results checked for reproducibility; everything needed to repeat the work is archived | Partly | Outputs stored per run, `rescore`, 94 tests, [reproduction steps](project-documentation.md#13-how-to-reproduce) | Pin model revisions in the system cards |
+| BAM Code §1 | Results checked for reproducibility; everything needed to repeat the work is archived | Partly | Outputs stored per run, `rescore`, unit tests, weights commit and package versions recorded per run, [reproduction steps](project-documentation.md#13-how-to-reproduce) | Rerun the systems scored before 13 November so their summaries carry the revision |
 | BAM Code §1 | Legal requirements and third-party contracts considered; approvals obtained | To confirm | [DMP section 6](data-management-plan.md#6-ethics-and-legal) | Confirm internal research use of customer reports |
 | BAM Code §4 | Authors are people with a real contribution; smaller contributions go in the acknowledgement | Met | [Project documentation section 12](project-documentation.md#12-use-of-ai-tools), `CITATION.cff` | Agree the author list before any paper is drafted |
 | BAM Code §5 | Every step from raw data to result documented and kept available | Partly | Project documentation, changelog, Git history, run folders | Closed-track selection criteria in the [datasheet](datasheet.md) |
-| BAM Code §5 | Metadata complete enough for an outside expert to reproduce | Partly | Document manifests, label metadata, system cards, summaries | vLLM version and weights revision per run |
+| BAM Code §5 | Metadata complete enough for an outside expert to reproduce | Partly | Document manifests, label metadata, system cards checked against a schema, summaries with model server version and weights revision | Year of each internal report in its manifest |
 | BAM Code §5 | Datasets kept ten years from publication | Open | [DMP section 7](data-management-plan.md#7-retention-and-deletion) | Deposit in the BAM Data Store |
 | BAM Code §5 | Software archived centrally, audit-proof, as documented source code | Open | Code is on a personal GitHub account | Move to BAM GitLab, deposit tagged releases |
 | BAM Code §5 | Data handed over when staff leave | Open | | Name a successor |
@@ -33,7 +33,7 @@ Each rule the project has to follow, what it asks for, where the project stands 
 
 | Guideline | What it asks | Status | Evidence | To do |
 | --- | --- | --- | --- | --- |
-| 7 Cross-phase quality assurance | Each step done to the standard of the field; origin of data, software and materials disclosed; public source code persistent, citable, documented | Partly | Tests, pre-merge review, system cards with sources, `CITATION.cff` | Second annotator on a sample; DOI |
+| 7 Cross-phase quality assurance | Each step done to the standard of the field; origin of data, software and materials disclosed; public source code persistent, citable, documented | Partly | Tests, pre-merge review, system cards with sources, `CITATION.cff`, blind second-annotator procedure | Second labels on at least 10 pages; DOI |
 | 9 Research design | State of research taken into account | Met | [Comparison with other benchmarks](gap-analysis-and-roadmap.md#1-how-it-compares) | |
 | 10 Legal and ethical frameworks, usage rights | Legal duties and contracts respected; usage rights to data and results agreed and documented early | To confirm | DMP section 6 | Written agreement on who may use the corpus and the results |
 | 11 Methods and standards | Sound, appropriate methods; for new methods, attention to quality assurance and standards | Met | Established metrics (edit distance, TEDS), bootstrap intervals, scorer version in every summary | Validate the Numbers score on hand-checked pages |
@@ -75,7 +75,7 @@ Each rule the project has to follow, what it asks for, where the project stands 
 | BetterBench, design | Capability defined, real-world relevance, metrics explained, floor and ceiling | Partly | Sections 1 and 2; text-layer floor | Human ceiling from a second annotator |
 | BetterBench, implementation | Working code, script that reproduces published numbers, local models supported | Met | `run`, `rescore`, Slurm job | |
 | BetterBench, documentation | Construction process, limits, statistical uncertainty reported, licence | Partly | This documentation; intervals on every score | Licence |
-| BetterBench, maintenance | Contact, feedback channel, upkeep | Open | | Functional contact; issue tracker in BAM GitLab |
+| BetterBench, maintenance | Contact, feedback channel, upkeep | Open | Changelog and citation shown in the dashboard, which also shows a `contact:` entry from `CITATION.cff` once one is added | Functional contact address; issue tracker in BAM GitLab |
 
 ## 6. The seven decisions only BAM can take
 

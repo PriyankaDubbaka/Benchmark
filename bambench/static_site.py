@@ -16,7 +16,7 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import __version__, cards, models, runner
+from . import __version__, cards, models, runner, second
 from .about import about
 from .composition import composition
 from .corpus import load_documents
@@ -74,6 +74,8 @@ def export(out: Path) -> int:
                 "closed": closed,
             },
             "systems": len(systems), "leaderboard_rows": len(board),
+            # Open track: computed here. Closed track: only what export-closed cleared (20 or more pages).
+            "agreement": {"open": second.agreement("open"), "closed": (closed or {}).get("agreement")},
         },
         "leaderboard": board,
         "models": catalog,
