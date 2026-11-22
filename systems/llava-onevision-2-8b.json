@@ -1,0 +1,25 @@
+{
+  "id": "llava-onevision-2-8b",
+  "name": "LLaVA-OneVision-2-8B",
+  "kind": "vllm",
+  "model": "lmms-lab-encoder/LLaVA-OneVision-2-8B-Instruct",
+  "publisher": "Glint Lab and LMMs-Lab",
+  "released": "2026-04",
+  "license": "Apache-2.0 (Qwen3-8B base under its own Apache-2.0 licence)",
+  "params": "8B",
+  "weights_gb": 18,
+  "slice": "20 GB",
+  "gpu": "about 10 GB in 8-bit",
+  "serve": "vllm serve lmms-lab-encoder/LLaVA-OneVision-2-8B-Instruct --trust-remote-code --quantization fp8 --max-model-len 16384 --max-num-seqs 16",
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/lmms-lab-encoder/LLaVA-OneVision-2-8B-Instruct",
+  "repo": "https://github.com/EvolvingLMMs-Lab/LLaVA-OneVision-2",
+  "notes": "Open research model with native-resolution input; the release names documents, OCR and charts. Loaded in 8-bit. Not yet run on BAM hardware.",
+  "status_note": "Not run yet. Needs the weights on sv1223."
+}

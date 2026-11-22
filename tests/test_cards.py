@@ -155,6 +155,25 @@ class EmptyPrompt(unittest.TestCase):
             self.assertEqual(s._chat("AAAA", ""), "ok")
         self.assertEqual([p["type"] for p in sent["messages"][0]["content"]], ["image_url"])
 
+    def test_prompt_suffix_ends_the_text_part(self):
+        s = VllmVlm({"id": "x", "model": "m", "base_url": "http://127.0.0.1:1/v1", "prompt_suffix": " /no_think"})
+        sent = {}
+
+        class Resp:
+            def __enter__(self): return self
+            def __exit__(self, *a): return False
+            def read(self): return b'{"choices":[{"message":{"content":"ok"},"finish_reason":"stop"}]}'
+
+        def fake_open(req, timeout=None):
+            sent.update(json.loads(req.data))
+            return Resp()
+
+        with mock.patch("bambench.systems.vllm_vlm._OPENER.open", fake_open):
+            s._chat("AAAA", "Read the page.")
+            self.assertEqual(sent["messages"][0]["content"][-1]["text"], "Read the page. /no_think")
+            s._chat("AAAA", "")  # an image-only card gets no text part, suffix or not
+        self.assertEqual([p["type"] for p in sent["messages"][0]["content"]], ["image_url"])
+
 
 if __name__ == "__main__":
     unittest.main()

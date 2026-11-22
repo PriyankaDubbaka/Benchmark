@@ -18,7 +18,7 @@
     "publisher": "ATH-MaaS (appears to continue AIDC-AI's Ovis line)",
     "params": "0.8B",
     "license": "Apache-2.0 (as stated)",
-    "reason": "Strong published score (96.5, Jul 2026), based on Qwen3.5-0.8B. Confirm the link to AIDC-AI before adding; a newer OvisOCR3 also exists."
+    "reason": "Strong published score (96.5, Jul 2026), based on Qwen3.5-0.8B. Confirm the link to AIDC-AI before adding; a newer OvisOCR3 also exists. Update 22 Nov 2026: the AIDC-AI/Ovis2.5 repositories on Hugging Face now redirect to ATH-MaaS, which points to the same team; the publisher question is close to settled."
   },
   {
     "name": "Qwen3.5-35B-A3B, Qwen3-VL-235B, InternVL3.5-241B",
@@ -40,5 +40,54 @@
     "params": "15B",
     "license": "MIT",
     "reason": "Tuned for app and screen understanding rather than documents, and it reasons at length before answering."
+  },
+  {
+    "name": "LFM2.5-VL-3B, LFM2.5-VL-1.6B",
+    "publisher": "Liquid AI",
+    "params": "1.6B to 3B",
+    "license": "LFM Open License v1.0",
+    "reason": "Strong small document scores (DocVQA 91.1, OCRBench 84.2, Aug 2026) and supported by vLLM, but the licence ties free commercial use to a revenue limit. Ask legal whether BAM's research use is covered, then add."
+  },
+  {
+    "name": "MiniCPM-V 4.7 (35B-A3B)",
+    "publisher": "OpenBMB",
+    "params": "35B (3B active)",
+    "license": "None published",
+    "reason": "Weights appeared in October 2026 with no model card and no licence, so there is no right to use them yet. 70 GB in 16-bit is also above a 40 GB slice."
+  },
+  {
+    "name": "Mistral Small 4",
+    "publisher": "Mistral AI",
+    "params": "119B (6B active)",
+    "license": "Apache-2.0",
+    "reason": "Open and European, with document parsing as a stated use, but far too large for one slice of the shared GPU."
+  },
+  {
+    "name": "Magistral Small 1.2 (2509)",
+    "publisher": "Mistral AI",
+    "params": "24B",
+    "license": "Apache-2.0",
+    "reason": "Mistral Small 3.2 plus reasoning, which is already in the benchmark. It reasons before every answer and the card gives no way to switch that off, so it would mostly add cut-off pages."
+  },
+  {
+    "name": "Qwen3-VL-30B-A3B, Qwen3-VL-32B",
+    "publisher": "Alibaba",
+    "params": "30B to 33B",
+    "license": "Apache-2.0",
+    "reason": "Even the FP8 releases leave almost no room for context on a 40 GB slice once the vision encoder is loaded. Qwen3.5-27B and Qwen3.8-27B cover this size."
+  },
+  {
+    "name": "Kimi-VL-A3B-Thinking-2506",
+    "publisher": "Moonshot AI",
+    "params": "16B (3B active)",
+    "license": "MIT",
+    "reason": "Slightly better OCRBench than the Instruct model that is in, but it always reasons first (up to 32K tokens on the card). Add it if the Instruct model does well."
+  },
+  {
+    "name": "Aya Vision 8B, 32B",
+    "publisher": "Cohere",
+    "params": "8B, 32B",
+    "license": "CC-BY-NC-4.0",
+    "reason": "Non-commercial licence; ask legal first. Not in vLLM's list of supported vision models either."
   }
 ]

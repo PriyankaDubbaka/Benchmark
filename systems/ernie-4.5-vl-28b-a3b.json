@@ -1,0 +1,29 @@
+{
+  "id": "ernie-4.5-vl-28b-a3b",
+  "name": "ERNIE 4.5 VL 28B-A3B (8-bit)",
+  "kind": "vllm",
+  "model": "baidu/ERNIE-4.5-VL-28B-A3B-PT",
+  "publisher": "Baidu",
+  "released": "2025-06",
+  "license": "Apache-2.0",
+  "params": "28B (3B active)",
+  "weights_gb": 58,
+  "slice": "40 GB",
+  "gpu": "about 29 GB in 8-bit",
+  "serve": "vllm serve baidu/ERNIE-4.5-VL-28B-A3B-PT --trust-remote-code --quantization fp8 --max-model-len 8192 --max-num-seqs 4",
+  "extra_body": {
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  },
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/baidu/ERNIE-4.5-VL-28B-A3B-PT",
+  "notes": "Baidu's general vision model, a mixture of experts with separate text and vision experts. The -PT repository holds the PyTorch weights vLLM loads. Thinking is off. Tight on a 40 GB slice in 8-bit, like Gemma 4 26B-A4B, hence the short context. A 58 GB download. Not yet run on BAM hardware.",
+  "status_note": "Not run yet. Needs the weights on sv1223."
+}
