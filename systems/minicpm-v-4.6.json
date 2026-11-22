@@ -1,0 +1,29 @@
+{
+  "id": "minicpm-v-4.6",
+  "name": "MiniCPM-V 4.6",
+  "kind": "vllm",
+  "model": "openbmb/MiniCPM-V-4.6",
+  "publisher": "OpenBMB",
+  "released": "2026",
+  "license": "Apache-2.0 (verify on card)",
+  "params": "1.3B",
+  "weights_gb": 3,
+  "slice": "20 GB",
+  "gpu": "about 3 GB",
+  "serve": "vllm serve openbmb/MiniCPM-V-4.6 --trust-remote-code --max-model-len 16384 --max-num-seqs 16",
+  "extra_body": {
+    "stop_token_ids": [
+      248044,
+      248046
+    ]
+  },
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/openbmb/MiniCPM-V-4.6",
+  "notes": "Smallest general model in the set, built for phones on a Qwen3.5-0.8B backbone. The Instruct checkpoint does not think. Stop tokens set as the vLLM recipe advises. Not yet run on BAM hardware."
+}

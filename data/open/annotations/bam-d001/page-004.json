@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-d001",
+  "page": 4,
+  "pdf_sha256": "cd5d86381201e8fb3579f63e687f55a1a3669ca5e6f76718b03eac07a0a004e0",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-10T13:34:20+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "## References\n\nZertifizierungsbericht BAM-D001 (P. Kuchenbecker, M. Gemeinert, BAM, February 2012)\nwww.bam.de\n\nGuidelines for the Production of BAM Reference Materials (BAM, 2010)\nwww.bam.de/pdf/service/referenzmaterialien/bam_rm_leitfaden.pdf\n\nISO 13320:2009: Particle size analysis — Laser diffraction methods\n\nISO Guide 35: 2006: Reference Materials – General and statistical principles for Certification\n\nISO/IEC Guide 98-3:2008: Uncertainty of measurement – Part 3: Guide to the expression of uncertainty in measurement (GUM)\n\nApplication Note 1 (T. Linsinger, EC, IRMM, 2005)\nhttp://www.bam.de/de/fachthemen/referenzmaterialien/referenzmaterialien_medien/erm_application_note_1_ge.pdf\n\nAccepted as BAM-CRM on May 15, 2012\n\nBAM Bundesanstalt für Materialforschung und -prüfung\n\n<!-- signature block read column by column: one person, then the other -->\nProf. Dr. P. Dolabella Portella\nHead of Department 5\nMaterials Engineering\n\nDr. T. Rabe\np.p. Head of Division 5.5\nAdvanced Technical Ceramics\n\nThis reference material is provided by:\n\nBAM Bundesanstalt für Materialforschung und -prüfung\n\nRichard-Willstätter-Straße 11, D-12489 Berlin, Germany\n\n<!-- contact block read column by column -->\nPhone: +49 30 8104 2061\nFax: +49 30 8104 1117\n\nE-mail: sales.crm@bam.de\nInternet: www.webshop.bam.de\n"
+}

@@ -1,0 +1,24 @@
+{
+  "id": "phi-4-multimodal",
+  "name": "Phi-4-multimodal",
+  "kind": "vllm",
+  "model": "microsoft/Phi-4-multimodal-instruct",
+  "served_model_name": "vision",
+  "publisher": "Microsoft",
+  "released": "2025-02",
+  "license": "MIT",
+  "params": "5.6B",
+  "weights_gb": 12,
+  "slice": "20 GB",
+  "gpu": "about 12 GB",
+  "serve": "vllm serve ~/models/phi-4-multimodal --trust-remote-code --max-model-len 12288 --max-num-seqs 16 --enable-lora --max-lora-rank 320 --max-loras 1 --lora-modules vision=~/models/phi-4-multimodal/vision-lora",
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/microsoft/Phi-4-multimodal-instruct",
+  "notes": "Images go through a vision LoRA adapter, so the model is served from a local folder with the adapter named vision. Download with: hf download microsoft/Phi-4-multimodal-instruct --local-dir ~/models/phi-4-multimodal. Needs scipy in the vLLM environment."
+}

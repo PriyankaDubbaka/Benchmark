@@ -1,0 +1,23 @@
+{
+  "id": "gemma-4-12b",
+  "name": "Gemma 4 12B",
+  "kind": "vllm",
+  "model": "google/gemma-4-12B-it",
+  "publisher": "Google",
+  "released": "2026-07",
+  "license": "Apache-2.0",
+  "params": "12B",
+  "weights_gb": 24,
+  "slice": "20 GB",
+  "gpu": "about 12 GB in 8-bit",
+  "serve": "vllm serve google/gemma-4-12B-it --quantization fp8 --max-model-len 16384 --max-num-seqs 16",
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": true,
+    "german": true,
+    "layout": null
+  },
+  "source": "https://huggingface.co/google/gemma-4-12B-it",
+  "notes": "General vision model. The card lists document and PDF parsing, multilingual OCR and handwriting. Thinking is off unless asked for; the empty thought block it still writes is stripped. Loaded in 8-bit to fit a 20 GB slice. Not yet run on BAM hardware."
+}

@@ -1,0 +1,23 @@
+{
+  "id": "pixtral-12b",
+  "name": "Pixtral 12B",
+  "kind": "vllm",
+  "model": "mistralai/Pixtral-12B-2409",
+  "publisher": "Mistral AI (France)",
+  "released": "2024-09",
+  "license": "Apache-2.0",
+  "params": "12B",
+  "weights_gb": 25,
+  "slice": "20 GB",
+  "gpu": "about 13 GB in 8-bit",
+  "serve": "vllm serve mistralai/Pixtral-12B-2409 --tokenizer-mode mistral --config-format mistral --load-format mistral --quantization fp8 --max-model-len 16384 --max-num-seqs 16",
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/mistralai/Pixtral-12B-2409",
+  "notes": "Older Mistral vision model, kept as a reference point for how far the newer ones have moved. Loaded in 8-bit. A page is about 6,500 image tokens, so the context is 16k to leave room for 8k of output. Not yet run on BAM hardware."
+}

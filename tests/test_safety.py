@@ -145,3 +145,104 @@ class PageImages(unittest.TestCase):
         p = page_image(get_document("open", "bam-k009a"), 1, 30)
         self.assertEqual(p.read_bytes()[:4], b"\x89PNG")
         self.assertEqual(p.name, "page-001-30.png")
+
+
+class Picking(GoldRules):
+    def test_picked_and_empty_pages_are_drafted_but_never_scored(self):
+        from bambench import gold
+        doc = self._doc("dev")
+        self.assertEqual(gold.mark_pages(doc, [1, 2]), [1, 2])
+        gold.save_page(doc, 3, "", "draft")  # the old way of picking a page
+        self.assertEqual(gold.scored_pages(doc), {})
+        self.assertEqual(gold.pages_to_draft(doc), [1, 2, 3])
+        self.assertEqual(gold.page_statuses(doc), {1: "marked", 2: "marked", 3: "marked"})
+
+    def test_dropping_a_pick_keeps_written_text(self):
+        from bambench import gold
+        doc = self._doc("dev")
+        gold.mark_pages(doc, [1, 2])
+        gold.save_page(doc, 2, "real text", "draft")
+        self.assertEqual(gold.mark_pages(doc, [1, 2], marked=False), [1])
+        self.assertEqual(gold.scored_pages(doc), {2: "real text"})
+
+    def test_draft_source_survives_later_saves(self):
+        from bambench import gold
+        doc = self._doc("dev")
+        gold.save_page(doc, 1, "draft", "draft", kind="table", lang="en+de", draft_source="run:qwen3.5-9b")
+        gold.save_page(doc, 1, "corrected", "checked", kind="table", lang="en+de")
+        self.assertEqual(gold.page_meta(doc, 1), {"kind": "table", "lang": "en+de", "draft_source": "run:qwen3.5-9b"})
+        with self.assertRaises(ValueError):
+            gold.save_page(doc, 1, "x", "draft", kind="poster")
+
+
+class DraftOnlyRun(unittest.TestCase):
+    def test_draft_only_run_writes_drafts_and_no_scores(self):
+        import shutil
+        import tempfile
+        from pathlib import Path
+        from bambench import gold, runner
+        from bambench.corpus import get_document
+        tmp = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, tmp)
+        doc = get_document("open", "bam-k009a")
+        with mock.patch("bambench.gold.track_dir", lambda t: tmp / "gold"), \
+                mock.patch("bambench.runner.run_dir", lambda t: tmp / "runs"), \
+                mock.patch("bambench.runner.summary_dir", lambda t: tmp / "summaries"), \
+                mock.patch("bambench.runner.load_documents", lambda t: [doc]):
+            gold.mark_pages(doc, [1])
+            res = runner.run("pdftotext-rules", "open", progress=lambda m: None, draft_only=True)
+        self.assertIsNone(res["summary"])
+        run = tmp / "runs" / "pdftotext-rules" / res["run_id"]
+        self.assertTrue((run / "bam-k009a" / "page-001.md").exists())
+        self.assertFalse((run / "scores.json").exists())
+        self.assertFalse((tmp / "summaries").exists())
+        self.assertTrue(json.loads((run / "run.json").read_text())["draft_only"])
+
+
+class CliPipelines(unittest.TestCase):
+    """Two-stage parsers run as commands: local server only, and never a proxy to the outside."""
+
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.mkdtemp()
+        # A stand-in parser that records its arguments and proxy settings and writes a page.
+        self.cli = os.path.join(self.tmp, "fakeparser")
+        with open(self.cli, "w") as f:
+            f.write("#!/usr/bin/env python3\nimport json, os, sys\n"
+                    "out = sys.argv[sys.argv.index('--output' if '--output' in sys.argv else '--save_path') + 1]\n"
+                    "open(os.path.join(out, 'page.md'), 'w').write(json.dumps({'argv': sys.argv[1:], "
+                    "'proxy': os.environ.get('https_proxy'), 'no_proxy': os.environ.get('no_proxy')}))\n")
+        os.chmod(self.cli, 0o755)
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.tmp)
+
+    def _run(self, card):
+        from bambench.systems import pipelines
+        s = {"glm_ocr": pipelines.GlmOcr, "paddleocr_vl": pipelines.PaddleOcrVl}[card["kind"]](card)
+        with mock.patch.object(pipelines, "page_image", return_value=os.path.join(self.tmp, "p.png")), \
+                mock.patch.dict(os.environ, {"BAMBENCH_VLLM_URL": "http://127.0.0.1:8597/v1"}):
+            return json.loads(s.predict(None, [3], lambda m: None)["pages"][3])
+
+    def test_glm_ocr_runs_self_hosted_against_local_server(self):
+        got = self._run({"id": "glm-ocr", "kind": "glm_ocr", "model": "zai-org/GLM-OCR",
+                         "served_model_name": "glm-ocr", "cli": self.cli})
+        argv = got["argv"]
+        self.assertEqual(argv[argv.index("pipeline.maas.enabled") + 1], "false")
+        self.assertEqual(argv[argv.index("pipeline.ocr_api.api_host") + 1], "127.0.0.1")
+        self.assertEqual(argv[argv.index("pipeline.ocr_api.api_port") + 1], "8597")
+        self.assertEqual(got["proxy"], "http://127.0.0.1:9")
+        self.assertEqual(got["no_proxy"], "127.0.0.1,localhost")
+
+    def test_paddleocr_uses_card_pipeline_version(self):
+        got = self._run({"id": "p", "kind": "paddleocr_vl", "model": "m", "pipeline_version": "v1.5", "cli": self.cli})
+        argv = got["argv"]
+        self.assertEqual(argv[argv.index("--pipeline_version") + 1], "v1.5")
+        self.assertEqual(argv[argv.index("--vl_rec_server_url") + 1], "http://127.0.0.1:8597/v1")
+
+    def test_missing_cli_is_reported(self):
+        from bambench.systems.pipelines import GlmOcr
+        ok, why = GlmOcr({"id": "g", "kind": "glm_ocr", "model": "m", "cli": "/nope/glmocr"}).available()
+        self.assertFalse(ok)
+        self.assertIn("not installed", why)

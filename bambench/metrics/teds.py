@@ -12,6 +12,9 @@ from html.parser import HTMLParser
 from .text import ned, normalize_text
 
 
+_BREAKS = {"br", "p", "div", "li"}
+
+
 class Node:
     __slots__ = ("tag", "span", "text", "children")
 
@@ -53,6 +56,8 @@ class _Parser(HTMLParser):
 
             self.cell = Node("td", (num("colspan"), num("rowspan")))
             self.row.children.append(self.cell)
+        elif tag in _BREAKS and self.cell is not None:
+            self.cell.text += " "  # a line break inside a cell separates words
 
     def handle_endtag(self, tag):
         tag = tag.lower()
@@ -73,7 +78,7 @@ def parse(html_table: str) -> Node:
     p.feed(html_table)
     for row in p.root.children:
         for c in row.children:
-            c.text = normalize_text(c.text)
+            c.text = normalize_text(c.text, cell=True)
     return p.root
 
 

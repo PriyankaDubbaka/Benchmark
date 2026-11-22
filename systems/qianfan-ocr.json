@@ -1,0 +1,25 @@
+{
+  "id": "qianfan-ocr",
+  "name": "Qianfan-OCR",
+  "kind": "vllm",
+  "model": "baidu/Qianfan-OCR",
+  "publisher": "Baidu",
+  "released": "2026-03",
+  "license": "Apache-2.0",
+  "params": "4.7B",
+  "weights_gb": 10,
+  "slice": "20 GB",
+  "gpu": "about 10 GB",
+  "serve": "vllm serve baidu/Qianfan-OCR --trust-remote-code --hf-overrides '{\"architectures\": [\"InternVLChatModel\"]}' --max-model-len 16384 --max-num-seqs 16",
+  "page_prompt": "Parse this document to Markdown.",
+  "max_tokens": 8192,
+  "handles": {
+    "tables": true,
+    "formulas": true,
+    "handwriting": null,
+    "german": true,
+    "layout": true
+  },
+  "source": "https://huggingface.co/baidu/Qianfan-OCR",
+  "notes": "End-to-end document model on a Qwen3-4B backbone. Tables as HTML, formulas as LaTeX, 192 languages claimed. Its layout thinking mode is left off. Not yet run on BAM hardware."
+}
