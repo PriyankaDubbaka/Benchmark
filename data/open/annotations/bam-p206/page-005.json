@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-p206",
+  "page": 5,
+  "pdf_sha256": "8e35084495d792d931b13b49d90bc859ff22ebaa62d6da2ff7d690eb41fa9f81",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:33:21+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "## Literature\n\nA detailed technical report describing the analysis procedures and the treatment of the analytical data used to characterization BAM-P206 is available on request or can be downloaded from BAM website (https://rrr.bam.de).\n\nAccepted as a BAM-RM on December 20, 2023\n\nBundesanstalt für Materialforschung und -prüfung (BAM)\n\n<!-- signature block read person by person, left then right -->\nDr. Silke Richter\nCommittee for Certification\n\nDr. Korinna Altmann\nProject Coordinator\nDivision\n\nThis Reference Material is offered by:\n\nBundesanstalt für Materialforschung und –prüfung (BAM)\n\nRichard-Willstätter-Str. 11, D-12489 Berlin, Germany\n\n<!-- contact block read column by column -->\nP: +49 30 8104 2061\nF: +49 30 8104 72061\n\nE-Mail: sales.crm@bam.de\nInternet: www.webshop.bam.de\n"
+}

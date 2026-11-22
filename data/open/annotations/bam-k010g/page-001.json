@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-k010g",
+  "page": 1,
+  "pdf_sha256": "bf3bdcc508c53b18697c7a9197506437616c15ad21c0416d6615138cf483b6ce",
+  "status": "draft",
+  "kind": "mixed",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:30:29+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "# Certified Reference Material\n\n## BAM-K010g\n\nMixture of diesel oil and lubricating oil\n\n### Certified Value\n\n<table>\n<tr><td>Parameter</td><td>Value in g g<sup>-1</sup></td><td>Uncertainty U <sup>1)</sup> in g g<sup>-1</sup></td></tr>\n<tr><td>Mass ratio of diesel oil / lubricating oil</td><td>1.000028</td><td>0.000014</td></tr>\n<tr><td>Mass fraction of the boiling range C<sub>10</sub> – C<sub>40</sub></td><td>0.969</td><td>0.015</td></tr>\n</table>\n\n<sup>1)</sup> Estimated expanded uncertainty U with a coverage factor of k = 2, corresponding to a level of confidence of approximately 95 %, as defined in the Guide to the expression of uncertainty in measurement (GUM, ISO/IEC Guide 98-3:2008).\n\n## Material Description\n\nBAM-K010g (Lot VIII) is bottled in amber glass vials containing at least 2.0 mL of the mixture of diesel oil and lubricating oil. Additive free diesel oil without FAME (fatty acid methyl esters) and additive free lubricating oil were used to produce BAM-K010g. Figure 1 displays the GC-FID chromatogram of the calibration standard BAM-K010g.\n\n## Intended Use\n\nBAM-K010g is intended to be used as calibration standard for the gas chromatographic determination of mineral oil hydrocarbons in water, soil and waste according to the analytical standard procedures ISO 9377-2, ISO 16703 and EN 14039. The concentrations of calibration solutions prepared by dilution of BAM-K010g have to be corrected by the certified mass fraction of the boiling range C<sub>10</sub> – C<sub>40</sub>.\n\n<!-- chromatogram: axis labels and the column, oven, heating and injection lines inside the plot are left out -->\nFig. 1: GC-FID chromatogram of the calibration standard BAM-K010g (diluted in n-heptane)\n\n## Technical Report\n\nA detailed technical report describing the preparation and certification of BAM-K010g is available on request or can be downloaded from the BAM website (www.bam.de).\n\nThis certificate is valid for a period of two years after dispatch of the reference material.\n\nLot-No. VIII -\n\nDate of dispatch:\n"
+}

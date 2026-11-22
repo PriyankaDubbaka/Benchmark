@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-n008-v6",
+  "page": 2,
+  "pdf_sha256": "8778156f76118e03c1257f52d78c3c4b842c7336572384f8d203989fa786bd3b",
+  "status": "draft",
+  "kind": "mixed",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:31:54+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "## Material Description\n\nBAM-N008 is filled in amber narrow-mouth plastic bottles containing 5 ml of aqueous suspension of silver nanoparticles. Figure 1 displays the SAXS curve of BAM-N008.\n\n## Recommended Use\n\nThe intended purpose of BAM-N008 is the verification of analytical results obtained for determination of diameter, size distribution width, number density and mass concentration of nanoparticles in dispersion. Preferred use is quality control of particle size analysis with the SAXS method according to ISO 17867. The recommended minimum sample volume for a measurement is 50 µl. Deionized water is recommended for background measurements.\n\n## Handling\n\nThe material should be used as it is from the bottle. Before taking a sample, homogenization by manually shaking the closed bottle for 20 seconds is strongly recommended.\n\n## Transport and Storage\n\nBAM-N008 can be shipped at ambient temperature. Upon receipt, the material should be stored in the dark at a temperature of (20±3) °C in its original tightly closed bottle. When handling the sample, the bottle shall be left unclosed as short as possible.\n\n<!-- plot: axis labels and tick values inside the figure are left out -->\nFigure 1. SAXS data and model curve (black and red line, respectively). The SAXS data are given in terms of the scattering intensity as a function of the scattering vector q. The model curve is a best fit of the data utilizing the model of solid spheres with a lognormal size distribution according to standard ISO 17867. Data for evaluation should be chosen in the q-range between 0.1 nm<sup>-1</sup> and 3.0 nm<sup>-1</sup>. Data outside this range should be discarded.\n\n## Metrological Traceability\n\nThe diameter of the particles is traceable to a gold standard reference material SRM 8011 (NIST, USA).\n\n## Literature\n\nA detailed technical report describing the analysis procedures and the treatment of the analytical data used to certify BAM-N008 is available on request or can be downloaded from BAM website (https://rrr.bam.de).\n"
+}

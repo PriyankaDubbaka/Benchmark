@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-p012",
+  "page": 1,
+  "pdf_sha256": "364f9a0940bd7463e292a1eb45dcf6ea6c4a29aaaa8b4cd6136d5f521452f6ce",
+  "status": "draft",
+  "kind": "mixed",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T13:04:00+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "# Certified Reference Material\n\n## BAM-P012\n\nMolar mass and intrinsic viscosity of Polystyrene\n\n### Certified Values\n\n<table>\n<tr><td>Characteristic (method specific)</td><td>M<sub>w</sub> in g/mol</td><td>Uncertainty U <sup>3)</sup> in g/mol</td></tr>\n<tr><td>Molar mass by LS<sup>1)</sup></td><td>348,000</td><td>8,000</td></tr>\n<tr><td>Molar mass by SEC<sup>2)</sup></td><td>343,000</td><td>12,000</td></tr>\n<tr><td>Intrinsic viscosity</td><td>η<sub>30°C, THF</sub> in mL/g</td><td>in mL/g</td></tr>\n<tr><td>by viscometry</td><td>104.0</td><td>1.8</td></tr>\n</table>\n\n<sup>1)</sup> Light scattering, Rayleigh-ratio $R_{Θ} = 1.406\\ \\mathrm{E{-}5}\\ \\mathrm{cm^{-1}}$ at 633 nm in toluene\n\n<sup>2)</sup> Size exclusion chromatography\n\n<sup>3)</sup> U expressed as expanded uncertainty (coverage factor k = 2)\n\n### Informative Values\n\nderived from certified molar mass by SEC\n\n<!-- the extra space before Ratio has no rules of its own and is left out -->\n<table>\n<tr><td>Characteristic (SEC specific)</td><td>Molar Mass in g/mol</td><td>Uncertainty U <sup>3)</sup> in g/mol</td></tr>\n<tr><td>Number-averaged M<sub>n</sub></td><td>141,000</td><td>15,000</td></tr>\n<tr><td>Z-averaged M<sub>z</sub></td><td>555,000</td><td>22,000</td></tr>\n<tr><td>M at peak maximum M<sub>p</sub></td><td>340,000</td><td>21,000</td></tr>\n<tr><td>Ratio</td><td>- no unit -</td><td>- no unit -</td></tr>\n<tr><td>M<sub>w</sub>/M<sub>n</sub></td><td>2.43</td><td>0.06</td></tr>\n</table>\n\nThis certificate is valid for 5 years after date of shipment considering the storage instructions given below.\n\n## Description of the Material\n\nThe Certified Reference Material BAM-P012 is distributed in packaging sizes of 1 g, 2 g, 5 g and 10 g. The weight of single pellets of the polymer material is approximately 20 mg.\n\n## Intended Use\n\nBAM-P012 is primarily intended for calibration and performance evaluation of instruments used to determine the molar mass and the molar mass distribution of polymers.\n\n## Storage\n\nThis material should be stored at dry and light protected conditions below +7 °C.\n"
+}

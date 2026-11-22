@@ -1,0 +1,13 @@
+{
+  "document_id": "euronorm-d326-1",
+  "page": 1,
+  "pdf_sha256": "4edff38a00a2d5bf7ef2a6e6b3bf49b73e6366e9e6b28297cccc905e4725ba33",
+  "status": "draft",
+  "kind": "cover",
+  "lang": "de",
+  "draft_source": "page image",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T13:04:00+00:00",
+  "notes": "Machine-assisted draft from the page image (scanned page, no text layer); not yet re-checked by a person.",
+  "markdown": "# EURONORM-ZRM\n\n<!-- the three issuers side by side are read column by column, left to right -->\nBundesanstalt für Materialforschung und -prüfung\nBERLIN-DAHLEM\n\nMax-Planck-Institut für Eisenforschung\nDUSSELDORF <!-- printed in spaced capitals without the umlaut -->\n\nStaatl. Materialprüfungsamt Nordrhein-Westfalen\nDORTMUND\n\nin Verbindung mit dem\n\nChemikerausschuß des Vereins Deutscher Eisenhüttenleute\n\n## Analysen-Kontrollprobe 326-1 / <!-- followed by a printed hatch mark, left out -->\n\nFür die Analysenkontrollprobe 326-1 werden auf Grund der unten aufgeführten Untersuchungsergebnisse folgende Gehalte bescheinigt:\n\n<!-- values aligned in columns without lines or header row: written as text -->\n0,092 % Kohlenstoff (s = 0,002 % C)\n1,46 % Silicium (s = 0,025 % Si)\n0,406 % Mangan (s = 0,008 % Mn)\n0,0093 % Phosphor <!-- the P is printed faintly --> (s = 0,0009 % P)\n0,0028 % Schwefel (s = 0,0006 % S)\n16,37 % Chrom (s = 0,05 % Cr)\n61,16 % Nickel (s = 0,16 % Ni)\n0,223 % Kobalt (s = 0,011 % Co)\n0,129 % Zirkonium (s = 0,008 % Zr)\n\nBerlin - Dortmund - Düsseldorf, im Februar 1972\n\n<!-- the typed signature block is read person by person, left to right -->\nBAM\nBerlin-Dahlem\ngez. Pohl\n\nMPI\nDüsseldorf\ngez. Engell\n\nMPA\nDortmund\ngez. Stupp\n\nChemikerausschuß VDEh\ngez. Koch\n\nDie Probe enthält außerdem 0,79 % Aluminium.\n\nUntersuchende Stellen:\n\n1 Bundesanstalt für Materialforschung und -prüfung, Berlin\n2 Staatliches Materialprüfungsamt Nordrhein-Westfalen, Dortmund-Aplerbeck\n3 Max-Planck-Institut für Eisenforschung GmbH, Düsseldorf\n4 Gebr. Böhler & Co. AG, Düsseldorf-Oberkassel\n5 Deutsche Edelstahlwerke GmbH, Werk Bochum, Bochum\n6 Edelstahlwerk Witten AG, Witten (Ruhr)\n7 Fried. Krupp Hüttenwerke AG, Werk Bochum, Bochum\n8 Stahlwerke Röchling-Burbach GmbH, Völklingen-Saar\n9 Brown, Boveri & Cie. AG, Mannheim-Käfertal\n"
+}

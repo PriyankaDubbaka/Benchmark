@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-m504b",
+  "page": 4,
+  "pdf_sha256": "59f520a89850bb84e8ddcdbc1d44b47c1faa14e373343f86f0861db0cf87660f",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:31:19+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "Accepted as BAM-CRM on 2022-02-10\n\nBundesanstalt für Materialforschung und -prüfung (BAM)\n\n<!-- signature block read person by person, left then right -->\nDr. S. Richter\nCommittee for Certification\n\nDr. S. Recknagel\nProject Coordinator\n\n<!-- framed note, written as text; the DAkkS logo and the text inside it are left out -->\nBAM holds an accreditation as a reference material producer according to ISO 17034. This accreditation is valid only for the scope as specified in the certificate D-RM-11075-01-00.\nDAkkS is a signatory of the multilateral agreement (MLA) between EA, ILAC and IAF for mutual acceptance.\n\nThis Reference Material is offered by:\n\nBundesanstalt für Materialforschung und -prüfung (BAM)\nRichard-Willstätter-Str. 11, 12489 Berlin\n\n<!-- contact block read column by column -->\nPhone: +49 30 8104 2061\nFax: +49 30 8104 72061\n\nEmail: sales.crm@bam.de\nInternet: www.webshop.bam.de\n"
+}

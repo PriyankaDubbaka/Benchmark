@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-s012",
+  "page": 7,
+  "pdf_sha256": "68000d92a044cef80c2cf5ae6641d899ac57625953502308258004b6f797d3a9",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T13:04:00+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "## Annex 1: Method M1\n\n### Extraction Method for Measurement of B<sub>2</sub>O<sub>3</sub> content of TiB<sub>2</sub>\n\n### Summary\n\nSoluble boron compounds are extracted from a TiB<sub>2</sub> sub-sample with boiling water. The concentration of dissolved boron in the extract is measured using an appropriate analysis method and calculated as mass fraction of boron oxide w(B<sub>2</sub>O<sub>3</sub>) in the TiB<sub>2</sub> sub-sample.\n\n### Procedure\n\nDepending on the analysis method a sub-sample of 1 – 5 g of TiB<sub>2</sub> is weighed with a precision of ± 1 mg into a 250 mL Erlenmeyer flask with joint. 100 mL of deionized water is added, a condenser is connected to the joint of the Erlenmeyer flask and the TiB<sub>2</sub>/water suspension is gently boiled under reflux for 1 h. After extraction, the condenser is thoroughly rinsed with water into the Erlenmeyer flask, the condenser is removed, and the TiB<sub>2</sub>/water suspension is rapidly cooled down to room temperature by placing the Erlenmeyer flask into a bath with cold water.\n\n### Measurement\n\nFor measurement of boron concentration, the extract may be directly used (e.g. using titrimetric methods) or transferred into a volumetric flask (e.g. 250 mL) and filled up to volume with water. After sedimentation of the TiB<sub>2</sub> powder the clear supernatant shall be used for measurement of boron concentration (e.g. using photometric or spectrometric methods). The measured boron concentration is used to calculate the mass fraction of water-soluble boron w(B<sub>sol</sub>) in the TiB<sub>2</sub> sub-sample which is then expressed as mass fraction of boron oxide w(B<sub>2</sub>O<sub>3</sub>) according to $w(\\mathrm{B_2O_3}) = 3.22\\ x\\ w(\\mathrm{B_{sol}})$.\n"
+}

@@ -1,0 +1,13 @@
+{
+  "document_id": "erm-ae145",
+  "page": 3,
+  "pdf_sha256": "ffac22d2a8bd9bd221fa1783c8946ae2317b763eb64bbb163bc54dd6630b84d3",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:40:30+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "## LEGAL NOTICE\n\nNeither BAM, its contractors nor any person acting on their behalf:\n\n(a) make any warranty or representation, express or implied, that the use of any information, material, apparatus, method or process disclosed in this document does not infringe any privately owned intellectual property rights; or\n\n(b) assume any liability with respect to, or for damages resulting from, the use of any information, material, apparatus, method or process disclosed in this document save for loss or damage arising solely and directly from the negligence of BAM.\n\n## NOTE\n\nA detailed technical report describing the production, characterisation as well as the analytical procedures applied and the treatment of the analytical data used to certify ERM®-AE145 is available on request from BAM (https://www.bam.de).\n\nSupply of Reference Materials by: Bundesanstalt für Materialforschung und –prüfung (BAM)\nRichard-Willstätter-Str. 11, D-12489 Berlin, Germany\nPhone: +49 30 8104 2061 - Fax: +49 30 8104 72061\nE-mail: sales.crm@bam.de - Internet: www.bam.de\n"
+}

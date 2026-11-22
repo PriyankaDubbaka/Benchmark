@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-i012",
+  "page": 3,
+  "pdf_sha256": "79b2b899d61b6606115e8627e89a4556a807e563f2cf7f39b86c12259482c1e4",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:29:54+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "isotope ratios. BAM-I012, therefore is a primary isotopic reference material representing the highest metrological level for cadmium isotope ratio analysis.\n\nAll uncertainties are expanded measurement uncertainties with a coverage factor k = 2 and are calculated according to ISO and EURACHEM guidelines. They contain the repeatability of the measurement, the uncertainty of the determined correction factors for mass discrimination/mass fractionation as well as other contributions.\n\nThis Isotopic Reference Material is traceable to the international unit, SI, for amount of substance – the mole – in the shortest possible way. Measurements calibrated against this Isotopic Reference Material will, therefore, also be traceable to the SI\n\n## Literature\n\nBericht zur Herstellung und Zertifizierung eines Cadmium-Isotopenreferenzmaterials - Zertifiziertes Referenzmaterial BAM-I012 (J. Vogl, W. Pritzkow, May 2015)\n(Download: BAM homepage (www.bam.de) via links &lt;Reference Materials&gt; and &lt;Certificates and Reports&gt;)\n\nPritzkow W, Wunderli S, Vogl J, Fortunato G, The isotope abundances and the atomic weight of cadmium by a metrological approach, Int J Mass Spectrom 261 (2007) 74-85.\n\nBAM:2006 “Guidelines for the Production of BAM Reference Materials“\n(http://www.bam.de/en/fachthemen/referenzmaterialien/referenzmaterialien_medien/bam_rm_guidelines.pdf)\n\nAccepted as BAM-CRM on February 19, 2015\n\nBAM Federal Institute for Materials Research and Testing\n\n<!-- signature block read person by person, left then right -->\nProf. Dr. U. Panne\nHead of Department 1\nAnalytical Chemistry; Reference Materials\n\nDr. N. Jakubowski\nHead of Division 1.1\nInorganic Trace Analysis\n\nThis Reference Material is offered by:\n\nBAM Federal Institute for Materials Research and Testing\n\nRichard-Willstätter-Str. 11, D-12489 Berlin, Germany\n\n<!-- contact block read column by column -->\nTel: +49 30 8104 2061\nFax: +49 30 8104 1117\n\nE-Mail: sales.crm@bam.de\nInternet: www.webshop.bam.de\n"
+}

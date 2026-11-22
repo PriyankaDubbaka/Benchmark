@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-s012",
+  "page": 9,
+  "pdf_sha256": "68000d92a044cef80c2cf5ae6641d899ac57625953502308258004b6f797d3a9",
+  "status": "draft",
+  "kind": "formula",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:37:22+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "### Calculation\n\nThe acid insoluble residue w(R<sub>acid</sub>) in the TiB<sub>2</sub> sub-sample is calculated in mass fractions in % according to:\n\n$$w(\\mathrm{R}_{\\mathrm{acid}}) = \\frac{(m_2 - m_1) \\cdot 100}{m_\\mathrm{S}}$$\n\nwhere:\nm<sub>1</sub> = mass of empty membrane filter, mg\nm<sub>2</sub> = mass of membrane filter with residue, mg\nm<sub>S</sub> = sample mass, mg\n"
+}
