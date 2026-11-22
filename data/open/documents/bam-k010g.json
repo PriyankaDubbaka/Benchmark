@@ -1,0 +1,15 @@
+{
+  "document_id": "bam-k010g",
+  "pdf": "dataset/bam_k010g.pdf",
+  "sha256": "bf3bdcc508c53b18697c7a9197506437616c15ad21c0416d6615138cf483b6ce",
+  "page_count": 2,
+  "title": "BAM-K010g Mixture of diesel oil and lubricating oil",
+  "doc_type": "certificate",
+  "family_id": "bam-k010-series",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-11-22",
+  "notes": "Public BAM certificate (mineral oil calibration standard). Rights to redistribute not yet confirmed."
+}

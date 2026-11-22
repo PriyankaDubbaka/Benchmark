@@ -1,0 +1,15 @@
+{
+  "document_id": "bam-m504b",
+  "pdf": "dataset/erm_m504b_e.pdf",
+  "sha256": "59f520a89850bb84e8ddcdbc1d44b47c1faa14e373343f86f0861db0cf87660f",
+  "page_count": 4,
+  "title": "BAM-M504b Used automobile catalyst",
+  "doc_type": "certificate",
+  "family_id": "bam-m504-series",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-11-22",
+  "notes": "Public BAM certificate (precious metals in automobile catalyst). Rights to redistribute not yet confirmed."
+}

@@ -1,0 +1,15 @@
+{
+  "document_id": "erm-ae142",
+  "pdf": "dataset/erm_ae142e.pdf",
+  "sha256": "457206f2c3501201739d62dfb80f99e5ffa4eee11160e330a277dec8ad1b218a",
+  "page_count": 13,
+  "title": "ERM-AE142 Pb in nitric acid (1 mol/L)",
+  "doc_type": "certificate",
+  "family_id": "erm-ae142",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-11-22",
+  "notes": "Public ERM certificate issued by BAM (lead isotopes; includes safety data sheet). Rights to redistribute not yet confirmed."
+}

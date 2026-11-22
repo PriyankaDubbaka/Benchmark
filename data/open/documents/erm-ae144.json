@@ -1,0 +1,15 @@
+{
+  "document_id": "erm-ae144",
+  "pdf": "dataset/erm_ae144e.pdf",
+  "sha256": "e7fa4fe486538698c1d7a012ae7f843e6d24f09fd6517317f21c489dcf487c40",
+  "page_count": 3,
+  "title": "ERM-AE144 Mg in nitric acid (2 %, w/w)",
+  "doc_type": "certificate",
+  "family_id": "erm-ae144",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-11-22",
+  "notes": "Public ERM certificate issued by BAM (magnesium isotopes). Rights to redistribute not yet confirmed."
+}

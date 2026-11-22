@@ -1,0 +1,15 @@
+{
+  "document_id": "bam-s008",
+  "pdf": "dataset/bam_s008e.pdf",
+  "sha256": "3cafb6306446d479b6ea29dc4047347b4df0c6cfb8b8257410c03b4404a15ef4",
+  "page_count": 8,
+  "title": "BAM-S008 Silicon carbide powder (transparent 200/F)",
+  "doc_type": "certificate",
+  "family_id": "bam-s008",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-11-22",
+  "notes": "Public BAM certificate (silicon carbide composition). Rights to redistribute not yet confirmed."
+}

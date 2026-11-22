@@ -1,0 +1,15 @@
+{
+  "document_id": "bam-i012",
+  "pdf": "dataset/bam_i012e.pdf",
+  "sha256": "79b2b899d61b6606115e8627e89a4556a807e563f2cf7f39b86c12259482c1e4",
+  "page_count": 13,
+  "title": "BAM-I012 Cadmium in dilute nitric acid",
+  "doc_type": "certificate",
+  "family_id": "bam-i012",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-11-22",
+  "notes": "Public BAM certificate (cadmium isotopes; includes safety data sheet). Rights to redistribute not yet confirmed."
+}

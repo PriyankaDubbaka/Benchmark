@@ -1,0 +1,15 @@
+{
+  "document_id": "erm-eb400",
+  "pdf": "dataset/erm_eb400e.pdf",
+  "sha256": "b5665b0361207c9c347bd8669121e89aafb8594332712f7856bd88834643dfc6",
+  "page_count": 3,
+  "title": "ERM-EB400 Pb in bronze",
+  "doc_type": "certificate",
+  "family_id": "erm-eb400",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-11-22",
+  "notes": "Public ERM certificate issued by BAM (lead isotopes in bronze). Rights to redistribute not yet confirmed."
+}

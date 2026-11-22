@@ -1,0 +1,15 @@
+{
+  "document_id": "bam-s012",
+  "pdf": "dataset/bam_s012e.pdf",
+  "sha256": "68000d92a044cef80c2cf5ae6641d899ac57625953502308258004b6f797d3a9",
+  "page_count": 9,
+  "title": "BAM-S012 Titanium diboride powder",
+  "doc_type": "certificate",
+  "family_id": "bam-s012",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-11-22",
+  "notes": "Public BAM certificate (titanium diboride composition). Rights to redistribute not yet confirmed."
+}
