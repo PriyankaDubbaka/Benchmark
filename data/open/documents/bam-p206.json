@@ -1,0 +1,15 @@
+{
+  "document_id": "bam-p206",
+  "pdf": "dataset/P206_Datenblatt_v8_final.pdf",
+  "sha256": "8e35084495d792d931b13b49d90bc859ff22ebaa62d6da2ff7d690eb41fa9f81",
+  "page_count": 5,
+  "title": "BAM-P206 Polyethylene terephthalate (microplastic powder)",
+  "doc_type": "certificate",
+  "family_id": "bam-p206",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-11-22",
+  "notes": "Public BAM certificate (PET microplastic particle size; reference material document, not certified). Rights to redistribute not yet confirmed."
+}

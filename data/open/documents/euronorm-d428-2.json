@@ -1,0 +1,15 @@
+{
+  "document_id": "euronorm-d428-2",
+  "pdf": "dataset/d428_2de.pdf",
+  "sha256": "a1069e624e04ceadaa620609bdb66441a705bf5f096678927ebf1f15f9466269",
+  "page_count": 8,
+  "title": "EURONORM-ZRM 428-2 Gusseisen (cast iron)",
+  "doc_type": "certificate",
+  "family_id": "euronorm-d428-2",
+  "department": "BAM reference materials",
+  "language": "de",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-11-22",
+  "notes": "Public EURONORM-CRM certificate co-issued by BAM (cast iron; German scanned pages 1-4, English text pages 5-8). Rights to redistribute not yet confirmed."
+}

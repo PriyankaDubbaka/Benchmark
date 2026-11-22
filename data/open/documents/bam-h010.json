@@ -1,0 +1,15 @@
+{
+  "document_id": "bam-h010",
+  "pdf": "dataset/bam_h010de.pdf",
+  "sha256": "0670dfe72cfd52e560b147e15c4210410163b8d28e374e8baf6f356903409e4b",
+  "page_count": 31,
+  "title": "BAM-H010 Acrylnitril-Butadien-Styrol-Copolymerisat (ABS)",
+  "doc_type": "certificate",
+  "family_id": "bam-h010",
+  "department": "BAM reference materials",
+  "language": "de",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-11-22",
+  "notes": "Public BAM certificate (elements in ABS; German, includes safety data sheet). Rights to redistribute not yet confirmed."
+}

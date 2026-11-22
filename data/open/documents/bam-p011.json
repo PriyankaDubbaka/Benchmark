@@ -1,0 +1,15 @@
+{
+  "document_id": "bam-p011",
+  "pdf": "dataset/bam_p011e.pdf",
+  "sha256": "a8cfe74b2b1297ec6fa2f1e154aa44171a13086b9db50ee22fecc2aa0931b2ea",
+  "page_count": 2,
+  "title": "BAM-P011 Molar mass and intrinsic viscosity of polystyrene",
+  "doc_type": "certificate",
+  "family_id": "bam-p011",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-11-22",
+  "notes": "Public BAM certificate (polystyrene molar mass). Rights to redistribute not yet confirmed."
+}
