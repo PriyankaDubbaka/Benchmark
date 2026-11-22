@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-u200",
+  "page": 3,
+  "pdf_sha256": "ef2f149413337061234379e06d06116737f3f8db087a6f38f9a3bcb07f440c4f",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:38:21+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "## Recommended Use\n\nThe purpose of CRM BAM-U200 is to verify analytical results for total mass fractions and aqua regia extractable mass fractions of listed elements in sewage sludge ash.\nApproximately 0.2 g of material should be used for a wet chemical analysis.\n\n## Handling\n\nWhen handling the sample, the bottle should be left open for as short a time as possible. Care should be taken not to absorb moisture after opening the bottle. The material should be used as it comes out of the bottle. However, it is recommended to re-homogenize by manually shaking the closed bottle before taking a partial sample.\n\n## Transport and Storage\n\nAfter receipt, the material should be stored at a temperature below 25 °C in the tightly closed original bottle. BAM cannot be held responsible for changes that occur during storage of the material at the customer's site, especially with opened samples.\n\n## Participating Laboratories\n\nCertification took place at various laboratories within BAM.\n"
+}

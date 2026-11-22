@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-h010",
+  "page": 4,
+  "pdf_sha256": "0670dfe72cfd52e560b147e15c4210410163b8d28e374e8baf6f356903409e4b",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "de",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:28:39+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "## Metrologische Rückführung\n\nDie Rückführung des ZRM erfolgt für die Elemente Cr, Cd und Pb über die Bestimmung mittels IDMS auf die hochreinen Rückspikes und damit direkt auf das SI. Der Beitrag u<sub>Kalibrierung</sub> der Rückführungskette zur Gesamtunsicherheit des ZRM setzt sich aus der Unsicherheit der Merkmalswerte der Rückspikes und der Hälfte der verbleibenden Differenz zwischen zertifizierten und den mit der IDMS ermittelten Werten zusammen. Für das Element Br bildet die NAA die Grundlage der Rückführung. Die Ermittlung des Beitrages zur Gesamtunsicherheit des ZRM erfolgt in gleicher Weise.\n\n## Literatur\n\nBericht zur Zertifizierung der Massenanteile von Chrom, Brom, Cadmium und Blei in Acrylnitril-Butadien-Styrol Copolymerisat (ABS), 2010, M. Ostermann, http://www.rm-certificates.bam.de/de/certificates/index.htm\n\nBAM:2006 “Guidelines for the Production of BAM Reference Materials“ http://www.bam.de/de/fachthemen/referenzmaterialien/index.htm\n\nAkzeptiert als BAM-ZRM am\n\nBAM Bundesanstalt für Materialforschung und -prüfung\n\n<!-- signature block read person by person, left then right -->\nProf. Dr. U. Panne\nLeiter der Abteilung I.\nAnalytische Chemie, Referenzmaterialien\n\nDr. M. Maiwald\nLeiter der Fachgruppe I.4\nProzessanalytik\n\nVerkauf dieses Referenzmaterials:\n\nBAM Bundesanstalt für Materialforschung und -prüfung\n\nRichard-Willstätter-Straße 11, 12489 Berlin\n\n<!-- contact block read column by column -->\nTel: 030 8104 2061\nFax: 030 8104 1117\n\nE-Mail: sales.crm@bam.de\nInternet: www.webshop.bam.de\n"
+}

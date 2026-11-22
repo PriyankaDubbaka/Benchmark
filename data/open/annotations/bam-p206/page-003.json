@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-p206",
+  "page": 3,
+  "pdf_sha256": "8e35084495d792d931b13b49d90bc859ff22ebaa62d6da2ff7d690eb41fa9f81",
+  "status": "draft",
+  "kind": "figure",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:33:21+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "### Attenuated total reflection – Fourier transform infrared spectroscopy (ATR-FTIR)\n\n<!-- spectrum: peak labels, axis labels and tick values inside the figure are left out -->\nATR-FTIR spectrum of RM BAM-P206. Average value spectrum of 32 scans of BAM-P206 by Attenuated total reflection – Fourier transform infrared spectroscopy (Nicolet Nexus 6700 FTIR spectrometer equipped with SmartOrbit Diamond and DTGS Detector, ThermoScientific, USA).\n\n### Differential scanning calorimetry (DSC)\n\n<!-- thermogram: the T_g and T_m labels, axis labels and tick values inside the figure are left out -->\nMeasurement of BAM-P206 by Differential scanning calorimetry (DSC 7020, Seiko, THASS, Germany) with a constant heating rate of 10 K/min.\n"
+}

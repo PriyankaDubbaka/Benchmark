@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-b002",
+  "page": 2,
+  "pdf_sha256": "acf6b3810ba24270264a5330e1dace8756bc37016b84ff5121f41bdc4eb23e29",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:26:57+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "## Material Description\n\nThe certified reference material (CRM) BAM-B002 is available as milled plastics material of consumer products containing different phthalates. Each unit of BAM-B002 contains (2.7 ± 0.5) g of the material in a 7 mL amber glass bottle, sealed with a screw cap with PTFE insert. Further details on the production and characterization of BAM-B002 are described in the certification report.\n\n## Recommended Use\n\nThe intended purpose of BAM-B002 is the verification of analytical results and validation of analytical methods for the determination of phthalates in plastics. This CRM may also be applicable for the analysis of other similar materials.\n\n## Handling\n\nBefore taking a subsample, the bottle must have reached ambient temperature and re-homogenization <!-- printed re-/homogenization across a line break; hyphen kept --> by manual stirring or shaking of the closed bottle is recommended. The minimum sample intake for one determination is 0.2 g.\n\n## Transport and Storage\n\nBAM-B002 can be shipped at ambient temperature. Upon receipt, the material must be stored at a temperature of +4 °C or below in its original tightly closed bottle. The stability is not affected by short periods of handling at ambient temperature during transport and use. However, BAM cannot be held responsible for changes that happen during storage of the material at the customer's premises, especially of opened bottles.\n\n## Safety Information\n\nAny use other than intended should be avoided. The usual laboratory safety precautions have to be applied. No hazardous effects are to be expected when the material is used under conditions commonly adopted for the analysis of such milled textile samples. It is strongly recommended that the reference material be handled and disposed of in accordance with the guidelines for hazardous materials legally in force at the site of end use and disposal.\n\n## Analytical Methods\n\nDifferent methods have been used for sample preparation including extraction of the phthalates from BAM-B002. Instrumental analysis was performed by gas chromatographic separation with mass spectrometric detection (GC-MS and GC-MS/MS) using the corresponding isotopically labeled phthalates as internal standards.\n"
+}

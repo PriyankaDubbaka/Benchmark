@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-b001",
+  "page": 3,
+  "pdf_sha256": "c1b9df81e252208b7a707c614da0d0141e5c8aa8e6cfe966c825ac077844dca8",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:26:24+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "## Technical Report\n\nA detailed technical report describing the preparation, the analytical procedures and the treatment of the analytical data used to certify BAM-B001 is available on request or can be downloaded from the BAM website (www.bam.de).\n\n## Legal Notice\n\nNeither BAM, its contractors nor any person acting on their behalf:\n\n(a) make any warranty or representation, express or implied, that the use of any information, material, apparatus, method or process disclosed in this document does not infringe any privately-owned intellectual property rights; or\n\n(b) assume any liability with respect to, or for damages resulting from the use of any information, material, apparatus, method or process disclosed in this document save for loss or damage arising solely and directly from the negligence of BAM.\n\nAccepted as BAM-CRM on 21 August 2020\n\nBundesanstalt für Materialforschung und –prüfung (BAM)\n\n<!-- signature block read person by person, left then right -->\nDr. S. Richter\nCommittee for Certification\n\nDr. M. Koch\nProject Coordinator\n\nThis reference material is supplied by:\n\nBundesanstalt für Materialforschung und –prüfung (BAM)\nRichard-Willstätter-Str. 11, D-12489 Berlin, Germany\n\n<!-- contact block read column by column -->\nPhone: +49 30 8104 2061\nFax: +49 30 8104 72061\n\nE-mail: sales.crm@bam.de\nInternet: www.webshop.bam.de\n"
+}
