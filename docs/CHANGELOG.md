@@ -8,6 +8,7 @@ Every change that can move a score, change what is published, or change how a ru
 
 **Systems**
 
+- DeepSeek-OCR 2 runs with an 8,192-token context, its model limit. vLLM refused to start it at 12,288. Every other card was checked against its model's `max_position_embeddings` and is within it.
 - 17 more general vision models, none run yet: Qwen3-VL-2B, Qwen3.5-0.8B, Gemma 4 E2B, InternVL3.5-4B and 2B, Molmo2-4B, Ovis2.5-2B and 9B, Ovis2.6-30B-A3B, Kimi-VL-A3B-Instruct, MiMo-VL-7B-RL-2508, Keye-VL-1.5-8B, Bee-8B-RL, Step3-VL-10B, LLaVA-OneVision-2-8B, Nemotron Nano 12B v2 VL and ERNIE 4.5 VL 28B-A3B. Each architecture is in vLLM 0.32.
 - New card key `prompt_suffix`, appended to every prompt. MiMo-VL and Keye-VL use it for the `/no_think` tag that switches their thinking off. No existing card changes, so no score moves.
 - The watchlist gains the models looked at and left out this round, with the reason for each.
