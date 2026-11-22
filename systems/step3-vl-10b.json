@@ -1,0 +1,31 @@
+{
+  "id": "step3-vl-10b",
+  "name": "Step3-VL-10B",
+  "kind": "vllm",
+  "model": "stepfun-ai/Step3-VL-10B",
+  "publisher": "StepFun",
+  "released": "2026-01",
+  "license": "Apache-2.0",
+  "params": "10B",
+  "weights_gb": 20.4,
+  "slice": "40 GB",
+  "gpu": "about 11 GB in 8-bit",
+  "serve": "vllm serve stepfun-ai/Step3-VL-10B --trust-remote-code --quantization fp8 --max-model-len 32768 --max-num-seqs 8",
+  "max_tokens": 16384,
+  "extra_body": {
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  },
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/stepfun-ai/Step3-VL-10B",
+  "paper": "https://arxiv.org/abs/2601.09668",
+  "notes": "Reasoning vision model on Qwen3-8B with a 1.8B encoder. The project page lists OCRBench 86.8 and multilingual CC-OCR 76.6. The card does not say how to switch thinking off, so the request asks for it anyway and allows 16,384 output tokens; reasoning blocks are stripped. On a 40 GB slice for that longer context. Read its cut-off count with the score. Not yet run on BAM hardware.",
+  "status_note": "Not run yet. Needs the weights on sv1223."
+}

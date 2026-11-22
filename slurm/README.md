@@ -55,6 +55,13 @@ benchmark sends one page at a time and the default of 256 does not fit a small s
 | InternVL3.5-14B, Molmo2-8B | 30 to 35 GB on disk | 40 GB, loaded in 8-bit |
 | Qwen3.5-27B-FP8 | about 29 GB | 40 GB, short context |
 | Gemma 4 31B (4-bit) | 63 GB on disk, about 18 GB loaded | 40 GB, quantised on load with bitsandbytes |
+| Qwen3.5-0.8B, Qwen3-VL-2B, InternVL3.5-2B, Ovis2.5-2B | 2 to 5 GB | 20 GB |
+| InternVL3.5-4B, Gemma 4 E2B | about 10 GB | 20 GB |
+| Nemotron Nano 12B v2 VL (FP8) | about 14 GB | 20 GB, NVIDIA's own FP8 release |
+| Ovis2.5-9B, MiMo-VL-7B, Keye-VL-1.5-8B, Bee-8B, LLaVA-OneVision-2-8B | 17 to 19 GB | 20 GB, loaded in 8-bit |
+| Molmo2-4B | 18 GB on disk (32-bit) | 20 GB, loaded in 8-bit; 40 GB if the KV cache is too small |
+| Kimi-VL-A3B-Instruct, Step3-VL-10B | 20 to 33 GB | 40 GB, loaded in 8-bit (Step3 for its longer output) |
+| ERNIE 4.5 VL 28B-A3B, Ovis2.6-30B-A3B | 58 to 62 GB on disk, about 30 GB loaded | 40 GB, 8-bit, 8,192 context, tight |
 
 A card can set `env` for variables vLLM needs, such as DeepSeek-OCR 2's Triton switch. The
 `serve` line is run through the shell, so it may quote JSON arguments and use `~`.

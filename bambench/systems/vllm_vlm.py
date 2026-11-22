@@ -100,6 +100,9 @@ class VllmVlm(System):
     def _chat(self, image_b64: str, prompt: str) -> str:
         if not allowed_host(self.base_url):
             raise PermissionError(f"Refusing to send document pages to {self.base_url}")
+        # A few models (MiMo-VL, Keye-VL) switch thinking off with a tag that must end the user message.
+        if prompt and self.card.get("prompt_suffix"):
+            prompt += self.card["prompt_suffix"]
         body = {
             "model": self.served_name,
             "temperature": 0,

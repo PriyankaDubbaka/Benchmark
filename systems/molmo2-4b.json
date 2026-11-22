@@ -1,0 +1,24 @@
+{
+  "id": "molmo2-4b",
+  "name": "Molmo2-4B",
+  "kind": "vllm",
+  "model": "allenai/Molmo2-4B",
+  "publisher": "Ai2",
+  "released": "2025-12",
+  "license": "Apache-2.0 (training data partly research-only)",
+  "params": "4B",
+  "weights_gb": 18,
+  "slice": "20 GB",
+  "gpu": "about 5 GB in 8-bit",
+  "serve": "vllm serve allenai/Molmo2-4B --trust-remote-code --dtype bfloat16 --quantization fp8 --max-model-len 12288 --max-num-seqs 16 --max-num-batched-tokens 16384",
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/allenai/Molmo2-4B",
+  "notes": "Small fully open Molmo2 on a Qwen3-4B backbone, same flags as Molmo2-8B. Weights are stored in 32-bit, so the download is about four times the 8-bit size. The 8B left no room for context on 20 GB; the 4B is about 4 GB smaller, so it is tried on 20 GB first. Resubmit on 40 GB if the KV cache is too small. Not yet run on BAM hardware.",
+  "status_note": "Not run yet. Needs the weights on sv1223."
+}

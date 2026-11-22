@@ -1,0 +1,25 @@
+{
+  "id": "nemotron-nano-12b-v2-vl",
+  "name": "Nemotron Nano 12B v2 VL (FP8)",
+  "kind": "vllm",
+  "model": "nvidia/NVIDIA-Nemotron-Nano-12B-v2-VL-FP8",
+  "publisher": "NVIDIA",
+  "released": "2025-10",
+  "license": "NVIDIA Open Model License (commercial use allowed; not an OSI licence)",
+  "params": "12.6B",
+  "weights_gb": 14,
+  "slice": "20 GB",
+  "gpu": "about 14 GB FP8",
+  "serve": "vllm serve nvidia/NVIDIA-Nemotron-Nano-12B-v2-VL-FP8 --trust-remote-code --max-model-len 16384 --max-num-seqs 16",
+  "handles": {
+    "tables": true,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/nvidia/NVIDIA-Nemotron-Nano-12B-v2-VL-FP8",
+  "paper": "https://arxiv.org/abs/2511.03929",
+  "notes": "Hybrid Mamba-Transformer built for document intelligence. NVIDIA lists DocVQA 94.4, OCRBench v2 62.0 and table data among its training sets. Reasoning is off by default. NVIDIA's FP8 release, so no quantising on load; the Mamba layers keep the context cache small. The card states English as its language. The licence allows commercial use but ends if built-in guardrails are bypassed; have legal confirm before publishing scores. Not yet run on BAM hardware.",
+  "status_note": "Not run yet. Needs the weights on sv1223."
+}
