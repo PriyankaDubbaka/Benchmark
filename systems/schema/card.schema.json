@@ -72,6 +72,10 @@
       "type": "string",
       "description": "Prompt sent with each page image; empty sends the image alone."
     },
+    "prompt_suffix": {
+      "type": "string",
+      "description": "Text appended to every prompt sent with a page, such as a /no_think tag that switches thinking off."
+    },
     "output": {
       "type": "string",
       "description": "Converter turning the model's native output into Markdown (see bambench.systems.outputs)."

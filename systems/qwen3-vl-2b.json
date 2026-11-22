@@ -1,0 +1,24 @@
+{
+  "id": "qwen3-vl-2b",
+  "name": "Qwen3-VL-2B",
+  "kind": "vllm",
+  "model": "Qwen/Qwen3-VL-2B-Instruct",
+  "publisher": "Alibaba Qwen",
+  "released": "2025-10",
+  "license": "Apache-2.0",
+  "params": "2B",
+  "weights_gb": 4.5,
+  "slice": "20 GB",
+  "gpu": "about 5 GB",
+  "serve": "vllm serve Qwen/Qwen3-VL-2B-Instruct --max-model-len 16384 --max-num-seqs 16 --limit-mm-per-prompt.video 0 --mm-processor-cache-gb 0",
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct",
+  "notes": "Smallest Qwen3-VL, same prompt and flags as Qwen3-VL-4B. Completes the 2B, 4B, 8B size series. Not yet run on BAM hardware.",
+  "status_note": "Not run yet. Needs the weights on sv1223."
+}
