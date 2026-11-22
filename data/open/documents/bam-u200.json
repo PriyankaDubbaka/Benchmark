@@ -1,0 +1,15 @@
+{
+  "document_id": "bam-u200",
+  "pdf": "dataset/bam_u200e.pdf",
+  "sha256": "ef2f149413337061234379e06d06116737f3f8db087a6f38f9a3bcb07f440c4f",
+  "page_count": 8,
+  "title": "BAM-U200 Iron-rich sewage sludge ash",
+  "doc_type": "certificate",
+  "family_id": "bam-u200",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-11-22",
+  "notes": "Public BAM certificate (sewage sludge ash composition). Rights to redistribute not yet confirmed."
+}

@@ -1,0 +1,15 @@
+{
+  "document_id": "bam-s004",
+  "pdf": "dataset/bam_s004e.pdf",
+  "sha256": "3342a3b6761c467568ab75aecc6c6bf7f64441b7a955535500b062fa7e52012c",
+  "page_count": 4,
+  "title": "BAM-S004 Glass containing hexavalent chromium",
+  "doc_type": "certificate",
+  "family_id": "bam-s004",
+  "department": "BAM reference materials",
+  "language": "en",
+  "split": "dev",
+  "rights_status": "public_access_confirmed_redistribution_permission_unverified",
+  "added": "2026-11-22",
+  "notes": "Public BAM certificate (hexavalent chromium in glass). Rights to redistribute not yet confirmed."
+}
