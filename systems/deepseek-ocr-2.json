@@ -10,7 +10,7 @@
   "weights_gb": 7,
   "slice": "20 GB",
   "gpu": "about 8 GB",
-  "serve": "vllm serve deepseek-ai/DeepSeek-OCR-2 --trust-remote-code --logits_processors vllm.model_executor.models.deepseek_ocr:NGramPerReqLogitsProcessor --max-model-len 12288 --no-enable-prefix-caching --mm-processor-cache-gb 0",
+  "serve": "vllm serve deepseek-ai/DeepSeek-OCR-2 --trust-remote-code --logits_processors vllm.model_executor.models.deepseek_ocr:NGramPerReqLogitsProcessor --max-model-len 8192 --no-enable-prefix-caching --mm-processor-cache-gb 0",
   "page_prompt": "<|grounding|>Convert the document to markdown.",
   "output": "deepseek_grounding",
   "handles": {
@@ -21,7 +21,7 @@
     "layout": true
   },
   "source": "https://huggingface.co/deepseek-ai/DeepSeek-OCR-2",
-  "notes": "Single call, with the n-gram repetition guard and table-tag whitelist from the vLLM recipe (the first run had neither and scored 0.20 with tables near zero). Grounding tags around each block are stripped before scoring. Needs TRITON_ALLOW_NON_CONSTEXPR_GLOBALS=1 with vLLM 0.32, set under env.",
+  "notes": "Single call, with the n-gram repetition guard and table-tag whitelist from the vLLM recipe (the first run had neither and scored 0.20 with tables near zero). Grounding tags around each block are stripped before scoring. Needs TRITON_ALLOW_NON_CONSTEXPR_GLOBALS=1 with vLLM 0.32, set under env. The model's context is 8,192 tokens (max_position_embeddings), so vLLM refused the earlier 12288; the page image and the reply now share 8,192, and vLLM trims the reply budget to what is left.",
   "env": {
     "TRITON_ALLOW_NON_CONSTEXPR_GLOBALS": "1"
   },
