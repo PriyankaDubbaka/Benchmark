@@ -1,0 +1,26 @@
+{
+  "id": "mimo-vl-7b-rl-2508",
+  "name": "MiMo-VL-7B-RL-2508",
+  "kind": "vllm",
+  "model": "XiaomiMiMo/MiMo-VL-7B-RL-2508",
+  "publisher": "Xiaomi",
+  "released": "2025-08",
+  "license": "MIT (card adds a use-restrictions list)",
+  "params": "8B",
+  "weights_gb": 17,
+  "slice": "20 GB",
+  "gpu": "about 9 GB in 8-bit",
+  "serve": "vllm serve XiaomiMiMo/MiMo-VL-7B-RL-2508 --quantization fp8 --max-model-len 16384 --max-num-seqs 16",
+  "prompt_suffix": " /no_think",
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/XiaomiMiMo/MiMo-VL-7B-RL-2508",
+  "paper": "https://arxiv.org/abs/2506.03569",
+  "notes": "Qwen2.5-VL architecture, trained further with RL. It thinks by default; /no_think at the end of the message switches that off, which the card says works on 99.8% of requests. Any <think> block that still appears is stripped. Loaded in 8-bit. Not yet run on BAM hardware.",
+  "status_note": "Not run yet. Needs the weights on sv1223."
+}

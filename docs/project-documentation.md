@@ -130,9 +130,9 @@ The dashboard has an overview, a leaderboard with views, filters, export and two
 
 ## 6. Systems
 
-39 system cards on 10 November 2026: one text-layer baseline, one classical layout pipeline, and 37 cards for open-weight vision models from 0.26 to 31 billion parameters (two of the 37 are decoding variants of a model that is already listed). Publishers include Alibaba, Google, Mistral AI, LightOn, IBM, Z.ai, Baidu, Ai2, Shanghai AI Lab, Microsoft, OpenBMB, DeepSeek, rednote and Hugging Face.
+56 system cards on 22 November 2026: one text-layer baseline, one classical layout pipeline, and 54 cards for open-weight vision models from 0.26 to 31 billion parameters (two of the 54 are decoding variants of a model that is already listed). Publishers include Alibaba, Google, Mistral AI, LightOn, IBM, Z.ai, Baidu, Ai2, Shanghai AI Lab, Microsoft, OpenBMB, DeepSeek, rednote, Hugging Face, Moonshot AI, Xiaomi, Kuaishou, StepFun, NVIDIA, Open-Bee and LMMs-Lab.
 
-The weights are published under Apache-2.0 or MIT. Four cards note extra conditions: a separate licence agreement for dots.mocr, toolkit terms for MinerU, a research and education note on olmOCR 2, and research-only training data for one model. Three older cards still say that the licence must be verified on the model card. The Poppler baseline is GPL-2.0.
+The weights are published under Apache-2.0 or MIT, except Nemotron Nano 12B v2 VL, which is under the NVIDIA Open Model License (commercial use allowed, ends if built-in guardrails are bypassed). Five cards note extra conditions: a separate licence agreement for dots.mocr, toolkit terms for MinerU, a research and education note on olmOCR 2, a use-restrictions list on MiMo-VL, and research-only training data for the Molmo2 models. Three older cards still say that the licence must be verified on the model card. The Poppler baseline is GPL-2.0.
 
 Models whose licence excludes the EU, or which need an outside API, are not in the benchmark. `systems/watchlist/models.json` keeps the list and the reason for each. A model's licence was read from its model card when the system card was written; BAM's legal office has not reviewed them.
 

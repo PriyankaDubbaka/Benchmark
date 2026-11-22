@@ -1,0 +1,30 @@
+{
+  "id": "bee-8b-rl",
+  "name": "Bee-8B-RL",
+  "kind": "vllm",
+  "model": "Open-Bee/Bee-8B-RL",
+  "publisher": "Open-Bee",
+  "released": "2025-10",
+  "license": "Apache-2.0",
+  "params": "9B",
+  "weights_gb": 18,
+  "slice": "20 GB",
+  "gpu": "about 10 GB in 8-bit",
+  "serve": "vllm serve Open-Bee/Bee-8B-RL --trust-remote-code --quantization fp8 --max-model-len 16384 --max-num-seqs 16",
+  "extra_body": {
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  },
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/Open-Bee/Bee-8B-RL",
+  "paper": "https://arxiv.org/abs/2510.13795",
+  "notes": "Fully open model (data, code and weights) on Qwen3-8B, a second open-data point next to Molmo2. The card claims strong document and chart understanding. Thinking is off. Loaded in 8-bit. Not yet run on BAM hardware.",
+  "status_note": "Not run yet. Needs the weights on sv1223."
+}

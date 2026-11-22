@@ -1,0 +1,29 @@
+{
+  "id": "qwen3.5-0.8b",
+  "name": "Qwen3.5-0.8B",
+  "kind": "vllm",
+  "model": "Qwen/Qwen3.5-0.8B",
+  "publisher": "Alibaba Qwen",
+  "released": "2026-02",
+  "license": "Apache-2.0",
+  "params": "0.8B",
+  "weights_gb": 2,
+  "slice": "20 GB",
+  "gpu": "about 2 GB",
+  "serve": "vllm serve Qwen/Qwen3.5-0.8B --max-model-len 16384 --max-num-seqs 16",
+  "extra_body": {
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  },
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/Qwen/Qwen3.5-0.8B",
+  "notes": "Smallest Qwen3.5 and the backbone of MiniCPM-V 4.6, so the two rows show what OpenBMB's vision tuning adds. Thinking is off. Not yet run on BAM hardware.",
+  "status_note": "Not run yet. Needs the weights on sv1223."
+}

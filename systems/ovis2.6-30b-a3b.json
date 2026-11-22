@@ -1,0 +1,29 @@
+{
+  "id": "ovis2.6-30b-a3b",
+  "name": "Ovis2.6-30B-A3B (8-bit)",
+  "kind": "vllm",
+  "model": "ATH-MaaS/Ovis2.6-30B-A3B",
+  "publisher": "Alibaba AIDC (Ovis team, now ATH-MaaS)",
+  "released": "2026-06",
+  "license": "Apache-2.0",
+  "params": "30B (3B active)",
+  "weights_gb": 62,
+  "slice": "40 GB",
+  "gpu": "about 31 GB in 8-bit",
+  "serve": "vllm serve ATH-MaaS/Ovis2.6-30B-A3B --trust-remote-code --quantization fp8 --max-model-len 8192 --max-num-seqs 4",
+  "extra_body": {
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    }
+  },
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/ATH-MaaS/Ovis2.6-30B-A3B",
+  "notes": "Newest Ovis, a mixture of experts with about 3B active per token. The card names reinforced OCR, document and chart abilities. Tight: about 31 GB in 8-bit leaves a few GB for context on a 40 GB slice, hence the short context and 4 sequences. Thinking is off. A 62 GB download. Not yet run on BAM hardware.",
+  "status_note": "Not run yet. Needs the weights on sv1223."
+}

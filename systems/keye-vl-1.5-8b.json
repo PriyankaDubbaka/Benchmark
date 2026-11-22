@@ -1,0 +1,26 @@
+{
+  "id": "keye-vl-1.5-8b",
+  "name": "Keye-VL-1.5-8B",
+  "kind": "vllm",
+  "model": "Kwai-Keye/Keye-VL-1_5-8B",
+  "publisher": "Kuaishou (Kwai Keye team)",
+  "released": "2025-08",
+  "license": "Apache-2.0",
+  "params": "9B",
+  "weights_gb": 18,
+  "slice": "20 GB",
+  "gpu": "about 10 GB in 8-bit",
+  "serve": "vllm serve Kwai-Keye/Keye-VL-1_5-8B --trust-remote-code --quantization fp8 --max-model-len 16384 --max-num-seqs 16",
+  "prompt_suffix": " /no_think",
+  "handles": {
+    "tables": null,
+    "formulas": null,
+    "handwriting": null,
+    "german": null,
+    "layout": null
+  },
+  "source": "https://huggingface.co/Kwai-Keye/Keye-VL-1_5-8B",
+  "paper": "https://arxiv.org/abs/2509.01563",
+  "notes": "Qwen3-8B with a SigLIP encoder, tuned mostly for video and reasoning; documents are not a stated focus. It decides by itself whether to think, so /no_think ends each prompt. Loaded in 8-bit. Not yet run on BAM hardware.",
+  "status_note": "Not run yet. Needs the weights on sv1223."
+}
