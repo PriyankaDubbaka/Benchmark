@@ -8,8 +8,12 @@
   "family_id": "bam-h010",
   "department": "BAM reference materials",
   "language": "de",
+  "languages": [
+    "de",
+    "en"
+  ],
   "split": "dev",
   "rights_status": "public_access_confirmed_redistribution_permission_unverified",
   "added": "2026-11-22",
-  "notes": "Public BAM certificate (elements in ABS; German, includes safety data sheet). Rights to redistribute not yet confirmed."
+  "notes": "Public BAM certificate (elements in ABS; includes safety data sheets). Mixed language: German pages 1-4 and 9-20, English pages 5-8 and 21-31. Rights to redistribute not yet confirmed."
 }
