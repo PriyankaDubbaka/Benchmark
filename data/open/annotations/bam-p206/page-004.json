@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-p206",
+  "page": 4,
+  "pdf_sha256": "8e35084495d792d931b13b49d90bc859ff22ebaa62d6da2ff7d690eb41fa9f81",
+  "status": "draft",
+  "kind": "mixed",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:33:21+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "<table>\n<tr><td>Parameter</td><td>Temperature in °C</td><td>Standard deviation s in °C</td><td>Rel. standard deviation s in %</td></tr>\n<tr><td>Glass transition temperature T<sub>g</sub></td><td>78.5</td><td>0.5</td><td>0.7</td></tr>\n<tr><td>Melting temperature T<sub>m</sub></td><td>247.87</td><td>0.03</td><td>0.01</td></tr>\n</table>\n\nAverage values for glass transition T<sub>G</sub> and melting temperature T<sub>m</sub> of BAM-P206 determined from three DSC measurements at a heating rate of 10 K/min.\n\n## End of Validity\n\nThis document is valid for two years after dispatch, provided that the reference material is stored under the recommended conditions.\n\nDate of dispatch: <!-- followed by a blank line to fill in -->\n\n## Material Description\n\nThe reference material BAM-P206 consists of PET powder and is delivered in an amber glass bottle with metal lid. The seal in the metal lid is made of silicone and polytetrafluorethylene. The bottled mass is at least 1.0 g.\n\n## Recommended Use\n\nBAM-P206 is developed as a reference material close to reality for the validation of sampling, sample preparation and detection of microplastics. It can be used either for the evaluation of effects in the field of ecotoxicology or human toxicology, pollutant transport and agglomeration behaviour related to microplastics.\n\n## Transport, Storage and Handling\n\nBAM-P206 can be transported at ambient temperature. The material should be stored in a dark, dry and cool (5 ± 3 °C) environment in its original tightly closed bottle. BAM cannot be held responsible for changes that happen during storage of the material at the customer's premises, especially of opened bottles. There are no special safety regulations to be followed.\n"
+}

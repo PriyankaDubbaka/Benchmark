@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-b002",
+  "page": 3,
+  "pdf_sha256": "acf6b3810ba24270264a5330e1dace8756bc37016b84ff5121f41bdc4eb23e29",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:26:50+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "## Metrological Traceability\n\nAll certified values refer to the extractable and measurable amounts of the phthalates from the plastics material. Different extraction methods have been used to avoid (at least partially) systematic biases. To ensure traceability of the phthalate contents as defined above, certified calibration standards were used for the in-house certification study. Traceability was further established by using stable isotope dilution analysis using isotopically labeled phthalate internal standards for GC-MS and GC-MS/MS measurements.\n\n## Literature\n\nA detailed technical report describing the analysis procedures and the treatment of the analytical data used to certify BAM-B002 is available on request or can be downloaded from BAM website (www.webshop.bam.de).\n\nAccepted as a BAM-CRM on January 29, 2025\n\nBundesanstalt für Materialforschung und -prüfung (BAM)\n\n<!-- signature block read person by person, left then right -->\nDr. Silke Richter\nCommittee for Certification\n\nChristian Jung\nProject Coordinator\nDivision BAM-1.7\n\n<!-- framed note, written as text; the DAkkS logo and the text inside it are left out -->\nBAM holds an accreditation as a reference material producer according to ISO 17034. This accreditation is valid only for the scope as specified in the certificate D-RM-11075-01-00.\nDAkkS is a signatory of the multilateral agreement (MLA) between EA, ILAC and IAF for mutual acceptance.\n\nThis Certified Reference Material is offered by:\n\nBundesanstalt für Materialforschung und –prüfung (BAM)\nRichard-Willstätter-Str. 11, D-12489 Berlin, Germany\n\n<!-- contact block read column by column -->\nP: +49 30 8104 2061\nF: +49 30 8104 72061\n\nE-Mail: sales.crm@bam.de\nInternet: www.webshop.bam.de\n"
+}

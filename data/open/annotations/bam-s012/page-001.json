@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-s012",
+  "page": 1,
+  "pdf_sha256": "68000d92a044cef80c2cf5ae6641d899ac57625953502308258004b6f797d3a9",
+  "status": "draft",
+  "kind": "table",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:37:22+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "Bundesanstalt für Materialforschung und -prüfung (BAM)\n\nin cooperation with the Chemists' Committee of the GDMB\nGesellschaft der Metallurgen und Bergleute e.V.\n\n# Certified Reference Material\n\n## BAM-S012\n\nTitanium Diboride Powder\n\n### Certified Values\n\n<table>\n<tr><td>Parameter</td><td>Mass fraction <sup>1)</sup> in %</td><td>Uncertainty <sup>2)</sup> in %</td></tr>\n<tr><td>Ti</td><td>68.3</td><td>0.8</td></tr>\n<tr><td>B</td><td>30.71</td><td>0.15</td></tr>\n<tr><td>B<sub>2</sub>O<sub>3</sub> <sup>3)</sup></td><td>0.359</td><td>0.024</td></tr>\n<tr><td></td><td>in mg/kg</td><td>in mg/kg</td></tr>\n<tr><td>Al</td><td>12.0</td><td>1.3</td></tr>\n<tr><td>Ca</td><td>44</td><td>4</td></tr>\n<tr><td>Cr</td><td>97</td><td>4</td></tr>\n<tr><td>Fe</td><td>640</td><td>40</td></tr>\n<tr><td>Mg</td><td>1.6</td><td>0.4</td></tr>\n<tr><td>Mn</td><td>3.8</td><td>0.4</td></tr>\n<tr><td>Mo</td><td>11.7</td><td>0.7</td></tr>\n<tr><td>Ni</td><td>23.5</td><td>1.1</td></tr>\n<tr><td>V</td><td>10.2</td><td>0.8</td></tr>\n<tr><td>Zr</td><td>121</td><td>4</td></tr>\n</table>\n\n<sup>1)</sup> Unweighted mean value of the means of accepted sets of data (consisting of at least 5 but usually 6 single results), each set being obtained by a different laboratory and/or a different method of measurement.\n\n<sup>2)</sup> Estimated expanded uncertainty U with a coverage factor of k = 2, corresponding to a level of confidence of approximately 95 %, as defined in the Guide to the expression of uncertainty in measurement, (GUM, ISO/IEC Guide 98-3:2008).\n\n<sup>3)</sup> The conventional “Method M1” described in the attachment can be used for the determination of total mass fraction of boron oxide.\n\n<!-- the footer line \"All following pages are an integral part of the certificate\" is printed under the page number and left out with the footer -->\n"
+}

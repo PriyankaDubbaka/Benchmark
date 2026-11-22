@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-p206",
+  "page": 1,
+  "pdf_sha256": "8e35084495d792d931b13b49d90bc859ff22ebaa62d6da2ff7d690eb41fa9f81",
+  "status": "draft",
+  "kind": "table",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T13:04:00+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "# REFERENCE MATERIAL DOCUMENT\n\n## REFERENCE MATERIAL BAM-P206\n\nPolyethylene terephthalate (microplastic powder)\n\n### Particle size distribution – property of interest\n\n<table>\n<tr><td>Particle size distribution</td><td>Equivalent particle diameter<sup>2</sup> in µm</td><td>Expanded uncertainty<sup>3</sup> U in µm</td></tr>\n<tr><td>D10<sup>1</sup></td><td>30.5</td><td>2.3</td></tr>\n<tr><td>D50<sup>1</sup></td><td>62.6</td><td>1.9</td></tr>\n<tr><td>D90<sup>1</sup></td><td>107</td><td>4</td></tr>\n</table>\n\n<sup>1</sup> Equivalent particle diameter D10/D50/D90 of the measured volume below which 10.3/50.3/90.3 % of the particles fall below.\n\n<sup>2</sup> Mean values determined by laser diffraction under dry dispersion with three different devices measuring 4 units 3 times each. For further information see the characterization study for the property of interest in the report for BAM-P206.\n\n<sup>3</sup> Estimated expanded uncertainty $U = k \\cdot u_c$ with a coverage factor k = 2, corresponding to a level of confidence of approximately 95%, calculated according to ISO Guide 35. The combined uncertainty u<sub>c</sub> includes the standard uncertainty due to characterization, the contribution of variation between bottles and the long-term stability contribution.\n"
+}

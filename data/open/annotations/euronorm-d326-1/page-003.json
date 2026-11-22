@@ -1,0 +1,13 @@
+{
+  "document_id": "euronorm-d326-1",
+  "page": 3,
+  "pdf_sha256": "4edff38a00a2d5bf7ef2a6e6b3bf49b73e6366e9e6b28297cccc905e4725ba33",
+  "status": "draft",
+  "kind": "table",
+  "lang": "de",
+  "draft_source": "page image",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:44:10+00:00",
+  "notes": "Machine-assisted draft from the page image (scanned page, no text layer); not yet re-checked by a person.",
+  "markdown": "<!-- scanned page; the page number \"- 3 -\" at the top is left out. Continuation of the methods table from page 2,\n     with its header row repeated. Words hyphenated at line breaks are joined; \"Verfahren.Trennung\" is printed without a space. -->\n<table>\n<tr><td>Element</td><td>Laboratorium</td><td>Verfahren</td></tr>\n<tr><td>Chrom</td><td>1, 2, 3, 4, 5, 6, 7, 8</td><td>Maßanalytisch-elektrometrische Bestimmung; Persulfat-Oxydation</td></tr>\n<tr><td>Nickel</td><td>1, 2, 3, 4, 5, 6, 7, 8, 9</td><td>Gewichtsanalytische Bestimmung; Diacetyldioxim-Verfahren</td></tr>\n<tr><td>Kobalt</td><td>1, 2, 3, 4, 7</td><td>Photometrische Bestimmung; Extraktion der Nitrosonaphthol-Verbindung</td></tr>\n<tr><td></td><td>5</td><td>Photometrische Bestimmung; Direkte Messung der Nitrosonaphthol-Verbindung</td></tr>\n<tr><td></td><td>6</td><td>Atomabsorptionsverfahren</td></tr>\n<tr><td></td><td>8</td><td>Photometrische Bestimmung; Nitrosonaphthol-Verfahren.Trennung durch Zinkoxidfällung</td></tr>\n<tr><td>Zirkonium</td><td>1</td><td>Gewichtsanalytische Bestimmung; Brommandelsäure-Verfahren</td></tr>\n<tr><td></td><td>2, 4, 6</td><td>Photometrische Bestimmung; Arsenato-III-Verfahren, Quecksilber-Elektrolyse</td></tr>\n<tr><td></td><td>3</td><td>Photometrische Bestimmung; Xylenol-Orange-Verfahren</td></tr>\n<tr><td></td><td>5</td><td>Gewichtsanalytische Bestimmung; Phosphatverfahren</td></tr>\n<tr><td></td><td>7</td><td>Photometrische Bestimmung; Brenzkatechinviolett-Verfahren</td></tr>\n<tr><td></td><td>8</td><td>Photometrische Bestimmung; Pyridylazonaphthol-Verfahren, Extraktion mit Di-n-Butylphosphat</td></tr>\n<tr><td>Aluminium</td><td>1, 7</td><td>Photometrische Bestimmung; Eriochromcyanin-Verfahren</td></tr>\n<tr><td></td><td>2, 4, 5</td><td>Gewichtsanalytische Bestimmung; Hydroxychinolin-Verfahren</td></tr>\n<tr><td></td><td>3</td><td>Gewichtsanalytische Bestimmung; Phosphat-Verfahren</td></tr>\n<tr><td></td><td>6</td><td>Atomabsorptionsverfahren</td></tr>\n<tr><td></td><td>8</td><td>Photometrische Bestimmung; Hydroxychinolin-Extraktionsverfahren</td></tr>\n</table>\n"
+}

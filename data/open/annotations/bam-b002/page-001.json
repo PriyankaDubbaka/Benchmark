@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-b002",
+  "page": 1,
+  "pdf_sha256": "acf6b3810ba24270264a5330e1dace8756bc37016b84ff5121f41bdc4eb23e29",
+  "status": "draft",
+  "kind": "table",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:26:50+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "# CERTIFICATE\n\n## CERTIFIED REFERENCE MATERIAL BAM-B002\n\nPhthalates in Plastics\n\n### Certified Values\n\n<table>\n<tr><td colspan=\"2\">Characteristic <sup>1)</sup></td><td>Value <sup>2)</sup> in g kg<sup>-1</sup></td><td>Uncertainty U <sup>3)</sup> in g kg<sup>-1</sup></td></tr>\n<tr><td>Diisobutyl phthalate</td><td>DIBP</td><td>40</td><td>8</td></tr>\n<tr><td>Dibutyl phthalate</td><td>DBP</td><td>0.50</td><td>0.13</td></tr>\n<tr><td>Benzyl butyl phthalate</td><td>BBP</td><td>7.5</td><td>1.1</td></tr>\n<tr><td>Bis(2-ethylhexyl) phthalate</td><td>DEHP</td><td>33</td><td>8</td></tr>\n</table>\n\n<sup>1)</sup> Phthalate determined after specific sample preparation and gas chromatography coupled to mass spectrometric detection (GC-MS and GC-MS/MS) using stable isotopic dilution analysis as specified in Section 5.2 of the certification report.\n\n<sup>2)</sup> Unweighted mean value of three BAM workplace means values (75 individual results in total).\n\n<sup>3)</sup> Estimated expanded uncertainty U with a coverage factor of k = 2, corresponding to a level of confidence of about 95%, as defined in the Guide to the Expression of Uncertainty in Measurement (GUM), ISO/IEC Guide 98-3:2008.\n\n### Values for Information (not certified) <sup>a)</sup>\n\n<table>\n<tr><td colspan=\"2\">Characteristic <sup>1)</sup></td><td>Value <sup>2)</sup> in g kg<sup>-1</sup></td><td>Uncertainty U <sup>3)</sup> in g kg<sup>-1</sup></td></tr>\n<tr><td>Diisononyl phthalate*</td><td>DINP</td><td>131</td><td>26</td></tr>\n<tr><td>Diisodecyl phthalate*</td><td>DIDP</td><td>11</td><td>4</td></tr>\n</table>\n\n<sup>a)</sup> For details see the certification report.\n\n<sup>1,2,3)</sup> See description in table above.\n\n*) sum of branched chain isomers\n\n## End of Validity\n\nThis certificate is valid for 2 years after dispatch from BAM.\n\nSample No.:\n\nDate of Dispatch:\n"
+}

@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-s008",
+  "page": 7,
+  "pdf_sha256": "3cafb6306446d479b6ea29dc4047347b4df0c6cfb8b8257410c03b4404a15ef4",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:35:49+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "immediately after usage. For the determination of metallic analytes, the required pressure digestion has to be tested concerning the loss of analytes and completeness of the decomposition.\n\n## Transport and Storage\n\nThe sample should be stored in a dust-free and dry environment.\n\n## Safety Guidelines\n\nFor detailed information to safety guidelines and handling of the material, please see the Material Safety Data sheet distributed by the producer of the material (available on request).\n\n## Literature\n\nA. Dette, S. Richter, B. Peplinski, S. Recknagel, Certification Report BAM-S008\n\nISO Guide 31, Contents of certificates of reference materials, 1981\n\nISO Guide 34, General requirements for the competence of reference material producers, 2009\n\nISO Guide 35, Reference materials - General and statistical principles for certification. Third edition, 2006\n\nGuidelines for the production of BAM Reference Materials, 2006\n\nBonas G, Zervou M, Papaeoannou T, Lees M: Accred Qual Assur (2003) 8:101-107\n\nGuide to the Expression of Uncertainty in measurement (1995), International Organization for Standardization, ISBN 92-67-10188-9\n\nPeplinski B, Fitch AN, Evans A, Ibberson RM, Többens DM, Crabswick LMD, Dörfel I, Emmerling F, Matschat R: Z. Kristallogr. Suppl. 30 (2009) 61-66\n\n## Regulatory Information\n\n- ANSI American National Standards Institute, Methods of chemical analysis of silicon carbide abrasive grain and abrasive crude, ANSI B74.15-1992, ANSI American National Standards Institute, 1992, pp. 20\n- DIN, ISO 51079-1, Prüfung keramischer Roh- und Werkstoffe, Chemische Analyse von Siliciumcarbid als Rohstoff und als Bestandteil von Werkstoffen, Teil 1 Soda-Borsäure-Aufschluss\n- DIN, ISO 51079-2, Prüfung keramischer Roh- und Werkstoffe, Chemische Analyse von Siliciumcarbid als Rohstoff und als Bestandteil von Werkstoffen, Teil 2 Säure-Druck-Aufschluss\n- DIN, ISO 51079-3, Prüfung keramischer Roh- und Werkstoffe, Chemische Analyse von Siliciumcarbid als Rohstoff und als Bestandteil von Werkstoffen, Teil 3 Aufschluß des freien Kohlenstoffs durch naßchemische Oxidation\n- DIN, ISO, 51075 - 1-5, Prüfung keramischer Roh- und Werkstoffe, Chemische Analyse von Siliciumcarbid, Teil 1-5\n"
+}

@@ -1,0 +1,13 @@
+{
+  "document_id": "erm-ef213",
+  "page": 1,
+  "pdf_sha256": "58e7449c57578a10775db1c9cdab856855aed66c6d070cbe11d68e2dea9b12a8",
+  "status": "draft",
+  "kind": "table",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:41:25+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "<!-- the diagonal SPECIMEN watermark is left out -->\n# CERTIFICATE OF ANALYSIS\n\n## ERM®- EF213\n\n<table>\n<tr><td colspan=\"3\">PETROL</td></tr>\n<tr><td rowspan=\"2\"></td><td colspan=\"2\">Mass fraction</td></tr>\n<tr><td>Certified value <sup>1)</sup> [mg/kg]</td><td>Uncertainty <sup>2)</sup> [mg/kg]</td></tr>\n<tr><td>Sulfur</td><td>9.1</td><td>0.8</td></tr>\n</table>\n\n<sup>1)</sup> Unweighted mean of three sets of results obtained using isotope-dilution mass spectrometry applied as primary method of measurement. The value is traceable to the International System of Units (SI).\n\n<sup>2)</sup> The certified uncertainty is the expanded uncertainty estimated in accordance with the Guide to the Expression of Uncertainty in Measurement (GUM) with a coverage factor k = 2, corresponding to a level of confidence of about 95 %.\n\nThis certificate is valid for one year after purchase.\n\nSales date:\n\nThe minimum amount of sample to be used is 0.20 g.\n\n## NOTE\n\nEuropean Reference Material ERM®-EF213 was produced and certified under the responsibility of BAM in cooperation with IRMM and LGC according to the principles laid down in the technical guidelines of the European Reference Materials® co-operation agreement between BAM-IRMM-LGC. Information on these guidelines is available on the internet (http://www.erm-crm.org).\n\nAccepted as an ERM®, Berlin, January 2007\n\n<!-- signature block read person by person, left then right -->\nBAM Berlin\nDepartment I\nAnalytical Chemistry;\nReference Materials\n12200 Berlin, Germany\nProf. Dr. U. Panne\n(Head of Department)\n\nBAM Berlin\nDivision I.5\nBiochemical Analysis\n12200 Berlin, Germany\nDr. J. Vogl\n(Project director)\n"
+}

@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-p206",
+  "page": 2,
+  "pdf_sha256": "8e35084495d792d931b13b49d90bc859ff22ebaa62d6da2ff7d690eb41fa9f81",
+  "status": "draft",
+  "kind": "figure",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:33:21+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "<!-- plot: axis labels, axis titles and tick values inside the figure are left out -->\nEquivalent particle diameter with standard deviation from homogeneity study of RM BAM-P206. 10 individual bottles of BAM-P206 were randomly selected and measure 3 times each. The blue curve represents the cumulative distribution Q<sub>3</sub>(x) and shows the volume fraction of particles smaller than x in relation to the total volume. The black curve represents the distribution density q<sub>3</sub>(x) (1st derivate of Q<sub>3</sub>) and displays the probability of finding a particle with an equivalent particle diameter x in the population. For further information please see the corresponding repot for P206.\n\n## Additional Properties\n\n### Scanning electron microscopy (SEM)\n\n<!-- SEM image: the scale bar label inside the image is left out -->\nSEM image of BAM-P206 particles. Recorded with SEM (Zeiss Supra 40, Oberkochen, Germany) with a Schottky field emitter and equipped with a high-resolution In-lens SE (secondary electrons) detector with an acceleration voltage of 1.0 kV.\n"
+}
