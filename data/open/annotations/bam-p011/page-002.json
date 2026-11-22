@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-p011",
+  "page": 2,
+  "pdf_sha256": "a8cfe74b2b1297ec6fa2f1e154aa44171a13086b9db50ee22fecc2aa0931b2ea",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:32:32+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "## Experimental Conditions\n\nTetrahydrofuran (THF) was used as the solvent of the polymer in all experiments.\n\nBAM light scattering investigations were carried out at 25 °C using a Multi Angle Laser Light Scattering Photometer (MALS). The LS values correspond to a Rayleigh-ratio R<sub>Θ</sub> = 1.406 E-5 cm<sup>-1</sup> at 633 nm in toluene at 25 °C.\n\nBAM tests by means of Size Exclusion Chromatography (SEC) were performed and evaluated according to ISO 13885-1 using THF as eluent at 30 °C. For SEC calibration polystyrene samples with narrow molar mass distribution were characterized by LS and coupling SEC with LS. The SEC-LS Debye plot M<sub>p</sub> values were used for SEC calibration.\n\nViscosity measurements were performed at BAM according to DIN 51562-1 using an Ubbelohe type viscometer and THF at 30 °C.\n\nHomogeneity of the material was tested using SEC, described in more detail in the certification report, which is available on request.\n\n## References\n\n1. U. Just, St. Weidner, Certification Report of Reference Material BAM-P011 – Polystyrene\nhttp://www.rm-certificates.bam.de/en/certificates/polymer_materials/index.htm\n2. Guidelines for the production of BAM reference materials, BAM, Berlin 2006\nhttp://www.bam.de/en/fachthemen/referenzmaterialien/index.htm\n3. ISO 13885–1 (GPC using tetrahydrofuran (THF) as eluent)\n4. DIN 51562–1 (Viscometry: Determination of kinematic viscosity using a Ubbelohde – Viscometer, Part 1: Design and realisation of measurements)\n\nBAM Bundesanstalt für Materialforschung und -prüfung\n\nD-12200 Berlin, Germany, December 2007\n\nDate of shipment:\n\n<!-- signature block read person by person, left then right -->\nProf. Dr. U. Panne\nHead of Department I\nAnalytical Chemistry; Reference Materials\n\nDr. A. Thünemann\nHead of Division BAM-I.3\nStructure Analysis; Polymer Analysis\n\nSupply of this Reference Material:\n\nBundesanstalt für Materialforschung und -prüfung\nRichard-Willstätter-Straße 11, D-12489 Berlin, Germany\n\n<!-- contact block read column by column -->\nPhone: +49 30 8104 2061\nFax: +49 30 8104 1117\n\nE-Mail: sales.crm@bam.de\nInternet: www.webshop.bam.de\n"
+}

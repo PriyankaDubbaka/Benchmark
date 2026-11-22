@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-s004",
+  "page": 2,
+  "pdf_sha256": "3342a3b6761c467568ab75aecc6c6bf7f64441b7a955535500b062fa7e52012c",
+  "status": "draft",
+  "kind": "table",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:34:08+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "### Means of the series of measurements for one analytical procedure in one laboratory (Laboratory means)\n\nMass fractions in mg/kg\n\n<table>\n<tr><td>Line No.</td><td>Cr-(VI)</td><td>Cr-total</td></tr>\n<tr><td>1</td><td>79.2</td><td>406</td></tr>\n<tr><td>2</td><td>82.0</td><td>415</td></tr>\n<tr><td>3</td><td>89.7</td><td>417</td></tr>\n<tr><td>4</td><td>91.7</td><td>432</td></tr>\n<tr><td>5</td><td>93.9</td><td>447</td></tr>\n<tr><td>6</td><td>95.2</td><td>467</td></tr>\n<tr><td>7</td><td>97.4</td><td>473</td></tr>\n<tr><td>8</td><td>98.0</td><td>473</td></tr>\n<tr><td>9</td><td>98.3</td><td>475</td></tr>\n<tr><td>10</td><td>98.3</td><td>481</td></tr>\n<tr><td>11</td><td>98.4</td><td>490</td></tr>\n<tr><td>12</td><td>98.6</td><td>500</td></tr>\n<tr><td>13</td><td>99.1</td><td>510</td></tr>\n<tr><td>14</td><td></td><td>518</td></tr>\n<tr><td>15</td><td></td><td>557</td></tr>\n<tr><td>M:</td><td>94</td><td>471</td></tr>\n<tr><td>s<sub>M</sub>:</td><td>7</td><td>50</td></tr>\n<tr><td>s<sub>i</sub>:</td><td>2.3</td><td>10</td></tr>\n</table>\n\nM: Arithmetic mean of the laboratory means\ns<sub>M</sub>: Standard deviation of the laboratory means\ns<sub>i</sub>: Arithmetic mean of the intralaboratory standard deviations\n\n## Analytical procedure used for determination of mass fraction of hexavalent chromium\n\nThe certified value for the mass fraction of hexavalent chromium is based on laboratory mean values determined by different laboratories using only one analytical procedure (consensus value) attached to this certificate. It is almost identical to the published paper:\nE. Guadagnino, P. Sundberg, O. Corumluoglu “A collaborative study on the determination of hexavalent chromium in container glasses”, in: Glass Technol. 42 (2001) 148-152.\nA minor change has to be made in this published paper concerning the composition of the decomposition mixture, where the volume of the diluted (1+1) sulphuric acid taken must be read as 40 ml (instead of 80 ml) and the resulting pH should be 3 (instead of 2).\n"
+}

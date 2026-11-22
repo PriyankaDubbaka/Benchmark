@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-s004",
+  "page": 1,
+  "pdf_sha256": "3342a3b6761c467568ab75aecc6c6bf7f64441b7a955535500b062fa7e52012c",
+  "status": "draft",
+  "kind": "table",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:34:08+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "Federal Institute for Materials Research and Testing\n\nin Co-operation with the International Commission on Glass\n-Technical Committee 2-\n\n# Certified Reference Material\n\n## BAM-S004\n\n## Glass Containing Hexavalent Chromium\n\nPlease note the safety guidelines (see page 4)\n\nCertified Values\n\n<table>\n<tr><td>Element</td><td>Mass fraction in mg/kg</td><td>Uncertainty <sup>3)</sup> in mg/kg</td></tr>\n<tr><td>Cr-hexavalent <sup>1)</sup></td><td>94</td><td>± 5</td></tr>\n<tr><td>Cr-total <sup>2)</sup></td><td>471</td><td>± 25</td></tr>\n</table>\n\n<sup>1)</sup> Mass fraction of hexavalent chromium in the glass, determined by using only one definite analytical procedure as explained on the next page and described in the attached document.\n\n<sup>2)</sup> Mass fraction of total chromium in the glass, determined by different analytical methods after total wet digestion or after digestion by fusion of the analysed glass sample.\n\n<sup>3)</sup> The certified uncertainty is the expanded uncertainty estimated in accordance with the Guide to the Expression of Uncertainty in Measurements (GUM) with a coverage factor k = 2.\n\n### Sample description\n\nThe certified reference material BAM-S004 consists of container glass for cosmetics. It was crushed into pieces &lt; 10 mm in size and contains a powdered fraction. The material is supplied in glass bottles containing 50 g.\n\n### Informative values\n\nNot certified, informative values were determined by one of the participating laboratories.\n\nMass fractions in mass%.\n\n<table>\n<tr><td>Analyte</td><td>SiO<sub>2</sub></td><td>Na<sub>2</sub>O</td><td>CaO</td><td>Al<sub>2</sub>O<sub>3</sub></td><td>BaO</td><td>MgO</td><td>ZnO</td><td>SO<sub>3</sub></td><td>K<sub>2</sub>O</td><td>Cr<sub>2</sub>O<sub>3</sub></td><td>Fe<sub>2</sub>O<sub>3</sub></td><td>CuO</td></tr>\n<tr><td>Mass fraction</td><td>70.9</td><td>14.5</td><td>9.4</td><td>2.15</td><td>1.2</td><td>0.90</td><td>0.33</td><td>0.17</td><td>0.16</td><td>0.07</td><td>0.06</td><td>0.04</td></tr>\n</table>\n\nDate of certification: December 2003\nCertificate revised March 2016\n"
+}

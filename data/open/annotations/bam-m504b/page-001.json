@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-m504b",
+  "page": 1,
+  "pdf_sha256": "59f520a89850bb84e8ddcdbc1d44b47c1faa14e373343f86f0861db0cf87660f",
+  "status": "draft",
+  "kind": "mixed",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:31:19+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "Bundesanstalt für Materialforschung und -prüfung (BAM)\n\nin cooperation with the Committee of Chemists of the GDMB\nGesellschaft der Metallurgen und Bergleute e.V.\n\n# Certified Reference Material\n\n## BAM-M504b\n\nUsed Automobile Catalyst\n\nCertified Values\n\n<table>\n<tr><td>Element</td><td>Mass fraction <sup>1)</sup> in mg/kg</td><td>Uncertainty <sup>2)</sup> in mg/kg</td></tr>\n<tr><td>Pt</td><td>1159</td><td>8</td></tr>\n<tr><td>Pd</td><td>1128</td><td>9</td></tr>\n<tr><td>Rh</td><td>314.2</td><td>2.6</td></tr>\n</table>\n\n<sup>1)</sup> Unweighted mean value of the means of accepted sets of data (consisting of at least 4 single results), each set being obtained by a different laboratory and/or a different method of measurement.\n\n<sup>2)</sup> Estimated expanded uncertainty U with a coverage factor of k = 2, corresponding to a level of confidence of approx. 95 %, as defined in the Guide to the Expression of Uncertainty in Measurement, (GUM, ISO/IEC Guide 98-3:2008).\n\nThis certificate is valid until 02/2052.\n\n## Sample Description\n\nThe material is a mixture of used automobile catalysts supplied and prepared by a commercial manufacturer. The material was ignited, ground to a particle size below 100 µm and homogenised thoroughly before bottling in 200 g units in screw cap bottles. The carbon content is ca. 0.1 %, the sulphur content is ca. 0.24 %.\n\n## Recommended Use\n\nThis material is intended for use as a reference material in the development, validation or quality control of analytical methods for the determination of Platinum group elements (PGE) in automobile catalysts. The material may also be applicable to other matrices where suitable reference materials are not available.\n\n## Instructions for Use\n\nPrior to use, the material should be thoroughly mixed by several inversions of the bottle. Before weighing, the material has to be dried for 8 h at 105 °C.\n\n## Transport and Storage\n\nThe material should be stored in a dry and clean environment at room temperature. Transport can be done under normal ambient conditions.\n"
+}

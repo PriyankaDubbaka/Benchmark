@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-u200",
+  "page": 8,
+  "pdf_sha256": "ef2f149413337061234379e06d06116737f3f8db087a6f38f9a3bcb07f440c4f",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:38:21+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "## Literature\n\nA detailed report describing the certification of the reference material BAM-U200 is available on request or can be downloaded from the BAM website (https://rrr.bam.de).\n\nDIN EN 16174:2012-11: Sludge, treated biowaste and soil - Digestion of aqua regia soluble fractions of elements; German version EN 16174:2012.\n\nAccepted as a BAM-CRM on Monat TT, JJJJ\n\nBundesanstalt für Materialforschung und -prüfung (BAM)\n\n(Dienstsiegel/ Dienststempel)\n\n<!-- signature block read person by person, left then right -->\nTitel Name\nCommittee for Certification\n\nDr. M. Ostermann\nProject Coordinator\nDivision 1.4 Process Analytical Technology\n\nThis Reference Material is offered by:\n\nBundesanstalt für Materialforschung und -prüfung (BAM)\n\nRichard-Willstätter-Str. 11, D-12489 Berlin, Germany\n\n<!-- contact block read column by column -->\nP: +49 30 8104 2061\nF: +49 30 8104 72061\n\nE-Mail: sales.crm@bam.de\nInternet: www.webshop.bam.de\n"
+}

@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-h010",
+  "page": 1,
+  "pdf_sha256": "0670dfe72cfd52e560b147e15c4210410163b8d28e374e8baf6f356903409e4b",
+  "status": "draft",
+  "kind": "table",
+  "lang": "de",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-22T11:28:39+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "BAM Bundesanstalt für Materialforschung und -prüfung\n\nin Zusammenarbeit mit der Fachhochschule Münster, Fachbereich Chemieingenieurwesen, Steinfurt\n\n# Zertifiziertes Referenzmaterial\n\n## BAM-H010\n\nAcrylnitril-Butadien-Styrol-Copolymerisat (ABS)\n\n### Zertifizierte Werte\n\n<table>\n<tr><td>Element</td><td>Massenanteil in µg/g</td><td>Unsicherheit U* in µg/g</td></tr>\n<tr><td>Blei</td><td>479</td><td>17</td></tr>\n<tr><td>Brom</td><td>240</td><td>21</td></tr>\n<tr><td>Cadmium</td><td>93</td><td>5</td></tr>\n<tr><td>Chrom</td><td>470</td><td>36</td></tr>\n</table>\n\n*Die Unsicherheit U ist die erweiterte Unsicherheit mit einem Erweiterungsfaktor k = 2 und wurde entsprechend dem ‚Guide to the expression of uncertainty in measurement’ (GUM, ISO), 1993 berechnet.\n\n### Wert zur Information\n\n<table>\n<tr><td>Element</td><td>Massenanteil in µg/g</td></tr>\n<tr><td>Quecksilber</td><td>415</td></tr>\n</table>\n\nDer Massenanteil von Quecksilber kann aufgrund von Temperatureinflüssen niedriger sein\n\n## Beschreibung des Materials\n\nDie Proben sind in Form von 100 g Granulat in 250-mL-Weithalsgläsern und in Form von 1, 2 und 6 mm dicken Scheiben mit einem Durchmesser von 4 cm erhältlich.\n\n## Empfohlener Einsatzbereich\n\nDieses Referenzmaterial ist vorgesehen als Analysenkontroll-, Kalibrier- bzw. Rekalibrierprobe für die Röntgenfluoreszenzanalyse (RFA) sowie für Analysenmethoden, die einen nasschemischen Aufschluss erfordern.\nDie Mindesteinwaage sollte 0,2 Gramm betragen.\n\nDie Gültigkeit dieses Zertifikats endet 2 Jahre nach Auslieferung.\n\nAuslieferungsdatum:\n"
+}
