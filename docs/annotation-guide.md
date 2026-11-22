@@ -92,6 +92,11 @@ These came up while drafting the public certificates. Whatever is decided, apply
 - A standalone equation on its own line is a display formula, including short ones.
 - A word printed with a gap or an obvious slip is written as printed, with a comment if it could be read two ways.
 - Numbers keep their printed form. A decimal comma stays a comma.
+- An expression with a relation sign (=, ≤, ≥) whose sides need math markup (a subscript, superscript, Greek symbol, operator, fraction or root) is an inline formula between `$` and `$`, for example `$u_m = 0.4\,\mathrm{µm}$`. A symbol on its own, a definition line (symbol, then its meaning), chemical formulas, units and footnote marks keep HTML `<sub>` and `<sup>`. Plain statements such as k = 2 stay text.
+- An empty row or column that is ruled like its neighbours is kept as empty cells. Extra space inside a grid with no rules of its own, and a double rule between two column groups, are not cells and are left out.
+- Two grids printed side by side as separate frames (a main grid and a small one for values for information) are written as one table, with the gap between them left out.
+- Printed placeholder text, such as "(Dienstsiegel/Dienststempel)" or "Titel Name" in a template, is written as printed. Only an actual stamp, seal or signature is left out.
+- A safety data sheet page has kind `prose`. The block that repeats at the top of every page of the sheet is a running header and is left out.
 
 ## 5. The second annotator
 
