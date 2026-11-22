@@ -5,6 +5,7 @@ milliseconds without a compiled dependency.
 """
 from __future__ import annotations
 
+import html
 import re
 import unicodedata
 
@@ -45,13 +46,48 @@ def ned(a: str, b: str) -> float:
     return levenshtein(a, b) / max(len(a), len(b))
 
 
-_MD = re.compile(r"(^|\s)#{1,6}\s|[*_`>]|!\[[^\]]*\]\([^)]*\)|<[^>]+>")
+# Notation that prints the same must compare the same. A subscript can arrive as <sub>2</sub>,
+# as $_2$ or as the Unicode character; a range as 913-915 with any of six dash characters.
+_INLINE_TAG = re.compile(r"</?(?:sub|sup|b|i|em|strong|u|s|span|font|small|mark)\b[^<>]*>", re.I)
+_TAG = re.compile(r"</?[A-Za-z][A-Za-z0-9]*(?:\s[^<>]*)?/?>")
+_MATH = re.compile(r"(?<![\\$])\$([^$\n]+?)\$(?!\$)")
+_MATH_FONT = re.compile(r"\\(?:mathrm|mathbf|mathit|mathsf|text|textrm|operatorname)(?![A-Za-z])")
+_MATH_SPACE = re.compile(r"\\[,;:! ]|~")
+_MATH_SYMBOL = re.compile(r"\\([A-Za-z]+|%)")
+_SYMBOLS = {
+    "mu": "μ", "pm": "±", "times": "×", "cdot": "·", "%": "%", "circ": "°", "degree": "°",
+    "le": "≤", "leq": "≤", "ge": "≥", "geq": "≥", "approx": "≈", "sim": "~", "neq": "≠",
+    "alpha": "α", "beta": "β", "gamma": "γ", "delta": "δ", "Delta": "Δ", "lambda": "λ",
+    "sigma": "σ", "rho": "ρ", "theta": "θ", "omega": "ω", "Omega": "Ω", "pi": "π",
+}
+_CHARS = str.maketrans({
+    **{c: "-" for c in "\u2010\u2011\u2012\u2013\u2014\u2015\u2212"},  # hyphens, dashes, minus
+    **{c: '"' for c in "\u201c\u201d\u201e\u201f\u00ab\u00bb"},  # curly, low and angle quotes
+    **{c: "'" for c in "\u2018\u2019\u201a\u201b"},
+    "\u00ad": None,  # soft hyphen
+})
+_HEADING = re.compile(r"(^|\s)#{1,6}\s")
+_QUOTE = re.compile(r"^[ \t]*(?:>[ \t]?)+", re.M)
+_MARKS = re.compile(r"[*_`]")
 _WS = re.compile(r"\s+")
 
 
-def normalize_text(s: str) -> str:
-    s = unicodedata.normalize("NFKC", s)
-    s = _MD.sub(" ", s)
+def _plain_math(m: re.Match) -> str:
+    s = _MATH_SPACE.sub(" ", _MATH_FONT.sub("", m.group(1)))
+    s = _MATH_SYMBOL.sub(lambda k: _SYMBOLS.get(k.group(1), k.group(0)), s)
+    return re.sub(r"[_^{}]", "", s)
+
+
+def normalize_text(s: str, cell: bool = False) -> str:
+    """Text as it is compared. `cell` is for table cells: the HTML parser has already removed
+    their tags and entities, and a cell cannot hold a block quote, so a leading > stays."""
+    if not cell:
+        # Tags go before entities are unescaped, so a written &lt;td&gt; stays text.
+        s = _TAG.sub(" ", _INLINE_TAG.sub("", s))
+        s = _QUOTE.sub("", html.unescape(s))
+    s = unicodedata.normalize("NFKC", s).translate(_CHARS)
+    s = _MATH.sub(_plain_math, s)
+    s = _MARKS.sub(" ", _HEADING.sub(" ", s))
     return _WS.sub(" ", s).strip()
 
 

@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-k001",
+  "page": 3,
+  "pdf_sha256": "e2777bf90012e54586b1c47cf2d7b1033de8a3f72fff9534995bb279af9ee51c",
+  "status": "draft",
+  "kind": "prose",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-10T13:34:20+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "Accepted as a BAM-CRM on January 21, 2026\n\nBundesanstalt für Materialforschung und -prüfung (BAM)\n\n<!-- signature block read column by column: one person, then the other -->\nDr. S. Richter\nCommittee for Certification\n\nDr. R. Schneider\nProject Coordinator\nDivision 1.8\n\n<!-- two framed notes with a logo beside each; written as text, logos left out -->\nThis certificate is consistent with the capabilities that are included in Appendix C of the MRA drawn up by the CIPM.\nUnder the MRA, all participating institutes recognize the validity of each other’s calibration and measurement certificates for the quantities, ranges and measurement uncertainties specified in Appendix C (for details see http://www.bipm.org).\n\nBAM holds an accreditation as a reference material producer according to ISO 17034. This accreditation is valid only for the scope as specified in the certificate D-RM-11075-01-00.\nDAkkS is a signatory of the multilateral agreement (MLA) between EA, ILAC and IAF for mutual acceptance.\n\nThis Certified Reference Material is offered by:\n\nBundesanstalt für Materialforschung und –prüfung (BAM)\n\nRichard-Willstätter-Str. 11, D-12489 Berlin, Germany\n\n<!-- contact block read column by column -->\nP: +49 30 8104 5931\n\nF: +49 30 8104 75931\n\nE-Mail: ethanol-crm@bam.de\n\nInternet: www.webshop.bam.de\n"
+}

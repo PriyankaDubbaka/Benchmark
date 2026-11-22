@@ -1,0 +1,13 @@
+{
+  "document_id": "bam-d001",
+  "page": 3,
+  "pdf_sha256": "cd5d86381201e8fb3579f63e687f55a1a3669ca5e6f76718b03eac07a0a004e0",
+  "status": "draft",
+  "kind": "formula",
+  "lang": "en",
+  "draft_source": "page image + pdftotext",
+  "annotator": "machine-draft",
+  "updated": "2026-11-10T13:34:20+00:00",
+  "notes": "Machine-assisted draft from the page image and Poppler text; not yet re-checked by a person.",
+  "markdown": "Secondly, the uncertainty of Δ<sub>m</sub> has to be calculated:\n\n$$u_\\Delta = \\sqrt{u_m^2 + u_{CRM}^2}$$\n\nu<sub>Δ</sub> ………combined uncertainty of the measured value and the certified value\n\nu<sub>m</sub>………uncertainty of the measured value\n\nu<sub>CRM</sub>……uncertainty of the certified value\n\nThe uncertainty of the certified value is calculated by dividing the expanded uncertainty U, shown at the certificate, by the factor k = 2.\n\nThe uncertainty of the measured value can be expressed approximately by use of the reproducibility standard deviation which was determined by the interlaboratory comparison for the certification (for data base cp. attachment 3 of the certification report BAM-D001):\n\nd<sub>10</sub>-value: u<sub>m</sub> = 0.4 µm\n\nd<sub>50</sub>-value: u<sub>m</sub> = 0.28 µm\n\nd<sub>90</sub>-value: u<sub>m</sub> = 1.7 µm\n\nThe calculated combined uncertainty has to be multiplied by the factor k = 2. The result correlates to a confidence level of approx. 95 %.\n\n$$U_\\Delta = 2 \\times u_\\Delta$$\n\nIn a final step Δ<sub>m</sub> has to be compared with U<sub>Δ</sub> to evaluate the performance of the measurement. There is no significant difference between the measured value and the certified value if Δ<sub>m</sub> ≤ U<sub>Δ</sub>.\n\n<!-- \"und\" is printed -->\n## Transport und Storage\n\nThe material has to be stored in a dry atmosphere.\n\n## Participating Laboratories\n\nFraunhofer-Institut für Keramische Technologien und Systeme IKTS, Dresden, Germany\nH. C. Starck GmbH, Laufenburg, Germany\nH. C. Starck Ceramics GmbH & Co. KG, Selb, Germany\nIvoclar-Vivadent AG, Schaan, Liechtenstein\nK+S-Forschungsinstitut, Heringen/ Werra, Germany\nNabaltec AG, Schwandorf, Germany\nRetsch Technology GmbH, Haan, Germany\nTU Bergakademie Freiberg, Institut für Mechanische Verfahrenstechnik und Aufbereitungstechnik, Germany\nTU Clausthal, Institut für Nichtmetallische Werkstoffe, Bindemittel und Baustoffe, Germany\nVoestalpine Stahl GmbH, Linz, Austria\nW. Haldenwanger, Technische Keramik GmbH & Co. KG, Waldkraiburg, Germany\nBAM Bundesanstalt für Materialforschung und -prüfung, FB 5.4 and 5.5, Berlin, Germany\n"
+}
