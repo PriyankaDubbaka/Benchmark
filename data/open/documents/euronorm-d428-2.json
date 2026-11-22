@@ -8,8 +8,12 @@
   "family_id": "euronorm-d428-2",
   "department": "BAM reference materials",
   "language": "de",
+  "languages": [
+    "de",
+    "en"
+  ],
   "split": "dev",
   "rights_status": "public_access_confirmed_redistribution_permission_unverified",
   "added": "2026-11-22",
-  "notes": "Public EURONORM-CRM certificate co-issued by BAM (cast iron; German scanned pages 1-4, English text pages 5-8). Rights to redistribute not yet confirmed."
+  "notes": "Public EURONORM-CRM certificate co-issued by BAM (cast iron). Mixed language: German pages 1-4 (scanned, no text layer), English pages 5-8. Rights to redistribute not yet confirmed."
 }
