@@ -48,7 +48,7 @@ SHORT_LINE = "Riss am Flansch, Probe 3"  # 5 words, 24 characters
 
 
 def no_closed_track():
-    return mock.patch("bambench.site_check._closed_needles", site_check.Needles)
+    return mock.patch("bambench.site_check._closed_needles", lambda: (site_check.Needles(), []))
 
 
 def closed_track(tokens=(), text=()):
@@ -58,7 +58,7 @@ def closed_track(tokens=(), text=()):
             n.tokens[tok.casefold()] = what
         for t in text:
             n.add_text(t)
-        return n
+        return n, []
     return mock.patch("bambench.site_check._closed_needles", needles)
 
 
@@ -250,6 +250,45 @@ class LeakCheck(unittest.TestCase):
         self.assertIsNone(n.find(["No text was found on this page"]))
         self.assertIsNotNone(n.find([CLOSED_LINE]))
 
+    def test_an_id_that_is_also_public_is_not_a_leak(self):
+        n = site_check.Needles()
+        n.tokens["report-17"] = "closed document id"
+        n.tokens["internal-9"] = "closed document id"
+        n.forget_public('{"id": "report-17", "name": "Report-17 OCR"}')
+        self.assertIsNone(n.find(["system report-17"]))
+        self.assertEqual(n.find(["see internal-9."]), "closed document id")
+
+    def test_git_failure_is_reported_not_skipped(self):
+        problems = []
+        with mock.patch("bambench.site_check.subprocess.run", side_effect=OSError("no git")), \
+                mock.patch("bambench.site_check.load_documents", lambda t: []), \
+                mock.patch("bambench.site_check._outputs", lambda t: []):
+            list(site_check._public_texts(problems))
+        self.assertTrue(any("tracked by Git" in p for p in problems), problems)
+
+    def test_an_unreadable_closed_output_is_reported(self):
+        missing = Path(tempfile.mkdtemp()) / "doc" / "page-001.md"  # never written
+        self.addCleanup(shutil.rmtree, missing.parent.parent)
+        doc = mock.Mock(document_id="internal-1", sha256="abc", title="")
+        with mock.patch("bambench.site_check.load_documents", lambda t: [doc] if t == "closed" else []), \
+                mock.patch("bambench.site_check.page_statuses", lambda d: {}), \
+                mock.patch("bambench.site_check._outputs", lambda t: [missing] if t == "closed" else []), \
+                mock.patch("bambench.site_check.subprocess.run", lambda *a, **k: mock.Mock(stdout=b"")):
+            found = site_check.check(self.pub)
+        self.assertTrue(any("could not read the closed output" in p for p in found), found)
+
+    def test_large_tracked_files_count_as_public(self):
+        big = "x " * 3_000_000 + "\nThe inspection found a crack along the lower weld seam today\n"
+        n = site_check.Needles()
+        n.add_text("The inspection found a crack along the lower weld seam today")
+        with mock.patch("bambench.site_check.subprocess.run", lambda *a, **k: mock.Mock(stdout=b"README.md\0")), \
+                mock.patch("bambench.site_check.load_documents", lambda t: []), \
+                mock.patch("bambench.site_check._outputs", lambda t: []), \
+                mock.patch.object(Path, "read_text", lambda self, **k: big):
+            for text in site_check._public_texts([]):
+                n.forget_public(text)
+        self.assertFalse(n.runs)
+
     def test_text_in_tracked_files_is_public(self):
         line = "Text extraction quality of open-weight models on BAM certificates"
         n = site_check.Needles()
@@ -259,7 +298,7 @@ class LeakCheck(unittest.TestCase):
                 mock.patch("bambench.site_check.load_documents", lambda t: []), \
                 mock.patch("bambench.site_check._outputs", lambda t: []), \
                 mock.patch.object(Path, "read_text", lambda self, **k: "# " + line):
-            for text in site_check._public_texts():
+            for text in site_check._public_texts([]):
                 n.forget_public(text)
         self.assertIsNone(n.find([line]))
 
@@ -276,7 +315,8 @@ class LeakCheck(unittest.TestCase):
                 mock.patch("bambench.site_check.page_statuses", lambda d: {}), \
                 mock.patch("bambench.site_check.run_dir", lambda t: base / t), \
                 mock.patch("bambench.site_check.subprocess.run", lambda *a, **k: mock.Mock(stdout=b"")):
-            n = site_check._closed_needles()  # no tracked files: this test file itself holds CLOSED_LINE
+            n, unreadable = site_check._closed_needles()  # no tracked files: this test file itself holds CLOSED_LINE
+        self.assertEqual(unreadable, [])
         self.assertIsNone(n.find([line]))
         self.assertIsNotNone(n.find([CLOSED_LINE]))
         self.assertEqual(n.tokens["internal-1"], "closed document id")
