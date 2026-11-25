@@ -64,6 +64,9 @@ def main(argv=None) -> int:
     s = sub.add_parser("export-site", help="write a read-only copy of the dashboard for static hosting")
     s.add_argument("out", type=Path, help="folder to write, e.g. public for GitLab Pages")
 
+    s = sub.add_parser("check-site", help="check an exported site for anything that must stay inside BAM")
+    s.add_argument("folder", type=Path, help="the folder export-site wrote, e.g. public")
+
     sub.add_parser("leaderboard", help="print the leaderboard as JSON")
     sub.add_parser("export-closed", help="copy closed-track summaries with enough pages to results/closed")
     sub.add_parser("check-cards", help="check every system card against systems/schema/card.schema.json")
@@ -130,6 +133,15 @@ def main(argv=None) -> int:
         from .static_site import export
         n = export(a.out)
         print(f"wrote {n} files to {a.out}; closed-track rows only where 20 or more pages back them")
+    elif a.cmd == "check-site":
+        from .site_check import check
+        problems = check(a.folder)
+        for p in problems:
+            print(p)
+        if problems:
+            print(f"{len(problems)} problem{'s' if len(problems) != 1 else ''}: do not publish {a.folder}")
+            return 1
+        print(f"{a.folder}: no closed-track content, no page text, only open-track documents")
     elif a.cmd == "leaderboard":
         from .runner import leaderboard
         print(json.dumps(leaderboard(), indent=2))
