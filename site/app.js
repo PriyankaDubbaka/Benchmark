@@ -156,7 +156,7 @@ function classResults(lb, track = "open") {
     const list = names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}` : names[0];
     obs.push(`${list[0].toUpperCase() + list.slice(1)} ${few.length === 1 ? "has" : "have"} fewer than ${FEW_PAGES} pages, so ${few.length === 1 ? "it is" : "they are"} shown in grey and not ranked.`);
   }
-  return `<h2 id="by-class">Results by class</h2>
+  return `<h2 id="by-class">Performance by class</h2>
     <p class="lead">The best system changes with the page kind and the language. Scores in percent over all scored pages of each class; the median is over all ${rows.length} systems with ${track === "open" ? "an open" : "a closed"}-track result.</p>
     <div class="scroll"><table class="grid classes"><tr><th>Class</th><th class="num">Pages</th><th>Best system</th><th class="num">Best</th><th class="num">Median</th><th class="num" title="The system with the highest Overall, and its rank in this class">${esc(nm(leader))}</th></tr>
       ${big.map((c) => tr(c, false)).join("")}${few.map((c) => tr(c, true)).join("")}</table></div>
