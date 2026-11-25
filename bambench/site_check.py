@@ -51,7 +51,6 @@ TEXT_KEYS = {"page_items", "markdown", "prediction", "predictions"}  # page text
 SHINGLE = 8  # words in a run of closed text that counts as a match
 SHORT = range(3, SHINGLE)  # word counts of whole short lines and titles that are matched too
 MIN_CHARS = 20  # shorter lines are too generic to search for
-PUBLIC_SUFFIXES = {".md", ".json", ".txt", ".yml", ".yaml", ".py", ".js", ".html", ".css", ".toml", ".cfg"}
 _TOKEN = re.compile(r"[\w.\-]+")
 DERIVED = {"cost", "scorer_current"}  # fields the leaderboard adds to a published summary when it reads it
 
@@ -129,19 +128,31 @@ def _public_texts(problems: list[str]):
                         "be told apart from closed text; run the check inside the repository with git available")
         names = []
     for name in names:
+        if not name or name.startswith("data/closed/"):
+            continue
         f = ROOT / name
-        if name and not name.startswith("data/closed/") and f.suffix in PUBLIC_SUFFIXES and f.is_file():
-            yield from _read(f, problems, "tracked file")
+        if not f.is_file():
+            problems.append(f"the tracked file {name} is missing from the working tree; restore it or commit its "
+                            "removal, so public text is complete")
+            continue
+        yield from _read(f, problems, "tracked file", skip_binary=True)
     for d in load_documents("open"):
         for p in page_statuses(d):
-            yield (load_page(d, p) or {}).get("markdown") or ""
+            try:
+                yield (load_page(d, p) or {}).get("markdown") or ""
+            except (OSError, ValueError) as e:
+                problems.append(f"could not read the open label {d.document_id} page {p} ({type(e).__name__}); "
+                                "the check is incomplete")
     for f in _outputs("open"):
         yield from _read(f, problems, "open-track output")
 
 
-def _read(f: Path, problems: list[str], what: str):
+def _read(f: Path, problems: list[str], what: str, skip_binary: bool = False):
     try:
-        yield f.read_text(encoding="utf-8", errors="replace")
+        data = f.read_bytes()
+        if skip_binary and b"\0" in data[:8192]:
+            return  # a PDF, image or other binary file holds no text to subtract
+        yield data.decode("utf-8", errors="replace")
     except OSError as e:
         problems.append(f"could not read the {what} {f} ({type(e).__name__}); the check is incomplete")
 

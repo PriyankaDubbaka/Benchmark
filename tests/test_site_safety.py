@@ -284,10 +284,46 @@ class LeakCheck(unittest.TestCase):
         with mock.patch("bambench.site_check.subprocess.run", lambda *a, **k: mock.Mock(stdout=b"README.md\0")), \
                 mock.patch("bambench.site_check.load_documents", lambda t: []), \
                 mock.patch("bambench.site_check._outputs", lambda t: []), \
-                mock.patch.object(Path, "read_text", lambda self, **k: big):
+                mock.patch.object(Path, "read_bytes", lambda self: big.encode()):
             for text in site_check._public_texts([]):
                 n.forget_public(text)
         self.assertFalse(n.runs)
+
+    def tracked(self, listing: bytes, files: dict, label_error=None):
+        """Run _public_texts over a fake repository: listing is git's output, files maps names to bytes."""
+        problems = []
+        doc = mock.Mock(document_id="open-1")
+
+        def load_page(d, p):
+            if label_error:
+                raise label_error
+            return {"markdown": "open label"}
+        with mock.patch("bambench.site_check.subprocess.run", lambda *a, **k: mock.Mock(stdout=listing)), \
+                mock.patch("bambench.site_check.ROOT", Path("/repo")), \
+                mock.patch.object(Path, "is_file", lambda self: self.name in files), \
+                mock.patch.object(Path, "read_bytes", lambda self: files[self.name]), \
+                mock.patch("bambench.site_check.load_documents", lambda t: [doc]), \
+                mock.patch("bambench.site_check.page_statuses", lambda d: {1: "checked"}), \
+                mock.patch("bambench.site_check.load_page", load_page), \
+                mock.patch("bambench.site_check._outputs", lambda t: []):
+            texts = list(site_check._public_texts(problems))
+        return texts, problems
+
+    def test_every_tracked_text_file_counts_whatever_its_type(self):
+        texts, problems = self.tracked(b"data/reference.csv\0logo.pdf\0",
+                                       {"reference.csv": b"a,The inspection found a crack along the lower weld\n",
+                                        "logo.pdf": b"%PDF-1.7\0\x01binary"})
+        self.assertTrue(any("lower weld" in t for t in texts))
+        self.assertFalse(any("PDF" in t for t in texts), "binary files are skipped")
+        self.assertEqual(problems, [])
+
+    def test_a_tracked_file_missing_from_the_working_tree_is_reported(self):
+        _, problems = self.tracked(b"README.md\0", {})
+        self.assertTrue(any("README.md is missing" in p for p in problems), problems)
+
+    def test_an_unreadable_open_label_is_reported_not_a_crash(self):
+        _, problems = self.tracked(b"", {}, label_error=OSError("disk"))
+        self.assertTrue(any("open label open-1 page 1" in p for p in problems), problems)
 
     def test_text_in_tracked_files_is_public(self):
         line = "Text extraction quality of open-weight models on BAM certificates"
@@ -297,7 +333,7 @@ class LeakCheck(unittest.TestCase):
                         lambda *a, **k: mock.Mock(stdout=b"README.md\0")), \
                 mock.patch("bambench.site_check.load_documents", lambda t: []), \
                 mock.patch("bambench.site_check._outputs", lambda t: []), \
-                mock.patch.object(Path, "read_text", lambda self, **k: "# " + line):
+                mock.patch.object(Path, "read_bytes", lambda self: ("# " + line).encode()):
             for text in site_check._public_texts([]):
                 n.forget_public(text)
         self.assertIsNone(n.find([line]))
