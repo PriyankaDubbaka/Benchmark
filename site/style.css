@@ -217,7 +217,7 @@ table.grid.classes tr.few th, table.grid.classes tr.few td, table.grid.classes t
 
 /* ---------- Charts and leaders (charts.js) ---------- */
 .lead-tile .k, .leaders .k { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
-.leaders { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin: 8px 0 4px; }
+.leaders { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; margin: 8px 0 4px; }
 .lead-tile { background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--bam-petrol); padding: 14px 16px 12px; min-width: 0; }
 .lead-tile .who { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 700; margin-top: 6px; overflow-wrap: anywhere; }
 .lead-tile .who a { color: var(--ink); }

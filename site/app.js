@@ -76,7 +76,7 @@ async function overview() {
       ${agreeTile(ov.agreement)}
       <div class="tile"><div class="k">Release</div><div class="v">Nov 30</div><div class="s">v0.1, annotated pages frozen before the final runs</div></div>
     </div>
-    ${lb.filter((r) => r.open).length > 1 ? `<h2>Leaders at a glance</h2><p class="lead">Open track, all scored pages. Each tile names the leader, its value and the system behind it. Click a name for its page.</p>${leaders(lb, "open", "all")}` : ""}
+    ${lb.filter((r) => r.open).length > 1 ? `<h2>Leaders at a glance</h2><p class="lead">Open track, all scored pages. Each tile names the leader and the runner-up. Click a name for the system page.</p>${leaders(lb, "open", "all")}` : ""}
     <h2>Leaderboard, top systems</h2>
     ${lb.length ? `<div class="scroll"><table class="grid"><tr><th>System</th><th class="num">Open overall</th><th class="num">Closed overall</th></tr>${top}</table></div>
       <p class="small"><a href="#/leaderboard">Full leaderboard</a></p>` : `<p class="muted">No results yet. ${STATIC ? "Results appear here once summaries are committed to the repository." : 'Start one under <a href="#/runs">Runs</a>.'}</p>`}
