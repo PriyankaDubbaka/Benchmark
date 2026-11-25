@@ -111,8 +111,8 @@ function classBasis(comp, lb, track = "open") {
     ["Language", listCounts(c.by_lang, (k) => LB_LANG[k] || k) + " pages", "Scores are split by it below"],
     ["Content", content, "Text, tables and formulas each count one third of Overall. Numbers are reported beside it, not in it"],
   ].map(([k, v, u]) => `<tr><th scope="row">${k}</th><td>${v}</td><td class="muted">${u}</td></tr>`).join("");
-  return `<h2 id="classes">What the benchmark is calculated on</h2>
-    <p class="lead">Every score rests on these classes. The ${track} track holds ${fmtN(c.labelled)} labelled pages from ${fmtN(c.documents)} documents, ${fmtN(c.by_status?.checked || 0)} of them checked.${track === "open" ? " The closed track uses the same classes." : ""}</p>
+  return `<h2 id="classes">Evaluation scope</h2>
+    <p class="lead">The document, page, language and content classes that every score is computed over. The ${track} track holds ${fmtN(c.labelled)} labelled pages from ${fmtN(c.documents)} documents, ${fmtN(c.by_status?.checked || 0)} of them checked.${track === "open" ? " The closed track uses the same classes." : ""}</p>
     <div class="scroll"><table class="grid classes"><tr><th>Class</th><th>In the ${track} track today</th><th>How it is used</th></tr>${rows}</table></div>`;
 }
 
