@@ -18,8 +18,9 @@ Where the closed track is present on the machine (the BAM cluster or a VDI), it 
 closed label and closed model output and searches every string in the folder, and every file path,
 for closed document ids and hashes (as whole tokens), and for closed text: any run of 8 words, or a
 whole closed line or title of 3 to 7 words and 20 or more characters, even inside a longer string.
-Text that also occurs in files tracked by Git or in open-track pages and model outputs is public
-already and is ignored, so boilerplate does not block a clean export. Text is held as 64-bit hashes,
+Ids and text that also occur in files tracked by Git or in open-track pages and model outputs are
+public already and are ignored, so boilerplate or a shared name does not block a clean export. A file
+it cannot read while building or subtracting these lists is reported, never skipped. Text is held as 64-bit hashes,
 model outputs are read only for pages without a label, and the exported files are checked one at a
 time, so memory grows with about one copy of the closed text (some 15 MB per 1,000 pages).
 
@@ -82,7 +83,11 @@ class Needles:
                 self.lengths.add(len(w))
 
     def forget_public(self, text: str) -> None:
-        """Drop every run and short phrase that also occurs, anywhere in a line, in public text."""
+        """Drop every id, run and short phrase that also occurs, anywhere in a line, in public text."""
+        if self.tokens:  # an id that is also an open system, document or any public word is not a leak
+            for t in _TOKEN.findall(unicodedata.normalize("NFC", text).casefold()):
+                for x in (t, t.strip(".-"), t.rsplit(".", 1)[0]):
+                    self.tokens.pop(x, None)
         for line in text.splitlines():
             w = _words(line)
             if self.runs and len(w) >= SHINGLE:
@@ -113,31 +118,41 @@ def _outputs(track: str):
     return d.rglob("page-*.md") if d.exists() else []
 
 
-def _public_texts():
-    """Text that is public already: files tracked by Git, open-track labels and model outputs."""
+def _public_texts(problems: list[str]):
+    """Text that is public already: files tracked by Git, open-track labels and model outputs.
+    Anything that cannot be listed or read is reported in problems, never skipped silently."""
     try:
         names = subprocess.run(["git", "-C", str(ROOT), "ls-files", "-z"], capture_output=True, check=True,
-                               timeout=60).stdout.decode("utf-8", "surrogateescape").split("\0")
-    except (OSError, subprocess.SubprocessError):
+                               timeout=300).stdout.decode("utf-8", "surrogateescape").split("\0")
+    except (OSError, subprocess.SubprocessError) as e:
+        problems.append(f"could not list the files tracked by Git ({type(e).__name__}), so public text could not "
+                        "be told apart from closed text; run the check inside the repository with git available")
         names = []
     for name in names:
         f = ROOT / name
-        if name and not name.startswith("data/closed/") and f.suffix in PUBLIC_SUFFIXES and f.is_file() \
-                and f.stat().st_size < 5_000_000:
-            yield f.read_text(encoding="utf-8", errors="replace")
+        if name and not name.startswith("data/closed/") and f.suffix in PUBLIC_SUFFIXES and f.is_file():
+            yield from _read(f, problems, "tracked file")
     for d in load_documents("open"):
         for p in page_statuses(d):
             yield (load_page(d, p) or {}).get("markdown") or ""
     for f in _outputs("open"):
+        yield from _read(f, problems, "open-track output")
+
+
+def _read(f: Path, problems: list[str], what: str):
+    try:
         yield f.read_text(encoding="utf-8", errors="replace")
+    except OSError as e:
+        problems.append(f"could not read the {what} {f} ({type(e).__name__}); the check is incomplete")
 
 
-def _closed_needles() -> Needles:
-    """Everything from the closed track that must never appear. Empty without one on this machine."""
-    n, labelled = Needles(), set()
+def _closed_needles() -> tuple[Needles, list[str]]:
+    """Everything from the closed track that must never appear, and any problem reading it. Empty
+    without a closed track on this machine."""
+    n, labelled, problems = Needles(), set(), []
     docs = load_documents("closed")
     if not docs:
-        return n
+        return n, problems
     for d in docs:
         for what, tok in (("closed document id", d.document_id), ("closed PDF hash", d.sha256)):
             if tok:
@@ -145,7 +160,13 @@ def _closed_needles() -> Needles:
         if d.title and len(_words(d.title)) >= SHORT.start:
             n.add_text(d.title)
         for p in page_statuses(d):
-            if (md := (load_page(d, p) or {}).get("markdown") or "").strip():
+            try:
+                md = (load_page(d, p) or {}).get("markdown") or ""
+            except (OSError, ValueError) as e:
+                problems.append(f"could not read the closed label {d.document_id} page {p} ({type(e).__name__}); "
+                                "the check is incomplete")
+                continue
+            if md.strip():
                 labelled.add((d.document_id, p))
                 n.add_text(md)
     # A model output transcribes the same page as its label, so a leaked output shares its 8-word runs
@@ -154,10 +175,11 @@ def _closed_needles() -> Needles:
     for f in _outputs("closed"):
         m = re.fullmatch(r"page-(\d+)\.md", f.name)
         if m and (f.parent.name, int(m[1])) not in labelled:
-            n.add_text(f.read_text(encoding="utf-8", errors="replace"))
-    for text in _public_texts():
+            for text in _read(f, problems, "closed output"):
+                n.add_text(text)
+    for text in _public_texts(problems):
         n.forget_public(text)
-    return n
+    return n, problems
 
 
 def _published_closed() -> dict[str, dict]:
@@ -278,7 +300,8 @@ def check(folder: Path) -> list[str]:
     if isinstance(board, list):
         ctx["open_systems"] = {r["system"] for r in board if isinstance(r, dict)
                                and isinstance(r.get("system"), str) and r.get("open")}
-    ctx["needles"] = _closed_needles()
+    ctx["needles"], unreadable = _closed_needles()
+    problems += unreadable
     for f in sorted(p for p in folder.rglob("*") if p.is_file()):
         rel = f.relative_to(folder).as_posix()
         try:
