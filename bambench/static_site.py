@@ -47,7 +47,7 @@ def export(out: Path) -> int:
         raise ValueError("choose a separate output folder, for example public")
     out.mkdir(parents=True, exist_ok=True)
     for f in SITE.iterdir():
-        if f.is_file():
+        if f.is_file() and f.suffix in (".html", ".js", ".css"):  # the page itself, nothing else from site/
             shutil.copyfile(f, out / f.name)
 
     board = runner.leaderboard(published_only=True)
@@ -92,6 +92,8 @@ def export(out: Path) -> int:
     # Open-track pairs, a before b in plain string order; the page asks for the sorted pair and swaps sides.
     ids = sorted(r["system"] for r in board if (r.get("open") and page_items("open", r["system"])))
     vdir = api / "versus" / "open"
+    if vdir.is_dir():
+        shutil.rmtree(vdir)  # pairs from an earlier export may name systems that are no longer on the board
     for i, a in enumerate(ids):
         for b in ids[i + 1:]:
             try:
