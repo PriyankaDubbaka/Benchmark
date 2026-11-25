@@ -133,25 +133,30 @@ function classResults(lb, track = "open") {
   const leaders = rows.filter((r) => r[track].scores.overall === top);
   const leader = leaders[0];
   const classes = [];
-  for (const [grp, label] of [["by_kind", (k) => k[0].toUpperCase() + k.slice(1)], ["by_lang", (k) => LB_LANG[k] || k]]) {
+  const cap = (k) => (k ? k[0].toUpperCase() + k.slice(1) : "(no label)");
+  for (const [grp, label] of [["by_kind", cap], ["by_lang", (k) => LB_LANG[k] || cap(k)]]) {
     const keys = [...new Set(rows.flatMap((r) => Object.keys(r[track][grp] || {})))];
     for (const k of keys) {
-      const vals = rows.map((r) => ({ r, v: r[track][grp]?.[k]?.overall, n: r[track][grp]?.[k]?.pages || 0 }))
+      const vals = rows.map((r) => ({ r, v: r[track][grp]?.[k]?.overall, n: r[track][grp]?.[k]?.pages }))
         .filter((x) => ok(x.v)).sort((a, b) => b.v - a.v);
       if (!vals.length) continue;
       const vs = vals.map((x) => x.v), mid = Math.floor(vs.length / 2);
-      const lv = vals.find((x) => x.r === leader);
-      classes.push({ label: label(k), group: grp, pages: Math.max(...vals.map((x) => x.n)), of: vals.length,
+      const lv = leaders.length === 1 ? vals.find((x) => x.r === leader) : null;
+      const known = vals.map((x) => x.n).filter(Number.isFinite);
+      classes.push({ label: label(k), group: grp, pages: known.length ? Math.max(...known) : null, of: vals.length,
         best: vals.filter((x) => x.v === vs[0]), top: vs[0], median: vs.length % 2 ? vs[mid] : (vs[mid - 1] + vs[mid]) / 2,
         lead: lv ? { v: lv.v, rank: rankOf(lv.v, vs) } : null });
     }
   }
-  const big = classes.filter((c) => c.pages >= FEW_PAGES).sort((a, b) => (a.group > b.group) - (a.group < b.group) || b.pages - a.pages);
-  const few = classes.filter((c) => c.pages < FEW_PAGES).sort((a, b) => b.pages - a.pages);
-  const tr = (c, isFew) => `<tr class="${isFew ? "few" : ""}"><th scope="row">${esc(c.label)}</th><td class="num">${fmtN(c.pages)}</td>
+  // A class is compared only when its page count is known, it has enough pages, and two or more systems have a score.
+  const enough = (c) => c.pages !== null && c.pages >= FEW_PAGES && c.of >= 2;
+  const big = classes.filter(enough).sort((a, b) => (a.group > b.group) - (a.group < b.group) || b.pages - a.pages);
+  const few = classes.filter((c) => !enough(c)).sort((a, b) => (b.pages ?? -1) - (a.pages ?? -1));
+  const showLead = leaders.length === 1;
+  const tr = (c, isFew) => `<tr class="${isFew ? "few" : ""}"><th scope="row">${esc(c.label)}</th><td class="num">${c.pages === null ? "—" : fmtN(c.pages)}</td>
     <td>${isFew ? '<span class="small">too few pages to compare</span>' : andList(c.best.map((x) => link(x.r))) + (c.best.length > 1 ? ' <span class="small muted">tie</span>' : "")}</td>
     <td class="num">${pct(c.top)}</td><td class="num" title="Over the ${c.of} systems with a score in this class">${pct(c.median)}</td>
-    <td class="num">${c.lead ? `${pct(c.lead.v)}${isFew ? "" : ` <span class="small muted">${ordinal(c.lead.rank)}</span>`}` : "—"}</td></tr>`;
+    ${showLead ? `<td class="num">${c.lead ? `${pct(c.lead.v)}${isFew ? "" : ` <span class="small muted">${ordinal(c.lead.rank)}</span>`}` : "—"}</td>` : ""}</tr>`;
   const obs = [];
   // The class winner that ranks lowest overall: one average can hide a strong class.
   const spec = big.filter((c) => c.best.length === 1).map((c) => ({ c, rank: rankOf(c.best[0].r[track].scores.overall, overall) }))
@@ -168,12 +173,12 @@ function classResults(lb, track = "open") {
   }
   if (few.length) {
     const list = andList(few.map((c) => esc(c.label.toLowerCase())));
-    obs.push(`${list[0].toUpperCase() + list.slice(1)} ${few.length === 1 ? "has" : "have"} fewer than ${FEW_PAGES} pages, so ${few.length === 1 ? "it is" : "they are"} shown in grey for reference only, without a winner or ranks.`);
+    obs.push(`${list[0].toUpperCase() + list.slice(1)} ${few.every((c) => c.pages !== null && c.pages < FEW_PAGES) ? `${few.length === 1 ? "has" : "have"} fewer than ${FEW_PAGES} pages` : `${few.length === 1 ? "has" : "have"} too few pages, no page count or only one system with a score`}, so ${few.length === 1 ? "it is" : "they are"} shown in grey for reference only, without a winner or ranks.`);
   }
-  const leadHead = leaders.length === 1 ? esc(nm(leader)) : "Overall leader";
+  const leadHead = showLead ? `<th class="num" title="The system with the highest Overall, and its rank in this class">${esc(nm(leader))}</th>` : "";
   return `<h2 id="by-class">Performance by class</h2>
     <p class="lead">The best system changes with the page kind and the language. Scores in percent over all scored pages of each class. Pages is the most pages any system was scored on in that class; the median is over every system with a score in that class.</p>
-    <div class="scroll"><table class="grid classes"><tr><th>Class</th><th class="num">Pages</th><th>Best system</th><th class="num">Best</th><th class="num">Median</th><th class="num" title="The system with the highest Overall, and its rank in this class">${leadHead}</th></tr>
+    <div class="scroll"><table class="grid classes"><tr><th>Class</th><th class="num">Pages</th><th>Best system</th><th class="num">Best</th><th class="num">Median</th>${leadHead}</tr>
       ${big.map((c) => tr(c, false)).join("")}${few.map((c) => tr(c, true)).join("")}</table></div>
     ${obs.length ? `<ul class="obs">${obs.map((o) => `<li>${o}</li>`).join("")}</ul>` : ""}`;
 }
