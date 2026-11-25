@@ -124,14 +124,16 @@ class LeakCheck(unittest.TestCase):
         self.assertTrue(any("page_items" in p for p in self.problems()))
 
     # Closed results must be exactly what export-closed published.
-    PUBLISHED = {"system": "x", "run_id": "r1", "scores": {"overall": 0.8}, "counts": {"pages": 25}, "publishable": True}
+    PUBLISHED = {"system": "x", "track": "closed", "run_id": "r1", "scores": {"overall": 0.8, "e2_table_teds": 0.6},
+                 "counts": {"pages": 25}, "publishable": True}
 
     def publish(self, **kw):
         (self.cleared / "x.json").write_text(json.dumps({**self.PUBLISHED, **kw}))
 
-    def row(self, **kw):
-        res = {k: v for k, v in {**self.PUBLISHED, "track": "closed", **kw}.items() if v is not None and k != "system"}
-        edit_json(self.pub / "api" / "leaderboard.json", lambda d: d.append({"system": "x", "closed": res}))
+    def row(self, system="x", **kw):
+        res = {k: v for k, v in {**self.PUBLISHED, "cost": {"eur_per_1000_pages": 1.0}, "scorer_current": True, **kw}.items()
+               if v is not None}
+        edit_json(self.pub / "api" / "leaderboard.json", lambda d: d.append({"system": system, "closed": res}))
 
     def closed_problems(self):
         return [p for p in self.problems() if "closed" in p]
@@ -150,40 +152,58 @@ class LeakCheck(unittest.TestCase):
         self.row(run_id=None)
         self.assertTrue(self.closed_problems())
 
-    def test_a_closed_result_with_changed_scores_or_pages_fails(self):
-        self.publish()
-        self.row(scores={"overall": 0.99})
-        self.assertTrue(self.closed_problems())
-        self.setUp()
-        self.publish()
-        self.row(counts={"pages": 40})
-        self.assertTrue(self.closed_problems())
+    def test_any_difference_from_the_published_summary_fails(self):
+        for change in ({"scores": {"overall": 0.8}}, {"scores": {"overall": 0.99, "e2_table_teds": 0.6}},
+                       {"counts": {"pages": 40}}, {"publishable": False}, {"by_kind": {"prose": {"pages": 3}}}):
+            with self.subTest(change=change):
+                self.setUp()
+                self.publish()
+                self.row(**change)
+                self.assertTrue(self.closed_problems())
 
     def test_a_published_result_on_too_few_pages_still_fails(self):
         self.publish(counts={"pages": 12})
         self.row(counts={"pages": 12})
         self.assertTrue(self.closed_problems())
 
-    def test_closed_results_at_the_root_in_lists_or_under_closed_keys_are_checked(self):
+    def test_closed_data_outside_the_slots_export_site_fills_fails(self):
         bad = {"track": "closed", "system": "x", "scores": {"overall": 0.8}, "counts": {"pages": 12}, "publishable": True}
         (self.pub / "api" / "about.json").write_text(json.dumps(bad))
-        (self.pub / "api" / "composition.json").write_text(json.dumps([bad]))
-        edit_json(self.pub / "api" / "models.json", lambda d: d.update({"closed_score": {"overall": 0.8}}))
-        self.assertEqual(len(self.closed_problems()), 3, self.problems())
+        (self.pub / "api" / "systems.json").write_text(json.dumps([bad]))
+        edit_json(self.pub / "api" / "documents.json", lambda d: d.append({"closed_score": {"overall": 0.8}}))
+        edit_json(self.pub / "api" / "models.json", lambda d: d.update({"closed": {"agreement": 0.99, "pages": 8}}))
+        self.assertEqual(len(self.closed_problems()), 4, self.problems())
 
-    def test_closed_agreement_needs_twenty_cleared_pages(self):
-        edit_json(self.pub / "api" / "overview.json",
-                  lambda d: d.update({"agreement": {"open": None, "closed": {"pages": 8, "overall": 0.9, "publishable": False}}}))
-        self.assertTrue(self.closed_problems())
-        edit_json(self.pub / "api" / "overview.json",
-                  lambda d: d.update({"agreement": {"open": None, "closed": {"pages": 25, "overall": 0.9, "publishable": True}}}))
-        self.assertEqual(self.problems(), [])
+    def test_closed_counts_agreement_and_composition_must_equal_their_source(self):
+        progress = {"documents": 30, "pages": 400, "pages_checked": 25, "pages_draft": 3,
+                    "composition": {"documents": 30, "by_kind": {"prose": 20}}, "agreement": {"pages": 25, "overall": 0.9, "publishable": True}}
+        with mock.patch("bambench.runner.closed_progress", lambda: progress):
+            edit_json(self.pub / "api" / "overview.json",
+                      lambda d: d.update({"tracks": {**d["tracks"], "closed": progress}, "agreement": {"open": None, "closed": progress["agreement"]}}))
+            edit_json(self.pub / "api" / "composition.json", lambda d: d.update({"closed": progress["composition"]}))
+            self.assertEqual(self.problems(), [])
+            edit_json(self.pub / "api" / "overview.json",
+                      lambda d: d.update({"agreement": {"open": None, "closed": {"pages": 25, "overall": 0.99, "publishable": True}}}))
+            self.assertTrue(any("agreement" in p for p in self.problems()))
+        # Without published counts, any closed agreement is too much.
+        self.assertTrue(any("agreement" in p for p in self.problems()))
+
+    def test_closed_flags_in_models_only_for_published_systems(self):
+        def flag(d):
+            d["systems"][0]["seconds_per_page"]["closed"] = 3.2
+            d["systems"][0]["results"]["closed"] = True
+        edit_json(self.pub / "api" / "models.json", flag)
+        self.assertEqual(len(self.closed_problems()), 2, self.problems())
 
     def test_odd_json_gives_findings_not_crashes(self):
         (self.cleared / "odd.json").write_text("[]")
+        self.publish()
         self.row(counts="unknown")
         self.row(counts={"pages": "25"})
-        self.assertTrue(self.closed_problems())
+        edit_json(self.pub / "api" / "leaderboard.json", lambda d: d.append({"system": ["x"], "open": {"scores": {}}}))
+        edit_json(self.pub / "api" / "documents.json", lambda d: d.append({"document_id": {"nested": 1}}))
+        found = self.problems()
+        self.assertEqual(len([p for p in found if "closed" in p]), 2, found)
 
     # Closed text, where the closed corpus is on the machine.
     def test_closed_text_is_found_through_json_escaping(self):
@@ -213,6 +233,36 @@ class LeakCheck(unittest.TestCase):
         with closed_track(tokens=[("closed document id", "KR-2024-17")]):
             self.assertTrue(any("closed document id" in p for p in site_check.check(self.pub)))
 
+    def test_closed_ids_in_file_names_are_found(self):
+        edit_json(self.pub / "api" / "leaderboard.json",
+                  lambda d: d.extend([{"system": "aaa", "open": {"scores": {}}}, {"system": "report-17", "open": {"scores": {}}}]))
+        pair = self.pub / "api" / "versus" / "open" / "aaa"
+        pair.mkdir(parents=True)
+        (pair / "report-17.json").write_text("{}")
+        with closed_track(tokens=[("closed document id", "report-17")]):
+            self.assertTrue(any("closed document id" in p for p in site_check.check(self.pub)))
+
+    def test_public_text_anywhere_in_a_line_is_not_a_leak(self):
+        n = site_check.Needles()
+        n.add_text("No text was found on this page")
+        n.add_text(CLOSED_LINE)
+        n.forget_public("Model card: No text was found on this page, it says.")
+        self.assertIsNone(n.find(["No text was found on this page"]))
+        self.assertIsNotNone(n.find([CLOSED_LINE]))
+
+    def test_text_in_tracked_files_is_public(self):
+        line = "Text extraction quality of open-weight models on BAM certificates"
+        n = site_check.Needles()
+        n.add_text(line)
+        with mock.patch("bambench.site_check.subprocess.run",
+                        lambda *a, **k: mock.Mock(stdout=b"README.md\0")), \
+                mock.patch("bambench.site_check.load_documents", lambda t: []), \
+                mock.patch("bambench.site_check._outputs", lambda t: []), \
+                mock.patch.object(Path, "read_text", lambda self, **k: "# " + line):
+            for text in site_check._public_texts():
+                n.forget_public(text)
+        self.assertIsNone(n.find([line]))
+
     def test_text_shared_with_the_open_track_is_not_a_leak(self):
         line = "No text was found on this page of the scanned document at all"
         base = Path(tempfile.mkdtemp())
@@ -224,8 +274,9 @@ class LeakCheck(unittest.TestCase):
         doc = mock.Mock(document_id="internal-1", sha256="abc", title="")
         with mock.patch("bambench.site_check.load_documents", lambda t: [doc]), \
                 mock.patch("bambench.site_check.page_statuses", lambda d: {}), \
-                mock.patch("bambench.site_check.run_dir", lambda t: base / t):
-            n = site_check._closed_needles()
+                mock.patch("bambench.site_check.run_dir", lambda t: base / t), \
+                mock.patch("bambench.site_check.subprocess.run", lambda *a, **k: mock.Mock(stdout=b"")):
+            n = site_check._closed_needles()  # no tracked files: this test file itself holds CLOSED_LINE
         self.assertIsNone(n.find([line]))
         self.assertIsNotNone(n.find([CLOSED_LINE]))
         self.assertEqual(n.tokens["internal-1"], "closed document id")
@@ -311,6 +362,8 @@ const { chromium } = require("playwright");
       const r2 = (o, k) => ({ scores: { overall: o }, counts: { pages: 9 }, by_kind: { prose: { pages: 9, overall: k }, "": { pages: 9, overall: k }, nopages: { overall: k } }, by_lang: {} });
       const lb2 = [{ system: "a", card: { name: "A" }, open: r2(0.9, 0.8) }, { system: "b", card: { name: "B" }, open: r2(0.9, 0.5) },
                    { system: "c", card: { name: "C" }, open: { ...r2(0.4, 0.8), by_lang: { de: { pages: 9, overall: 0.7 } } } }];
+      lb2[0].open.by_kind.partial = { pages: 10, overall: 0.7 };
+      lb2[1].open.by_kind.partial = { overall: 0.9 };  // no page count: could be fewer than 5 or other pages
       box.innerHTML = classResults(lb2, "open");
       const edge = {
         heads: [...box.querySelectorAll("table tr:first-child th")].map((th) => th.textContent),
@@ -385,6 +438,8 @@ class HostileModelOutput(unittest.TestCase):
         self.assertEqual(edge["rows"]["Nopages"]["cells"][0], "—")
         self.assertTrue(edge["rows"]["Nopages"]["grey"])
         self.assertTrue(edge["rows"]["German"]["grey"], "only one system has a German score")
+        self.assertTrue(edge["rows"]["Partial"]["grey"], "one system has no page count for this class")
+        self.assertNotIn("B", edge["rows"]["Partial"]["cells"][1])
         self.assertIn("(no label)", edge["rows"])
         self.assertFalse(any("fewer than 5 pages, so" in o for o in edge["obs"]), edge)
 
