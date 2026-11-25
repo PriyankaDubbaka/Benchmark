@@ -76,6 +76,7 @@ async function overview() {
       ${agreeTile(ov.agreement)}
       <div class="tile"><div class="k">Release</div><div class="v">Nov 30</div><div class="s">v0.1, annotated pages frozen before the final runs</div></div>
     </div>
+    ${lb.filter((r) => r.open).length > 1 ? `<h2>Leaders at a glance</h2><p class="lead">Open track, all scored pages. Each tile names the leader and the runner-up. Click a name for the system page.</p>${leaders(lb, "open", "all")}` : ""}
     <h2>Leaderboard, top systems</h2>
     ${lb.length ? `<div class="scroll"><table class="grid"><tr><th>System</th><th class="num">Open overall</th><th class="num">Closed overall</th></tr>${top}</table></div>
       <p class="small"><a href="#/leaderboard">Full leaderboard</a></p>` : `<p class="muted">No results yet. ${STATIC ? "Results appear here once summaries are committed to the repository." : 'Start one under <a href="#/runs">Runs</a>.'}</p>`}
@@ -369,8 +370,6 @@ async function leaderboard() {
       <dt>Pills</dt><dd><span class="pill draft">internal</span> fewer than 20 pages, for internal use only. <span class="pill no">stale</span> scored on fewer pages than are annotated now; it needs a rerun. <span class="pill draft">old scoring</span> scored with an older version of the metrics; <code>bambench rescore</code> updates it with no model run. <span class="pill draft">few pages</span> the view holds fewer than 5 pages.</dd>
       <dt>Cost</dt><dd>Cost is an estimate: the share of one A100 80 GB the system's slice takes (20 GB is a quarter, 40 GB a half, CPU is free) × run time × €${price ?? "?"} per A100 hour. Set BAMBENCH_A100_EUR_PER_HOUR to change the price. Time is measured with the model already loaded, so server start-up is not counted.${all.some((r) => r[track].counts.gold_pages_not_predicted) ? " A row marked stale was scored on fewer pages than are annotated now." : ""}</dd>
     </dl></details>`;
-    const dots = items.map(({ r, p, s }) => ({ name: r.card.name || r.system, sys: r.system, y: p?.scores.overall, x: s.cost?.seconds_per_page }));
-    const speed = speedChart(dots);
     const dated = items.filter((it) => it.p?.scores.overall != null && monthIndex(rel[it.r.system] ?? it.r.card.released) !== null);
     const undated = items.filter((it) => it.p?.scores.overall != null).length - dated.length;
     const prog = progressChart(dated.map((it) => ({ name: it.r.card.name || it.r.system, sys: it.r.system, y: it.p.scores.overall, rel: rel[it.r.system] ?? it.r.card.released, d: monthIndex(rel[it.r.system] ?? it.r.card.released) })));
@@ -383,10 +382,11 @@ async function leaderboard() {
       ${agreeLine(ov?.agreement, track)}
       ${all.length ? `${toolbar}
         <p class="small muted">Showing ${items.length} of ${all.length} ${all.length === 1 ? "system" : "systems"} with a result on this track, sorted by ${esc(metricLabel(lbS.sort))}. ${mod.systems.length} systems are in the benchmark; the others are listed with their status under <a href="#/models">Models</a>.</p>
-        ${items.length ? `<div class="scroll"><table class="grid"><tr><th class="num">#</th><th>System</th>${head}<th class="num">Pages</th><th>Run</th></tr>${body}</table></div>` : `<p class="muted">No system matches these filters.</p>`}
-        ${classResults(rows, track)}
-        ${chartHead("Accuracy against speed", "speed", speed)}${speed}
-        ${chartHead("Progress over time", "progress", prog)}${prog}
+        ${secNav(items.length > 1)}
+        ${items.length ? `<div class="scroll" id="sec-table"><table class="grid"><tr><th class="num">#</th><th>System</th>${head}<th class="num">Pages</th><th>Run</th></tr>${body}</table></div>` : `<p class="muted">No system matches these filters.</p>`}
+        <div id="sec-classes">${classResults(rows, track)}</div>
+        <section id="sec-charts">${lbCharts(items)}</section>
+        <div id="ch-progress">${chartHead("Progress over time", "progress", prog)}</div>${prog}
         ${undated && prog.includes("<svg") ? `<p class="small muted">${undated} system${undated === 1 ? " has" : "s have"} no release date and ${undated === 1 ? "is" : "are"} left out.</p>` : ""}`
         : `<p class="muted">No ${track}-track results yet.</p>`}`;
     $app.querySelectorAll("[data-t]").forEach((b) => (b.onclick = () => { lbTrack = b.dataset.t; store.set("lbTrack", lbTrack); draw(); }));
@@ -408,6 +408,8 @@ async function leaderboard() {
       const svg = $app.querySelector(`svg[data-chart="${b.dataset.png}"]`);
       if (svg) downloadSvgPng(svg, `bambench-${b.dataset.png}-${track}-${todayIso()}.png`).catch((e) => toast(e.message));
     }));
+    wireCharts($app, draw);
+    $app.querySelectorAll("[data-goto]").forEach((b) => (b.onclick = () => document.getElementById(b.dataset.goto)?.scrollIntoView({ behavior: "smooth", block: "start" })));
     if (focus) $app.querySelector(`[data-ctl="${focus}"]`)?.focus();
   };
   draw();
@@ -455,29 +457,10 @@ function placeLabels(dots, boxes, W, L) {
 }
 const shortName = (n) => n.replace(/\s*\(.*\)$/, "");
 
-// Overall score (up) against seconds per page (left is faster), log scale on time. Top left is best.
-function speedChart(points) {
-  const pts = points.filter((p) => p.y !== null && p.y !== undefined && p.x > 0);
-  if (pts.length < 2) return `<p class="small muted">Needs two systems with timed runs.</p>`;
-  const W = 720, H = 360, L = 52, R = 24, T = 16, B = 44;
-  const lo = Math.log10(Math.min(...pts.map((p) => p.x)) / 1.3), hi = Math.log10(Math.max(...pts.map((p) => p.x)) * 1.3);
-  const ymax = Math.min(1, Math.ceil(Math.max(...pts.map((p) => p.y)) * 10 + 0.5) / 10);
-  const X = (x) => L + ((Math.log10(x) - lo) / (hi - lo)) * (W - L - R);
-  const Y = (y) => T + (1 - y / ymax) * (H - T - B);
-  const xt = [1, 2, 5, 10, 20, 50, 100, 200, 500].filter((v) => Math.log10(v) >= lo && Math.log10(v) <= hi);
-  const yt = []; for (let v = 0; v <= ymax + 1e-9; v += 0.1) yt.push(+v.toFixed(1));
-  const grid = yt.map((v) => `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" class="gridline"/><text x="${L - 8}" y="${Y(v) + 4}" text-anchor="end">${Math.round(v * 100)}</text>`).join("")
-    + xt.map((v) => `<text x="${X(v)}" y="${H - B + 18}" text-anchor="middle">${v}</text>`).join("");
-  const order = [...pts].sort((a, b) => b.y - a.y);
-  const boxes = pts.map((p) => ({ x1: X(p.x) - 6, x2: X(p.x) + 6, y1: Y(p.y) - 6, y2: Y(p.y) + 6 }));
-  const picks = placeLabels(order.map((p) => ({ cx: X(p.x), cy: Y(p.y), label: shortName(p.name) })), boxes, W, L);
-  const dots = order.map((p, i) => `<g class="pt" data-sys="${esc(p.sys)}"><title>${esc(p.name)}: ${pct(p.y)} overall, ${p.x.toFixed(1)} s per page</title>
-    <circle cx="${X(p.x)}" cy="${Y(p.y)}" r="5"/><text x="${picks[i][0]}" y="${picks[i][1]}" text-anchor="${picks[i][2]}">${esc(shortName(p.name))}</text></g>`).join("");
-  return `<div class="scroll"><svg class="chart" data-chart="speed" viewBox="0 0 ${W} ${H}" role="img" aria-label="Overall score against seconds per page">
-    ${grid}<line x1="${L}" x2="${W - R}" y1="${Y(0)}" y2="${Y(0)}" class="axis"/>
-    <text x="${(L + W - R) / 2}" y="${H - 6}" text-anchor="middle" class="label">Seconds per page (log scale, faster to the left)</text>
-    <text x="14" y="${(T + H - B) / 2}" text-anchor="middle" class="label" transform="rotate(-90 14 ${(T + H - B) / 2})">Overall</text>
-    ${dots}</svg></div>`;
+// Jump links along the leaderboard, like a table of contents. Buttons, because the hash is the route.
+function secNav(charts) {
+  const to = [["sec-table", "Table"], ["sec-classes", "By class"], ...(charts ? [["ch-value", "Score against cost"], ["ch-bars", "Ranked"], ["ch-size", "Size"], ["ch-progress", "Over time"]] : [])];
+  return `<nav class="secnav" aria-label="Sections">${to.map(([id, l]) => `<button data-goto="${id}">${l}</button>`).join("")}</nav>`;
 }
 
 // Overall score (up) against release month (across), with a step line of the best score so far.

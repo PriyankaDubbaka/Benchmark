@@ -4,6 +4,16 @@ Every change that can move a score, change what is published, or change how a ru
 
 ## Unreleased, towards v0.1 (planned 30 November 2026)
 
+### 25 November 2026
+
+**Dashboard**
+
+- BAM look: Verdana, the BAM petrol, cyan and red, a dark header bar. Verdana ships with Windows and macOS, so the hosted copy still loads no font from outside.
+- The overview opens with leaders at a glance: highest overall, cheapest and fastest within 5 points of the top, best model of 4B or fewer, best on tables, best on German pages. A lead inside the runner-up's 95% range says so.
+- The leaderboard's speed chart becomes score against cost, time or tokens, with the corner above the median score and below the median cost shaded and a line through the systems nothing beats on both. New: systems ranked by one measure, and score against model size. Colour and marker shape show the kind of system: document VLM, general VLM, or pipeline. Each kind can be hidden from the charts.
+- Jump links along the leaderboard, and one tooltip style for every chart, which also shows on keyboard focus.
+- No score, metric or export changes.
+
 ### 22 November 2026
 
 **Systems**
