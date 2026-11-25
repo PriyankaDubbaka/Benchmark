@@ -55,7 +55,7 @@ const trackPill = (t) => `<span class="pill ${t}">${t === "closed" ? "closed · 
 
 // ---------- Overview ----------
 async function overview() {
-  const [ov, lb] = await Promise.all([api("overview"), api("leaderboard")]);
+  const [ov, lb, comp] = await Promise.all([api("overview"), api("leaderboard"), api("composition").catch(() => null)]);
   const tile = (t) => {
     const s = ov.tracks[t], target = TARGETS[t];
     if (!s) return `<div class="tile"><div class="k">${t} track</div><div class="v"><span class="small muted">not shown in this copy</span></div>
@@ -79,8 +79,110 @@ async function overview() {
     <h2>Leaderboard, top systems</h2>
     ${lb.length ? `<div class="scroll"><table class="grid"><tr><th>System</th><th class="num">Open overall</th><th class="num">Closed overall</th></tr>${top}</table></div>
       <p class="small"><a href="#/leaderboard">Full leaderboard</a></p>` : `<p class="muted">No results yet. ${STATIC ? "Results appear here once summaries are committed to the repository." : 'Start one under <a href="#/runs">Runs</a>.'}</p>`}
+    ${classBasis(comp, lb, "open")}
+    ${classResults(lb, "open")}
     <div class="note small">All scores so far use <b>draft</b> labels written by one annotator. They show that the pipeline works; they are not yet benchmark results.</div>
     ${STATIC ? `<div class="note small">This is a read-only copy built ${esc(STATIC.built.replace("T", " ").slice(0, 16))} UTC${STATIC.commit ? ` from commit <code>${esc(STATIC.commit)}</code>` : ""}. It shows the open track, and closed-track scores only where at least 20 pages back them. Annotation, page comparison and model runs happen in the dashboard on the BAM cluster.</div>` : ""}`;
+}
+
+// ---------- Classes ----------
+// What the score is built from, and who wins each page kind and language. Read from the composition
+// counts and the summaries, so both panels follow the data as pages are added.
+const FEW_PAGES = 5; // below this a class is shown for reference, without comparisons
+const ordinal = (n) => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ({ 1: "st", 2: "nd", 3: "rd" }[n % 10] || "th"));
+const fmtN = (x) => Number(x ?? 0).toLocaleString("en-GB");
+const DOC_TYPE_NAME = { certificate: "certificates", "rm-document": "reference material data sheets", report: "reports" };
+const listCounts = (o, name = (k) => k) => Object.entries(o || {}).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1])
+  .map(([k, n]) => `${esc(name(k))} ${fmtN(n)}`).join(", ");
+const andList = (xs) => (xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}` : xs[0] || "");
+// Competition ranking: equal scores share a rank, and the next rank skips (1, 1, 3).
+const rankOf = (v, all) => 1 + all.filter((x) => x > v).length;
+
+function classBasis(comp, lb, track = "open") {
+  const c = comp?.[track];
+  if (!c || !c.labelled) return "";
+  const t = esc(track);
+  const counts = lb.filter((r) => r[track]?.counts).map((r) => r[track].counts)
+    .sort((a, b) => (b.pages || 0) - (a.pages || 0))[0] || {};
+  const has = (k) => Number.isFinite(counts[k]);
+  const parts = [["tables", "tables"], ["formulas", "display formulas"], ["numbers", "printed numbers"]]
+    .filter(([k]) => has(k)).map(([k, l]) => `${fmtN(counts[k])} ${l}`);
+  const content = parts.length && counts.pages
+    ? `Running text, ${andList(parts)}, in the ${fmtN(counts.pages)} scored pages`
+    : "Running text, tables, display formulas and printed numbers";
+  const types = Object.fromEntries(Object.entries(c.by_doc_type || {}).map(([k, v]) => [k, v.documents]));
+  const rows = [
+    ["Document type", `${listCounts(types, (k) => DOC_TYPE_NAME[k] || k)} (${fmtN(c.documents)} documents)`, Object.keys(types).length > 1 ? "Scores cover all types together" : "One type only for now"],
+    ["Page kind", listCounts(c.by_kind) || "not labelled yet", "Set per page by the annotator. Scores are split by it below"],
+    ["Language", (listCounts(c.by_lang, (k) => LB_LANG[k] || k) || "not labelled yet") + " pages", "Scores are split by it below"],
+    ["Content", content, "Text, tables and formulas each count one third of Overall. Numbers are reported beside it, not in it"],
+  ].map(([k, v, u]) => `<tr><th scope="row">${k}</th><td>${v}</td><td class="muted">${u}</td></tr>`).join("");
+  return `<h2 id="classes">Evaluation scope</h2>
+    <p class="lead">The document, page, language and content classes that every score is computed over. The ${t} track holds ${fmtN(c.labelled)} labelled pages from ${fmtN(c.documents)} documents, ${fmtN(c.by_status?.checked || 0)} of them checked.${track === "open" ? " The closed track uses the same classes." : ""}</p>
+    <div class="scroll"><table class="grid classes"><tr><th>Class</th><th>In the ${t} track today</th><th>How it is used</th></tr>${rows}</table></div>`;
+}
+
+function classResults(lb, track = "open") {
+  const ok = (v) => v !== null && v !== undefined;
+  const rows = lb.filter((r) => ok(r[track]?.scores?.overall));
+  if (rows.length < 2) return "";
+  const nm = (r) => r.card?.name || r.system;
+  const link = (r) => `<a href="#/system/${esc(r.system)}">${esc(nm(r))}</a>`;
+  const overall = rows.map((r) => r[track].scores.overall);
+  const top = Math.max(...overall);
+  const leaders = rows.filter((r) => r[track].scores.overall === top);
+  const leader = leaders[0];
+  const classes = [];
+  const cap = (k) => (k ? k[0].toUpperCase() + k.slice(1) : "(no label)");
+  for (const [grp, label] of [["by_kind", cap], ["by_lang", (k) => LB_LANG[k] || cap(k)]]) {
+    const keys = [...new Set(rows.flatMap((r) => Object.keys(r[track][grp] || {})))];
+    for (const k of keys) {
+      const vals = rows.map((r) => ({ r, v: r[track][grp]?.[k]?.overall, n: r[track][grp]?.[k]?.pages }))
+        .filter((x) => ok(x.v)).sort((a, b) => b.v - a.v);
+      if (!vals.length) continue;
+      const vs = vals.map((x) => x.v), mid = Math.floor(vs.length / 2);
+      const lv = leaders.length === 1 ? vals.find((x) => x.r === leader) : null;
+      const known = vals.map((x) => x.n).filter(Number.isFinite);
+      classes.push({ label: label(k), group: grp, pages: known.length ? Math.max(...known) : null, of: vals.length,
+        counted: known.length === vals.length, minPages: known.length ? Math.min(...known) : null,
+        best: vals.filter((x) => x.v === vs[0]), top: vs[0], median: vs.length % 2 ? vs[mid] : (vs[mid - 1] + vs[mid]) / 2,
+        lead: lv ? { v: lv.v, rank: rankOf(lv.v, vs) } : null });
+    }
+  }
+  // A class is compared only when two or more systems have a score, every one of them has a page count,
+  // and each was scored on at least FEW_PAGES pages of it.
+  const enough = (c) => c.of >= 2 && c.counted && c.minPages >= FEW_PAGES;
+  const big = classes.filter(enough).sort((a, b) => (a.group > b.group) - (a.group < b.group) || b.pages - a.pages);
+  const few = classes.filter((c) => !enough(c)).sort((a, b) => (b.pages ?? -1) - (a.pages ?? -1));
+  const showLead = leaders.length === 1;
+  const tr = (c, isFew) => `<tr class="${isFew ? "few" : ""}"><th scope="row">${esc(c.label)}</th><td class="num">${c.pages === null ? "—" : fmtN(c.pages)}</td>
+    <td>${isFew ? '<span class="small">not enough data to compare</span>' : andList(c.best.map((x) => link(x.r))) + (c.best.length > 1 ? ' <span class="small muted">tie</span>' : "")}</td>
+    <td class="num">${pct(c.top)}</td><td class="num" title="Over the ${c.of} systems with a score in this class">${pct(c.median)}</td>
+    ${showLead ? `<td class="num">${c.lead ? `${pct(c.lead.v)}${isFew ? "" : ` <span class="small muted">${ordinal(c.lead.rank)}</span>`}` : "—"}</td>` : ""}</tr>`;
+  const obs = [];
+  // The class winner that ranks lowest overall: one average can hide a strong class.
+  const spec = big.filter((c) => c.best.length === 1).map((c) => ({ c, rank: rankOf(c.best[0].r[track].scores.overall, overall) }))
+    .sort((a, b) => b.rank - a.rank)[0];
+  if (spec && spec.rank > 5) {
+    obs.push(`${esc(nm(spec.c.best[0].r))} is the best system on ${esc(spec.c.label.toLowerCase())} pages but ranks ${ordinal(spec.rank)} of ${rows.length} overall. One average can hide a strong or weak class.`);
+  }
+  const winners = new Set(big.flatMap((c) => c.best.map((x) => x.r.system)));
+  if (big.length > 1) obs.push(`${winners.size} different ${winners.size === 1 ? "system wins" : "systems win"} the ${big.length} classes with ${FEW_PAGES} or more pages.`);
+  if (leaders.length === 1 && big.length && big.every((c) => c.lead)) {
+    const worst = Math.max(...big.map((c) => c.lead.rank));
+    const wins = big.some((c) => c.best.some((x) => x.r === leader));
+    obs.push(`${esc(nm(leader))} leads overall${wins ? "" : " without winning any single class"} and is in the top ${worst} on every class with ${FEW_PAGES} or more pages.`);
+  }
+  if (few.length) {
+    const list = andList(few.map((c) => esc(c.label.toLowerCase())));
+    obs.push(`${list[0].toUpperCase() + list.slice(1)} ${few.every((c) => c.counted && c.pages < FEW_PAGES) ? `${few.length === 1 ? "has" : "have"} fewer than ${FEW_PAGES} pages` : `${few.length === 1 ? "has" : "have"} too few pages, a missing page count or only one system with a score`}, so ${few.length === 1 ? "it is" : "they are"} shown in grey for reference only, without a winner or ranks.`);
+  }
+  const leadHead = showLead ? `<th class="num" title="The system with the highest Overall, and its rank in this class">${esc(nm(leader))}</th>` : "";
+  return `<h2 id="by-class">Performance by class</h2>
+    <p class="lead">The best system changes with the page kind and the language. Scores in percent over all scored pages of each class. Pages is the most pages any system was scored on in that class; the median is over every system with a score in that class.</p>
+    <div class="scroll"><table class="grid classes"><tr><th>Class</th><th class="num">Pages</th><th>Best system</th><th class="num">Best</th><th class="num">Median</th>${leadHead}</tr>
+      ${big.map((c) => tr(c, false)).join("")}${few.map((c) => tr(c, true)).join("")}</table></div>
+    ${obs.length ? `<ul class="obs">${obs.map((o) => `<li>${o}</li>`).join("")}</ul>` : ""}`;
 }
 
 // ---------- Downloads ----------
@@ -282,6 +384,7 @@ async function leaderboard() {
       ${all.length ? `${toolbar}
         <p class="small muted">Showing ${items.length} of ${all.length} ${all.length === 1 ? "system" : "systems"} with a result on this track, sorted by ${esc(metricLabel(lbS.sort))}. ${mod.systems.length} systems are in the benchmark; the others are listed with their status under <a href="#/models">Models</a>.</p>
         ${items.length ? `<div class="scroll"><table class="grid"><tr><th class="num">#</th><th>System</th>${head}<th class="num">Pages</th><th>Run</th></tr>${body}</table></div>` : `<p class="muted">No system matches these filters.</p>`}
+        ${classResults(rows, track)}
         ${chartHead("Accuracy against speed", "speed", speed)}${speed}
         ${chartHead("Progress over time", "progress", prog)}${prog}
         ${undated && prog.includes("<svg") ? `<p class="small muted">${undated} system${undated === 1 ? " has" : "s have"} no release date and ${undated === 1 ? "is" : "are"} left out.</p>` : ""}`

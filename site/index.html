@@ -3,6 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Scripts, data requests and images only from this site. If hostile model output ever slipped
+       past the sanitizer, its inline script would not run, and fetch or image requests to another
+       site are blocked. It does not stop a script that does run from navigating the tab elsewhere,
+       so the sanitizer stays the first line of defence. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>BAM Extraction Benchmark</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="pages.css">
