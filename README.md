@@ -1,4 +1,4 @@
-# BAM Extraction Benchmark (PW2)
+# BAM Extraction Benchmark
 
 How well do local, open-weight systems pull text, tables, formulas and measurement records
 out of BAM technical documents? This repository holds the corpus manifests, reference
