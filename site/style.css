@@ -193,3 +193,7 @@ h3 { font-size: 14px; margin: 18px 0 8px; }
   .lbbar .ctl select { width: 100%; }
   table.kv th { width: 110px; }
 }
+
+/* Classes panels on the overview and leaderboard */
+table.grid.classes th[scope="row"] { color: var(--ink); font-size: 13px; white-space: nowrap; }
+table.grid.classes tr.few th, table.grid.classes tr.few td, table.grid.classes tr.few a { color: var(--muted); }
