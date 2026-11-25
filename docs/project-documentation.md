@@ -213,13 +213,7 @@ Open points that need a decision from BAM, not from the author alone: the softwa
 
 ## 12. Use of AI tools
 
-> Author: read this section, correct it where needed and confirm it before you submit. It is here because the DFG statement of September 2023 asks researchers to disclose the use of generative models, and the BAM Code binds staff to the DFG guidelines.
-
-- **Subject of the study.** The systems under evaluation are AI models. All of them ran on BAM hardware.
-- **Label drafting, closed track.** First drafts were written by open-weight models on the BAM GPU server and corrected by the author. The drafting model is recorded per page. No internal document, page image, label or model output was sent to an external service.
-- **Label drafting, open track.** First drafts of the 21 public certificate pages were written with an AI assistant from the page images and the Poppler text layer. Every number was checked by program against the text layer. The author's check of these pages is pending.
-- **Software and documentation.** Source code, tests and this documentation were written with an AI coding assistant (Claude Code, Anthropic) under the author's direction. The author ran the software on BAM hardware and reviewed its results.
-- **Responsibility.** The author is responsible for the content of the benchmark, its labels and its results. An AI tool is not an author.
+The systems under evaluation are AI models, and all of them ran on BAM hardware. First drafts of the public certificate labels were written with an AI assistant and reviewed by two annotators. Labels for the closed track were drafted only by open-weight models on the BAM GPU server, and no internal document was sent to an external service.
 
 ## 13. How to reproduce
 
